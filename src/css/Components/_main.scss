@@ -1,0 +1,16 @@
+.pantalla{
+  height:90vh;
+  width:100%;
+  display: flex;
+  flex-direction: row;
+  
+}
+.divisor{
+  border: 1px solid black;
+  width: 25%;
+  height: 100%;
+  display:flex;
+  flex-direction: column;
+  justify-content:center;
+  align-items:center;
+}
