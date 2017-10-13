@@ -7,6 +7,8 @@ import * as firebase from 'firebase';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import TextField from 'material-ui/TextField';
 import {Card, CardActions, CardTitle, CardText} from 'material-ui/Card';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 
   const card ={
 	display:'flex',
@@ -29,11 +31,15 @@ class Registro extends React.Component {
             lastname: '',
             password: '',
             admin:'',
-            org: ""
+            org: "",
+            acctype:'false',
+          
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
+          
     }
+    
 	
 	handleChange(e){
         
@@ -50,6 +56,7 @@ class Registro extends React.Component {
 		const lastnametemp= this.state.lastname;
 		const passwordtemp = this.state.password;
 		const orgtemp  = this.state.org;
+		const admin = this.state.acctype ;
 		
 		auth(emailtemp, passwordtemp)
 		.then((userRecord) => {
@@ -57,8 +64,8 @@ class Registro extends React.Component {
 					uid: userRecord.uid ,
 					email: userRecord.email,
 					name: nametemp+" "+lastnametemp ,
-					admin: "true" ,
-					org:"PMProjects Team"
+					admin: admin ,
+					org:""
 				}
 				saveUser(objeto);
 				userRecord.updateProfile({displayName: nametemp+" "+lastnametemp});
@@ -82,13 +89,13 @@ class Registro extends React.Component {
        }
        
        
-        });
+        });  
 
  
 
 	}
 	
-	
+
 	
 	render() {
 	return (<section>
@@ -120,6 +127,11 @@ class Registro extends React.Component {
       
       floatingLabelText="Password" value={this.state.password} onChange={this.handleChange}  name="password"  type="password"
     /><br />
+    
+<select className="selectfield" value={this.state.acctype} onChange={this.handleChange} name="acctype">
+  <option value={false}>Usuario</option>
+  <option value={true}>Administrador</option>
+</select>
         <button className="botoncard">Aceptar</button>
 		</CardActions>
         </Card>

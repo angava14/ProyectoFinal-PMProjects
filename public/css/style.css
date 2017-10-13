@@ -5,7 +5,7 @@
   flex-direction: row; }
 
 .divisor {
-  border: 1px solid black;
+  border: 1px solid #00bcd4;
   width: 25%;
   height: 100%;
   display: flex;
@@ -13,12 +13,24 @@
   justify-content: center;
   align-items: center; }
 
+.iconwrapper {
+  margin-bottom: 100%; }
+
 .login {
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
   margin: 0% 35% 0 35%; }
+
+.selectfield {
+  margin-top: 7%;
+  height: 50px;
+  width: 70%;
+  font-size: medium;
+  display: flex;
+  align-items: center;
+  justify-content: center; }
 
 .cardloginregistro {
   margin-top: 5%; }

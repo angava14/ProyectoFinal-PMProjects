@@ -47,14 +47,25 @@ export function saveUser (user) {
   
 
 export function saveOrg (object) {
-        const messagesRef =firebase.database().ref().child('Organizacion');
+        const messagesRef =firebase.database().ref().child('organizacion');
         const neworg = {
         nombre: object.name,
-        id: object.id,
         descripcion: object.description
         }
         
         messagesRef.push(neworg);
+        alert('Organizacion Creada');
+}
+
+export function savePort (id,object) {
+        const messagesRef =firebase.database().ref().child('organizacion/'+id+"/portafolio");
+        const newport = {
+        nombre: object.name,
+        descripcion: object.description
+        }
+        
+        messagesRef.push(newport);
+        alert('Portafolio Creado');
 }
 
 export function savecomment(id,comment){

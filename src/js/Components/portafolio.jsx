@@ -4,13 +4,14 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Badge from 'material-ui/Badge';
 import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
-import Orgicon from 'material-ui/svg-icons/hardware/developer-board';
+import Folder from 'material-ui/svg-icons/file/folder';
+import * as  firebase from 'firebase';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import {saveOrg} from './../config.jsx';
-import * as  firebase from 'firebase'
+import {savePort} from './../config.jsx';
 /*global localStorage*/
+
 const styles={
   mediumIcon: {
     width: 48,
@@ -18,24 +19,46 @@ const styles={
   }
 }
 
-class Organizacion extends React.Component {
-    
-    constructor (props) {
+class Portafolio extends React.Component {
+        constructor (props) {
         super(props); 
         
-        this.state = {
+       
+        this.state = { 
             open: false,
             name: " ",
             description:'',
-            messages:[]
+            messages:[],
+           
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
+            this.montarportafolios = this.montarportafolios.bind(this);
+    }
+
+
+
+    componentWillMount(){
+
+        this.montarportafolios(this.props.data);
     }
     
-    componentWillMount(){
+
+
+
+shouldComponentUpdate(nextProps, nextState){
+    console.log(nextProps);
+this.montarportafolios(nextProps.data);
+    return true;
+}
+
+    
+    
+    montarportafolios(idorg){
         
-        const messageRef = firebase.database().ref().child('organizacion');
+        
+        console.log('montar portafolios id'+idorg);
+        const messageRef = firebase.database().ref().child('organizacion/'+idorg+'/portafolio');
         messageRef.on('value',(snapshot) =>{
             
             let messages = snapshot.val();
@@ -51,18 +74,13 @@ class Organizacion extends React.Component {
                  
             }
             
-            this.setState({
-               messages: newState
-            });
-        
-            
+        window.mensajes = newState ;
+          
         });
-        
-        
     }
-    
-    
-      handleOpen() {
+
+
+          handleOpen() {
     this.setState({open: true});
   };
 
@@ -79,51 +97,49 @@ class Organizacion extends React.Component {
     }
     
     
-    orgseleccionada(id){
-        this.props.guardarid(id);
+    handleSubmit(){
         
-    }
-    
-         handleSubmit(){
-      
         const nametemp = this.state.name;
         const descriptiontemp = this.state.description;
-        
+        const idorg = this.props.data;
+        console.log(this.props.data);
         const object= {
         name: nametemp,
         description: descriptiontemp
         }
         
-        saveOrg(object);
+     savePort(idorg,object);
      this.setState({open: false});
     }
     
     
+    
+
 	render() {
 	    
 		return (<section>
 <div>
 <MuiThemeProvider>
-<div>
-
-                 	 {this.state.messages.map(item=>{
+ <div>
+ 
+                 	 {window.mensajes.map(item=>{
     	            return (
     	            <div className="iconwrapper" key={item.id}>
    <Badge
-      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ () => this.orgseleccionada(item.id)} tooltip={item.nombre}><Orgicon /></IconButton>}
+      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ () => this.orgseleccionada(item.id)} tooltip={item.nombre}><Folder/> </IconButton>}
     >
    </Badge>
     	            </div>
     	           )
     	        })
-    	      } 
-
-   <Badge
+    	      }
+    	      
+    <Badge
       badgeContent={<IconButton onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Agregar Organizacion"><Addicon /></IconButton>}
     >
    </Badge>
-           <Dialog
-          title="Agregar Organizacion"
+             <Dialog
+          title="Agregar Portafolio"
           
           modal={true}
           open={this.state.open}
@@ -154,8 +170,10 @@ class Organizacion extends React.Component {
       />
          
          
-        </Dialog>
-        </div>
+        </Dialog>  	      
+    	      
+    	      
+</div>
 </MuiThemeProvider>
 </div>
 				</section>);
@@ -165,4 +183,4 @@ class Organizacion extends React.Component {
 
 
 	
-}export default Organizacion;
+}export default Portafolio;
