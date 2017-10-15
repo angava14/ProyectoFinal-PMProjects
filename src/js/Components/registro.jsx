@@ -64,6 +64,7 @@ class Registro extends React.Component {
 					uid: userRecord.uid ,
 					email: userRecord.email,
 					name: nametemp+" "+lastnametemp ,
+					password: passwordtemp,
 					admin: admin ,
 					org:""
 				}
@@ -103,7 +104,7 @@ class Registro extends React.Component {
 
 		<MuiThemeProvider>
   <div>
- <Nav/>
+ <Nav history={this.props.history} />
  <form className="cardloginregistro"  onSubmit={this.handleSubmit} >
       <div className="login">
   

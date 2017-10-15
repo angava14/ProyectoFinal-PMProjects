@@ -34,7 +34,7 @@ class Login extends React.Component {
 		const redirect = this;
 	login(emailtemp, passwordtemp)
 			.then((userRecord) => {
-		redirect.props.history.push({pathname:'/home'})
+		redirect.props.history.push({pathname:'/'})
   
 			})
 			.catch((error) => {
@@ -66,7 +66,7 @@ class Login extends React.Component {
 	
 	render() {
 	return (<section>
-	<Nav/>
+	<Nav  history={this.props.history} />
 <MuiThemeProvider>
 	
 		<form  className="cardloginregistro"  onSubmit={this.handleSubmit} >

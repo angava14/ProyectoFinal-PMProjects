@@ -4,12 +4,12 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Badge from 'material-ui/Badge';
 import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
-import Folder from 'material-ui/svg-icons/file/folder';
+import File from 'material-ui/svg-icons/action/description';
 import * as  firebase from 'firebase';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import {savePort} from './../config.jsx';
+import {saveDoc} from './../config.jsx';
 /*global localStorage*/
 
 const styles={
@@ -19,7 +19,7 @@ const styles={
   }
 }
 
-class Portafolio extends React.Component {
+class Documento extends React.Component {
         constructor (props) {
         super(props); 
         
@@ -33,14 +33,14 @@ class Portafolio extends React.Component {
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
-            this.montarportafolios = this.montarportafolios.bind(this);
+            this.montardocumento = this.montardocumento.bind(this);
     }
 
 
 
     componentWillMount(){
 
-        this.montarportafolios(this.props.data);
+        this.montardocumento(this.props.data, this.props.dataport , this.props.dataproy);
     }
     
 
@@ -48,17 +48,17 @@ class Portafolio extends React.Component {
 
 shouldComponentUpdate(nextProps, nextState){
    
-this.montarportafolios(nextProps.data);
+this.montardocumento(nextProps.data, nextProps.dataport , nextProps.dataproy);
     return true;
 }
 
     
     
-    montarportafolios(idorg){
+    montardocumento(idorg , idport , idproy){
         
         
         
-        const messageRef = firebase.database().ref().child('organizacion/'+idorg+'/portafolio');
+        const messageRef = firebase.database().ref().child('organizacion/'+idorg+'/portafolio/'+idport+'/proyecto/'+idproy+'/documentos');
         messageRef.on('value',(snapshot) =>{
             
             let messages = snapshot.val();
@@ -74,7 +74,7 @@ this.montarportafolios(nextProps.data);
                  
             }
             
-        window.mensajes = newState ;
+        window.documentos = newState ;
           
         });
     }
@@ -102,20 +102,23 @@ this.montarportafolios(nextProps.data);
         const nametemp = this.state.name;
         const descriptiontemp = this.state.description;
         const idorg = this.props.data;
-        console.log(this.props.data);
+        const idport = this.props.dataport ;
+        const idproy = this.props.dataproy ;
         const object= {
         name: nametemp,
         description: descriptiontemp
         }
         
-     savePort(idorg,object);
+     saveDoc(idorg , idport , idproy,object);
      this.setState({open: false , name: '' , description: ''});
     }
     
     
-        portseleccionada(id){
-        this.props.guardarport(id);
-    }
+modificardocumento(id){
+    localStorage.setItem('iddocumento',id);
+    console.log(this.props);
+    this.props.history.push({pathname:'/editardocumento'});
+}
     
 
 	render() {
@@ -125,11 +128,11 @@ this.montarportafolios(nextProps.data);
 <MuiThemeProvider>
  <div>
  
-                 	 {window.mensajes.map(item=>{
+                 	 {window.documentos.map(item=>{
     	            return (
     	            <div className="iconwrapper" key={item.id}>
    <Badge
-      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ () => this.portseleccionada(item.id)} tooltip={item.nombre}><Folder/> </IconButton>}
+      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ ()=> this.modificardocumento(item.id)} tooltip={item.nombre}><File/> </IconButton>}
     >
    </Badge>
     	            </div>
@@ -142,7 +145,7 @@ this.montarportafolios(nextProps.data);
     >
    </Badge>
              <Dialog
-          title="Agregar Portafolio"
+          title="Agregar Documento"
           
           modal={true}
           open={this.state.open}
@@ -186,4 +189,4 @@ this.montarportafolios(nextProps.data);
 
 
 	
-}export default Portafolio;
+}export default Documento;

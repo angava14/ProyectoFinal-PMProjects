@@ -40,7 +40,8 @@ export function saveUser (user) {
       correo: user.email,
       nombre: user.name,
       organizacion: user.org ,
-      admin: user.admin
+      admin: user.admin,
+      password: user.password
     })
     .then(() => user)
 }
@@ -68,9 +69,58 @@ export function savePort (id,object) {
         alert('Portafolio Creado');
 }
 
-export function savecomment(id,comment){
- var ref = firebase.database().ref("post/"+id+"/comentarios");
- ref.push(comment);
+export function saveProy (id,idport,object) {
+        const messagesRef =firebase.database().ref().child('organizacion/'+id+"/portafolio/"+idport+'/proyecto');
+        const newport = {
+        nombre: object.name,
+        descripcion: object.description
+        }
+        
+        messagesRef.push(newport);
+        alert('Proyecto Creado');
+}
+
+export function saveDoc (id,idport,idproy,object) {
+        const messagesRef =firebase.database().ref().child('organizacion/'+id+"/portafolio/"+idport+'/proyecto/'+idproy+"/documentos");
+        const newport = {
+        nombre: object.name,
+        descripcion: object.description
+        }
+        
+        messagesRef.push(newport);
+        alert('Documento Creado');
+}
+
+export function  uploadImage(file,fileName , iduser){
+  console.log('subir');
+        var fileName = file.name;
+        var storageRef = firebase.storage().ref(iduser+'/images/'+fileName);
+        var uploadTask = storageRef.put(file);
+        
+        uploadTask.on('state_changed', function(snapshot){
+            
+            
+        }, function(error){
+            console.log(error)
+        } , function(){
+            var downloadURL = uploadTask.snapshot.downloadURL;
+            
+            const imageRef = firebase.database().ref().child('usuarios/'+iduser+'/avatar');
+            const newImage = {
+                link: downloadURL,
+                name: fileName
+            }
+            
+          imageRef.set(newImage);
+          
+        });
+        
+        
+    }
+
+export function updatepass (id,pass) {
+  
+firebase.database().ref("usuarios/"+id).update({ password: pass });
 }
 
 export function getToken(){

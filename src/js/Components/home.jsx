@@ -2,7 +2,9 @@
 const React = require('react');
 const Navlog = require('./navlog.jsx');
 const Organizacion= require('./organizacion.jsx');
-const Portafolio= require('./portafolio.jsx');
+const Portafolio = require('./portafolio.jsx');
+const Proyecto = require('./proyecto.jsx');
+const Documento = require('./documento.jsx');
 import {getToken} from './../config.jsx';
 import {verify} from './../config.jsx';
 import * as  firebase from 'firebase'
@@ -16,11 +18,16 @@ class Home extends React.Component {
         this.state = {
             auth:"",
             showport:false,
-            id: ''
+            id: '',
+            idport: '',
+            showproy: false,
+            idproy:'',
+            showdoc: false
         }
 
      this.asignarorg = this.asignarorg.bind(this);
-     
+      this.asignarport = this.asignarport.bind(this);
+       this.asignarproy = this.asignarproy.bind(this);
     }
 
 
@@ -35,7 +42,7 @@ padre.setState({ auth: true});
 
   } else {
 padre.setState({ auth: false});
- padre.props.history.push({pathname:'/'})
+ padre.props.history.push({pathname:'/login'})
   }
 });
 
@@ -45,10 +52,18 @@ padre.setState({ auth: false});
 
 
    asignarorg(id){
-       this.setState({id: id , showport:true });
+       this.setState({id: id , showport:true , showproy: false , showdoc:false });
    }
 
+   asignarport(id){
+       
+       this.setState({idport: id , showproy:true , showdoc:false });
+   }
 
+   asignarproy(id){
+       
+       this.setState({idproy: id , showdoc:true });
+   }
 
 	render() {
 
@@ -56,7 +71,7 @@ padre.setState({ auth: false});
 		 if (this.state.auth == true) {    /*  IF */
 	return (
 	<div>
-<Navlog/>
+<Navlog history={this.props.history} />
 <div className="pantalla">
 
 
@@ -69,17 +84,38 @@ padre.setState({ auth: false});
 
   {(this.state.showport)?
 
- <Portafolio   data={this.state.id}/>
+ <Portafolio   data={this.state.id}  guardarport={this.asignarport} />
 :
 
 null
   }
 
  </div>
+ 
+ 
   <div className="divisor">
+  {(this.state.showproy)?
 
+ <Proyecto data={this.state.id} dataport={this.state.idport}  guardarproy={this.asignarproy} />
+:
+
+null
+  }
  </div>
+ 
+ 
+ 
+ 
   <div className="divisor">
+    {(this.state.showdoc)?
+
+ <Documento    data={this.state.id} dataport={this.state.idport} dataproy={this.state.idproy} history={this.props.history} />
+:
+
+null
+  }
+  
+  
 </div>
 
   </div>

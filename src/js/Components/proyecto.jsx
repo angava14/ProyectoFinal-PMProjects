@@ -4,12 +4,12 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Badge from 'material-ui/Badge';
 import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
-import Folder from 'material-ui/svg-icons/file/folder';
+import Proyect from 'material-ui/svg-icons/action/work';
 import * as  firebase from 'firebase';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import {savePort} from './../config.jsx';
+import {saveProy} from './../config.jsx';
 /*global localStorage*/
 
 const styles={
@@ -19,7 +19,7 @@ const styles={
   }
 }
 
-class Portafolio extends React.Component {
+class Proyecto extends React.Component {
         constructor (props) {
         super(props); 
         
@@ -31,34 +31,27 @@ class Portafolio extends React.Component {
             messages:[],
            
         }
-            this.handleChange = this.handleChange.bind(this);
-            this.handleSubmit = this.handleSubmit.bind(this);
-            this.montarportafolios = this.montarportafolios.bind(this);
-    }
-
-
-
-    componentWillMount(){
-
-        this.montarportafolios(this.props.data);
+   this.handleChange = this.handleChange.bind(this);
+   this.handleSubmit = this.handleSubmit.bind(this);
+   this.montarproyecto = this.montarproyecto.bind(this);
     }
     
+    
+    componentWillMount(){
 
-
+        this.montarproyecto(this.props.data , this.props.dataport);
+    }
 
 shouldComponentUpdate(nextProps, nextState){
    
-this.montarportafolios(nextProps.data);
+this.montarproyecto(nextProps.data , nextProps.dataport);
     return true;
 }
 
-    
-    
-    montarportafolios(idorg){
-        
-        
-        
-        const messageRef = firebase.database().ref().child('organizacion/'+idorg+'/portafolio');
+
+    montarproyecto(idorg , idport){
+
+        const messageRef = firebase.database().ref().child('organizacion/'+idorg+'/portafolio/'+idport+'/proyecto');
         messageRef.on('value',(snapshot) =>{
             
             let messages = snapshot.val();
@@ -74,13 +67,13 @@ this.montarportafolios(nextProps.data);
                  
             }
             
-        window.mensajes = newState ;
+        window.proyectos = newState ;
           
         });
     }
-
-
-          handleOpen() {
+    
+    
+              handleOpen() {
     this.setState({open: true});
   };
 
@@ -102,21 +95,20 @@ this.montarportafolios(nextProps.data);
         const nametemp = this.state.name;
         const descriptiontemp = this.state.description;
         const idorg = this.props.data;
-        console.log(this.props.data);
+        const idport = this.props.dataport
         const object= {
         name: nametemp,
         description: descriptiontemp
         }
-        
-     savePort(idorg,object);
+
+     saveProy(idorg,idport,object);
      this.setState({open: false , name: '' , description: ''});
     }
     
     
-        portseleccionada(id){
-        this.props.guardarport(id);
+    proyseleccionada(id){
+        this.props.guardarproy(id);
     }
-    
 
 	render() {
 	    
@@ -125,11 +117,11 @@ this.montarportafolios(nextProps.data);
 <MuiThemeProvider>
  <div>
  
-                 	 {window.mensajes.map(item=>{
+                 	 {window.proyectos.map(item=>{
     	            return (
     	            <div className="iconwrapper" key={item.id}>
    <Badge
-      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ () => this.portseleccionada(item.id)} tooltip={item.nombre}><Folder/> </IconButton>}
+      badgeContent={<IconButton  iconStyle={styles.mediumIcon}  onClick={ () => this.proyseleccionada(item.id)} tooltip={item.nombre}><Proyect/> </IconButton>}
     >
    </Badge>
     	            </div>
@@ -138,11 +130,11 @@ this.montarportafolios(nextProps.data);
     	      }
     	      
     <Badge
-      badgeContent={<IconButton onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Agregar Portafolio"><Addicon /></IconButton>}
+      badgeContent={<IconButton onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Agregar Proyecto"><Addicon /></IconButton>}
     >
    </Badge>
              <Dialog
-          title="Agregar Portafolio"
+          title="Agregar Proyecto"
           
           modal={true}
           open={this.state.open}
@@ -186,4 +178,4 @@ this.montarportafolios(nextProps.data);
 
 
 	
-}export default Portafolio;
+}export default Proyecto;

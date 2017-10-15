@@ -1,4 +1,3 @@
-
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Acerca from 'material-ui/svg-icons/action/help';
@@ -10,7 +9,17 @@ const itemcolor ={
   color: '#FFFFFF'
 }
 class Nav extends React.Component {
-    
+        	    constructor(props) {
+        super(props);
+
+            this.redirect = this.redirect.bind(this);
+    }
+
+redirect(){
+  
+  this.props.history.push({pathname:'/'})
+}
+
 
 	render() {
 	    
@@ -20,8 +29,9 @@ class Nav extends React.Component {
   <AppBar
     title={<span >PMPROJECTS</span>}
     showMenuIconButton={false}
+    onTitleTouchTap={() => this.redirect() }
     iconElementRight={<div >
-    <FlatButton style={itemcolor} label="Iniciar Sesion" href="/" /> <FlatButton style={itemcolor} label="Acerca de" href="/contacto"/>
+    <FlatButton style={itemcolor} label="Iniciar Sesion" href="/login" /> <FlatButton style={itemcolor} label="Acerca de" href="/contacto"/>
     </div>}
   />
 </MuiThemeProvider>
