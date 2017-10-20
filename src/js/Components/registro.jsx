@@ -2,6 +2,7 @@
 const React = require('react');
 const Nav = require('./nav.jsx');
 import {saveUser} from './../config.jsx';
+import {saveUserEnOrg} from './../config.jsx';
 import {auth} from './../config.jsx';
 import * as firebase from 'firebase';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
@@ -28,9 +29,11 @@ class Registro extends React.Component {
         this.state = {
             email: '',
             name: '',
+            orgselected: '',
             lastname: '',
             password: '',
             admin:'',
+            orglist: [] ,
             org: "",
             acctype:'false',
           
@@ -40,6 +43,31 @@ class Registro extends React.Component {
           
     }
     
+	
+	componentWillMount(){
+	    const padre = this;
+	    const messageRef = firebase.database().ref().child('organizacion');
+        messageRef.on('value',(snapshot) =>{
+            
+            let messages = snapshot.val();
+            let newState = [];
+            for (let message in messages){
+
+      newState.push({
+                     id: message,
+                     nombre: messages[message].nombre,
+            });  
+
+                 
+            }
+            
+            padre.setState({
+                orglist: newState
+            });
+            
+        });
+	}
+	
 	
 	handleChange(e){
         
@@ -57,6 +85,7 @@ class Registro extends React.Component {
 		const passwordtemp = this.state.password;
 		const orgtemp  = this.state.org;
 		const admin = this.state.acctype ;
+		const organizacion = this.state.orgselected;
 		
 		auth(emailtemp, passwordtemp)
 		.then((userRecord) => {
@@ -66,12 +95,13 @@ class Registro extends React.Component {
 					name: nametemp+" "+lastnametemp ,
 					password: passwordtemp,
 					admin: admin ,
-					org:""
+					org: organizacion
 				}
 				saveUser(objeto);
+				saveUserEnOrg(organizacion , userRecord , objeto.name);
 				userRecord.updateProfile({displayName: nametemp+" "+lastnametemp});
             alert('Usuario Creado'); 
-            this.props.history.push({pathname:'/home'});
+            this.props.history.push({pathname:'/'});
 			}).catch(function(error) {
 			  var errorCode = error.code;
 			  var errorMessage = error.message;
@@ -133,6 +163,16 @@ class Registro extends React.Component {
   <option value={false}>Usuario</option>
   <option value={true}>Administrador</option>
 </select>
+
+<select  className="selectfield"  value={this.state.orgselected} onChange={this.handleChange} name="orgselected" >
+<option   value="" >Organizacion</option>
+                 	 {this.state.orglist.map(item=>{
+    	         return <option key={item.id}  value={item.id}>{item.nombre}</option> 
+    	        })
+    	      }
+ </select>
+
+
         <button className="botoncard">Aceptar</button>
 		</CardActions>
         </Card>

@@ -46,9 +46,10 @@ class Perfil extends React.Component {
         this.state = {
            	open: false,
            	auth: '',
-        	  id: localStorage.getItem('iduser'),
-        	  idusuarioactivo:'' ,
+        	id: localStorage.getItem('iduser'),
+        	idusuarioactivo: localStorage.getItem('idactivo') ,
             avatar: '',
+            miperfil: true ,
             name:'',
             email:'',
             orgname:'',
@@ -57,7 +58,8 @@ class Perfil extends React.Component {
             confirmpassword: '',
             showchangepic: true,
             showchangepass: true ,
-            admin:''
+            admin:'',
+            mostrar: false ,
         }
             this.handleChange = this.handleChange.bind(this);
             this.getFileName = this.getFileName.bind(this);
@@ -73,7 +75,7 @@ var padre = this;
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     
-padre.setState({ auth: true , idusuarioactivo: user.uid});
+padre.setState({ auth: true });
 
   } else {
 padre.setState({ auth: false});
@@ -81,16 +83,33 @@ padre.setState({ auth: false});
   }
 });
 
-
-      
-          firebase.database().ref().child('usuarios/'+this.state.id).on('value',(snapshot) =>{
+        firebase.database().ref().child('usuarios/'+ this.state.idusuarioactivo).on('value',(snapshot) =>{
             let messages = snapshot.val();
-            
+
+                            /*  Verificacion si es ADMIN O MI LA MISMA PERSONA VIENDO SU PERFIL */
+
+           if ( (messages.admin == 'true') || (padre.state.id == padre.state.idusuarioactivo) ){
+               console.log('true');
+               this.setState({
+               admin: messages.admin,
+               mostrar: true 
+                 }); 
+                 
+           }else{
+           console.log('false');
+            this.setState({
+               admin: messages.admin,
+                 });
+           }
+        });
+      
+          firebase.database().ref().child('usuarios/'+ this.state.id).on('value',(snapshot) =>{
+            let messages = snapshot.val();
+
             this.setState({
                name: messages.nombre ,
                email: messages.correo ,
                orgname: messages.organizacion,
-               admin: messages.admin
             });
             
         });
@@ -108,7 +127,7 @@ padre.setState({ auth: false});
         });
 
 
-
+ 
 
 }
 
@@ -202,6 +221,8 @@ token.reauthenticateWithCredential(credential).then(function() {
     }
 
 
+
+
 	render() {
 	    
 		return (<section>
@@ -222,11 +243,10 @@ token.reauthenticateWithCredential(credential).then(function() {
 <h1>Foto de Perfil</h1>
 <Avatar src={this.state.avatar} size={240} className="avatar" />
 
-{ (this.state.admin || (this.state.id ===this.state.idusuarioactivo)) ?
+{ this.state.mostrar == true ?
+<div>
    <FlatButton style={itemcolor} label="Cambiar Avatar" onClick={ () => this.handleOpen()} backgroundColor="#00bcd4" hoverColor="#006775"/>
-: 
- null
-}
+
  
               <Dialog
           title="Cambiar Avatar"
@@ -240,6 +260,8 @@ token.reauthenticateWithCredential(credential).then(function() {
 <FlatButton style={itemcolor} label="Cancelar" onClick={ () => this.handleClose()}  backgroundColor="#00bcd4" hoverColor="#006775" />
 <FlatButton style={itemcolor} label="Guardar" backgroundColor="#00bcd4" hoverColor="#006775" onClick={ () => this.subirimagen()} />
 </Dialog>
+</div>
+: null }
 
 </div>
 
@@ -279,7 +301,8 @@ token.reauthenticateWithCredential(credential).then(function() {
 </div>
     </Tab>
     
-    { (this.state.admin || (this.state.id ===this.state.idusuarioactivo)) ?
+
+  { this.state.mostrar == true ?     
     <Tab
       icon={<Changepass/>}
       label="Cambiar Contraseña"
@@ -313,7 +336,13 @@ token.reauthenticateWithCredential(credential).then(function() {
 </div>
 
 </Tab>
-: null }
+
+:
+null 
+}
+
+
+
   </Tabs>
 
 

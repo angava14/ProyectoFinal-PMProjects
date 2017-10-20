@@ -10,6 +10,7 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import {saveProy} from './../config.jsx';
+import Snackbar from 'material-ui/Snackbar';
 /*global localStorage*/
 
 const styles={
@@ -17,6 +18,10 @@ const styles={
     width: 48,
     height: 48,
   }
+}
+
+const iconbutton ={
+    padding: 0 
 }
 
 class Proyecto extends React.Component {
@@ -29,11 +34,13 @@ class Proyecto extends React.Component {
             name: " ",
             description:'',
             messages:[],
+            snack: false
            
         }
    this.handleChange = this.handleChange.bind(this);
    this.handleSubmit = this.handleSubmit.bind(this);
    this.montarproyecto = this.montarproyecto.bind(this);
+   this.handleRequestClose = this.handleRequestClose.bind(this);
     }
     
     
@@ -81,6 +88,13 @@ this.montarproyecto(nextProps.data , nextProps.dataport);
     this.setState({open: false , name: '' , description: ''});
   };
   
+        handleRequestClose () {
+          
+    this.setState({
+      snack: false,
+    });
+  }
+  
      handleChange(e){
         e.preventDefault();
         this.setState({
@@ -102,7 +116,7 @@ this.montarproyecto(nextProps.data , nextProps.dataport);
         }
 
      saveProy(idorg,idport,object);
-     this.setState({open: false , name: '' , description: ''});
+     this.setState({open: false , name: '' , description: '' , snack: true});
     }
     
     
@@ -121,20 +135,22 @@ this.montarproyecto(nextProps.data , nextProps.dataport);
     	            return (
     	            <div className="iconwrapper" key={item.id}>
    <Badge
-      badgeContent={<IconButton  iconStyle={styles.mediumIcon}  onClick={ () => this.proyseleccionada(item.id)} tooltip={item.nombre}><Proyect/> </IconButton>}
+      badgeContent={<IconButton style={iconbutton} iconStyle={styles.mediumIcon}  onClick={ () => this.proyseleccionada(item.id)} tooltip={item.nombre}><Proyect/> </IconButton>}
     >
    </Badge>
+   
     	            </div>
     	           )
     	        })
     	      }
     	      
     <Badge
-      badgeContent={<IconButton onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Agregar Proyecto"><Addicon /></IconButton>}
+      badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Proyecto"><Addicon /></IconButton>}
     >
    </Badge>
+   
              <Dialog
-          title="Agregar Proyecto"
+          title="Crear Proyecto"
           
           modal={true}
           open={this.state.open}
@@ -159,14 +175,19 @@ this.montarproyecto(nextProps.data , nextProps.dataport);
         onClick={()=> this.handleClose()}
       />
       <FlatButton
-        label="Submit"
+        label="Aceptar"
         primary={true}
         onClick={()=>this.handleSubmit()}
       />
          
          
         </Dialog>  	      
-    	      
+    	           <Snackbar
+          open={this.state.snack}
+          message="Proyecto Creado"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />   
     	      
 </div>
 </MuiThemeProvider>

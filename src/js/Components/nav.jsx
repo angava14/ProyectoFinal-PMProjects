@@ -8,6 +8,10 @@ import FlatButton from 'material-ui/FlatButton';
 const itemcolor ={
   color: '#FFFFFF'
 }
+const cursor= {
+  cursor: 'pointer'
+}
+
 class Nav extends React.Component {
         	    constructor(props) {
         super(props);
@@ -27,7 +31,7 @@ redirect(){
 <div>
 <MuiThemeProvider>
   <AppBar
-    title={<span >PMPROJECTS</span>}
+    title={<span style={cursor} >PMPROJECTS</span>}
     showMenuIconButton={false}
     onTitleTouchTap={() => this.redirect() }
     iconElementRight={<div >

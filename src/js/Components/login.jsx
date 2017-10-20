@@ -34,6 +34,7 @@ class Login extends React.Component {
 		const redirect = this;
 	login(emailtemp, passwordtemp)
 			.then((userRecord) => {
+				localStorage.setItem('idactivo', userRecord.uid);
 		redirect.props.history.push({pathname:'/'})
   
 			})

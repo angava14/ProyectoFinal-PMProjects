@@ -9,9 +9,14 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import {saveOrg} from './../config.jsx';
+import Snackbar from 'material-ui/Snackbar';
 import * as  firebase from 'firebase'
 /*global localStorage*/
-const styles={
+
+const iconbutton ={
+    padding: 0 
+}
+ var styles={
   mediumIcon: {
     width: 48,
     height: 48,
@@ -27,14 +32,21 @@ class Organizacion extends React.Component {
             open: false,
             name: " ",
             description:'',
-            messages:[]
+            messages:[],
+            idactivo: localStorage.getItem('idactivo'),
+            snack: false
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
+            this.handleRequestClose = this.handleRequestClose.bind(this);
     }
     
     componentWillMount(){
         
+
+          
+            if(this.props.admin == "true") {
+                
         const messageRef = firebase.database().ref().child('organizacion');
         messageRef.on('value',(snapshot) =>{
             
@@ -58,8 +70,34 @@ class Organizacion extends React.Component {
             
         });
         
+    }else{
+       
+        firebase.database().ref().child('usuarios/'+ this.state.idactivo).on('value',(snapshot) =>{
+            let messages = snapshot.val();
+           const orgid = messages.orgid ;
+                   firebase.database().ref().child('organizacion/'+ orgid + '/nombre').on('value',(snapshot) =>{
+            let messages = snapshot.val();
+           let newState = [];
+           
+           newState.push({
+              id: orgid,
+              nombre: messages
+           });
+            
+             this.setState({
+               messages: newState
+            });
+            
+            
+        });  /*    Segundo Query */
+           
+            
+        });  /*  Primer Query  */
+    
+       
+    } /* Else  */
         
-    }
+}
     
     
       handleOpen() {
@@ -79,11 +117,20 @@ class Organizacion extends React.Component {
     }
     
     
+
+    
     orgseleccionada(id){
+        
         this.props.guardarid(id);
         
     }
-    
+     
+      handleRequestClose () {
+          
+    this.setState({
+      snack: false,
+    });
+  }
          handleSubmit(){
       
         const nametemp = this.state.name;
@@ -95,7 +142,7 @@ class Organizacion extends React.Component {
         }
         
         saveOrg(object);
-     this.setState({open: false});
+     this.setState({open: false , name: '' , description: '' , snack: true});
     }
     
     
@@ -108,22 +155,29 @@ class Organizacion extends React.Component {
 
                  	 {this.state.messages.map(item=>{
     	            return (
+    	            
     	            <div className="iconwrapper" key={item.id}>
    <Badge
-      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ () => this.orgseleccionada(item.id)} tooltip={item.nombre}><Orgicon /></IconButton>}
+      
+      badgeContent={<IconButton style={iconbutton}  iconStyle={styles.mediumIcon} onClick={ () => this.orgseleccionada(item.id)} tooltip={item.nombre}><Orgicon /></IconButton>}
     >
    </Badge>
+   
     	            </div>
+    	            
+    	           
     	           )
     	        })
     	      } 
 
    <Badge
-      badgeContent={<IconButton onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Agregar Organizacion"><Addicon /></IconButton>}
+      
+      badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Organizacion"><Addicon /></IconButton>}
     >
    </Badge>
+   
            <Dialog
-          title="Agregar Organizacion"
+          title="Crear Organizacion"
           
           modal={true}
           open={this.state.open}
@@ -148,13 +202,24 @@ class Organizacion extends React.Component {
         onClick={()=> this.handleClose()}
       />
       <FlatButton
-        label="Submit"
+        label="Aceptar"
         primary={true}
         onClick={()=>this.handleSubmit()}
       />
          
          
         </Dialog>
+        
+        
+        <Snackbar
+          open={this.state.snack}
+          message="Organizacion Creada"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+        
+        
+        
         </div>
 </MuiThemeProvider>
 </div>

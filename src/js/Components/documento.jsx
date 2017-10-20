@@ -10,6 +10,7 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import {saveDoc} from './../config.jsx';
+import Snackbar from 'material-ui/Snackbar';
 /*global localStorage*/
 
 const styles={
@@ -17,6 +18,10 @@ const styles={
     width: 48,
     height: 48,
   }
+}
+
+const iconbutton ={
+    padding: 0 
 }
 
 class Documento extends React.Component {
@@ -29,11 +34,13 @@ class Documento extends React.Component {
             name: " ",
             description:'',
             messages:[],
+            snack: false
            
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
             this.montardocumento = this.montardocumento.bind(this);
+            this.handleRequestClose = this.handleRequestClose.bind(this);
     }
 
 
@@ -88,6 +95,13 @@ this.montardocumento(nextProps.data, nextProps.dataport , nextProps.dataproy);
     this.setState({open: false , name: '' , description: ''});
   };
   
+        handleRequestClose () {
+          
+    this.setState({
+      snack: false,
+    });
+  }
+  
      handleChange(e){
         e.preventDefault();
         this.setState({
@@ -110,7 +124,7 @@ this.montardocumento(nextProps.data, nextProps.dataport , nextProps.dataproy);
         }
         
      saveDoc(idorg , idport , idproy,object);
-     this.setState({open: false , name: '' , description: ''});
+     this.setState({open: false , name: '' , description: '' , snack: true});
     }
     
     
@@ -132,20 +146,22 @@ modificardocumento(id){
     	            return (
     	            <div className="iconwrapper" key={item.id}>
    <Badge
-      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ ()=> this.modificardocumento(item.id)} tooltip={item.nombre}><File/> </IconButton>}
+      badgeContent={<IconButton style={iconbutton} iconStyle={styles.mediumIcon} onClick={ ()=> this.modificardocumento(item.id)} tooltip={item.nombre}><File/> </IconButton>}
     >
    </Badge>
+   
     	            </div>
     	           )
     	        })
     	      }
     	      
     <Badge
-      badgeContent={<IconButton onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Agregar Portafolio"><Addicon /></IconButton>}
+      badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Portafolio"><Addicon /></IconButton>}
     >
    </Badge>
+   
              <Dialog
-          title="Agregar Documento"
+          title="Crear Documento"
           
           modal={true}
           open={this.state.open}
@@ -170,14 +186,19 @@ modificardocumento(id){
         onClick={()=> this.handleClose()}
       />
       <FlatButton
-        label="Submit"
+        label="Aceptar"
         primary={true}
         onClick={()=>this.handleSubmit()}
       />
          
          
         </Dialog>  	      
-    	      
+    	            <Snackbar
+          open={this.state.snack}
+          message="Documento Creado"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />  
     	      
 </div>
 </MuiThemeProvider>

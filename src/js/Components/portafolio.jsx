@@ -10,7 +10,12 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import {savePort} from './../config.jsx';
+import Snackbar from 'material-ui/Snackbar';
 /*global localStorage*/
+
+const iconbutton ={
+    padding: 0 
+}
 
 const styles={
   mediumIcon: {
@@ -24,16 +29,20 @@ class Portafolio extends React.Component {
         super(props); 
         
        
+       
         this.state = { 
             open: false,
             name: " ",
             description:'',
             messages:[],
+            snack: false
            
         }
+    
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
             this.montarportafolios = this.montarportafolios.bind(this);
+            this.handleRequestClose = this.handleRequestClose.bind(this);
     }
 
 
@@ -56,8 +65,7 @@ this.montarportafolios(nextProps.data);
     
     montarportafolios(idorg){
         
-        
-        
+
         const messageRef = firebase.database().ref().child('organizacion/'+idorg+'/portafolio');
         messageRef.on('value',(snapshot) =>{
             
@@ -70,11 +78,13 @@ this.montarportafolios(nextProps.data);
                      nombre: messages[message].nombre,
                      descripcion: messages[message].descripcion
             });  
-
+            
+ 
                  
             }
             
-        window.mensajes = newState ;
+     window.mensajes = newState ;
+       
           
         });
     }
@@ -87,6 +97,13 @@ this.montarportafolios(nextProps.data);
   handleClose () {
     this.setState({open: false , name: '' , description: ''});
   };
+  
+        handleRequestClose () {
+          
+    this.setState({
+      snack: false,
+    });
+  }
   
      handleChange(e){
         e.preventDefault();
@@ -109,7 +126,7 @@ this.montarportafolios(nextProps.data);
         }
         
      savePort(idorg,object);
-     this.setState({open: false , name: '' , description: ''});
+     this.setState({open: false , name: '' , description: '' , snack: true});
     }
     
     
@@ -129,20 +146,22 @@ this.montarportafolios(nextProps.data);
     	            return (
     	            <div className="iconwrapper" key={item.id}>
    <Badge
-      badgeContent={<IconButton  iconStyle={styles.mediumIcon} onClick={ () => this.portseleccionada(item.id)} tooltip={item.nombre}><Folder/> </IconButton>}
+      badgeContent={<IconButton  style={iconbutton}  iconStyle={styles.mediumIcon} onClick={ () => this.portseleccionada(item.id)} tooltip={item.nombre}><Folder/> </IconButton>}
     >
    </Badge>
+   
     	            </div>
     	           )
     	        })
     	      }
     	      
     <Badge
-      badgeContent={<IconButton onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Agregar Portafolio"><Addicon /></IconButton>}
+      badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Portafolio"><Addicon /></IconButton>}
     >
    </Badge>
+  
              <Dialog
-          title="Agregar Portafolio"
+          title="Crear Portafolio"
           
           modal={true}
           open={this.state.open}
@@ -167,14 +186,19 @@ this.montarportafolios(nextProps.data);
         onClick={()=> this.handleClose()}
       />
       <FlatButton
-        label="Submit"
+        label="Aceptar"
         primary={true}
         onClick={()=>this.handleSubmit()}
       />
          
          
         </Dialog>  	      
-    	      
+    	<Snackbar
+          open={this.state.snack}
+          message="Portafolio Creado"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />  
     	      
 </div>
 </MuiThemeProvider>

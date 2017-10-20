@@ -12,6 +12,9 @@ import {getToken} from './../config.jsx';
 const itemcolor ={
   color: '#FFFFFF'
 }
+const cursor= {
+  cursor: 'pointer'
+}
 class Navlog extends React.Component {
     
     	    constructor() {
@@ -41,11 +44,10 @@ guardarid(){
 
 	render() {
 	    
-		return (<section>
-<div>
+		return (<header>
 <MuiThemeProvider>
   <AppBar
-    title={<span >PMPROJECTS</span>}
+    title={<span style={cursor} >PMPROJECTS</span>}
     showMenuIconButton={false}
     onTitleTouchTap={() => this.redirect() }
     iconElementRight={<div >
@@ -58,8 +60,7 @@ guardarid(){
     </div>}
   />
 </MuiThemeProvider>
-</div>
-				</section>);
+				</header>);
 	}
 	
 	

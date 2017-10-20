@@ -22,7 +22,8 @@ class Home extends React.Component {
             idport: '',
             showproy: false,
             idproy:'',
-            showdoc: false
+            showdoc: false,
+            admin: ''
         }
 
      this.asignarorg = this.asignarorg.bind(this);
@@ -37,8 +38,19 @@ componentWillMount(){
 
         var padre = this;
 firebase.auth().onAuthStateChanged(function(user) {
+   
   if (user) {
-padre.setState({ auth: true});
+      
+            firebase.database().ref().child('usuarios/'+ user.uid).on('value',(snapshot) =>{
+            let messages = snapshot.val();
+           
+            padre.setState({
+                auth: true,
+               admin: messages.admin,
+            });
+            
+        });
+      
 
   } else {
 padre.setState({ auth: false});
@@ -48,6 +60,9 @@ padre.setState({ auth: false});
 
 
 }
+
+
+
 
 
 
@@ -76,7 +91,7 @@ padre.setState({ auth: false});
 
 
  <div className="divisor">
- <Organizacion   guardarid={this.asignarorg} />
+ <Organizacion   guardarid={this.asignarorg}  admin={this.state.admin} />
  </div>
 
 
