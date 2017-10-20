@@ -78,9 +78,9 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _reactRouterDom = __webpack_require__(622);
+	var _reactRouterDom = __webpack_require__(625);
 
-	var Style = __webpack_require__(659);
+	var Style = __webpack_require__(662);
 
 	_reactDom2['default'].render(_react2['default'].createElement(
 	  _reactRouterDom.BrowserRouter,
@@ -397,6 +397,7 @@
 	}
 
 	function updatepass(id, pass) {
+	  /* NO ES UTILIZADA */
 
 	  firebase.database().ref("usuarios/" + id).update({ password: pass });
 	}
@@ -64013,11 +64014,15 @@
 	            });
 	          });
 	        } else {
+
 	          padre.setState({ auth: false });
 	          padre.props.history.push({ pathname: '/login' });
 	        }
 	      });
 	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {}
 	  }, {
 	    key: 'asignarorg',
 	    value: function asignarorg(id) {
@@ -67701,8 +67706,12 @@
 
 	var _materialUiMenuItem2 = _interopRequireDefault(_materialUiMenuItem);
 
+	var _materialUiSnackbar = __webpack_require__(565);
+
+	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
+
 	var React = __webpack_require__(241);
-	var Nav = __webpack_require__(544);
+	var Navlog = __webpack_require__(554);
 
 	var card = {
 	    display: 'flex',
@@ -67726,37 +67735,64 @@
 	            name: '',
 	            orgselected: '',
 	            lastname: '',
-	            password: '',
 	            admin: '',
 	            orglist: [],
 	            org: "",
-	            acctype: 'false'
+	            acctype: 'false',
+	            snack: false
 
 	        };
 	        this.handleChange = this.handleChange.bind(this);
 	        this.handleSubmit = this.handleSubmit.bind(this);
+	        this.handleRequestClose = this.handleRequestClose.bind(this);
 	    }
 
 	    _createClass(Registro, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
+
 	            var padre = this;
-	            var messageRef = firebase.database().ref().child('organizacion');
-	            messageRef.on('value', function (snapshot) {
+	            firebase.auth().onAuthStateChanged(function (user) {
 
-	                var messages = snapshot.val();
-	                var newState = [];
-	                for (var message in messages) {
+	                if (user) {
 
-	                    newState.push({
-	                        id: message,
-	                        nombre: messages[message].nombre
+	                    firebase.database().ref().child('usuarios/' + user.uid).on('value', function (snapshot) {
+	                        var messages = snapshot.val();
+
+	                        padre.setState({
+	                            auth: true,
+	                            admin: messages.admin,
+	                            orgid: messages.orgid
+	                        });
 	                    });
-	                }
 
-	                padre.setState({
-	                    orglist: newState
-	                });
+	                    if (padre.state.admin == "true") {
+
+	                        var messageRef = firebase.database().ref().child('organizacion');
+	                        messageRef.on('value', function (snapshot) {
+
+	                            var messages = snapshot.val();
+	                            var newState = [];
+	                            for (var message in messages) {
+
+	                                newState.push({
+	                                    id: message,
+	                                    nombre: messages[message].nombre
+	                                });
+	                            }
+
+	                            padre.setState({
+	                                orglist: newState
+	                            });
+	                        });
+	                    } else {
+
+	                        padre.props.history.push({ pathname: '/ ' });
+	                    }
+	                } else {
+	                    padre.setState({ auth: false });
+	                    padre.props.history.push({ pathname: '/login' });
+	                }
 	            });
 	        }
 	    }, {
@@ -67768,13 +67804,12 @@
 	    }, {
 	        key: 'handleSubmit',
 	        value: function handleSubmit(e) {
-	            var _this = this;
-
 	            e.preventDefault();
+	            var padre = this;
 	            var emailtemp = this.state.email;
 	            var nametemp = this.state.name;
 	            var lastnametemp = this.state.lastname;
-	            var passwordtemp = this.state.password;
+	            var passwordtemp = '137946852';
 	            var orgtemp = this.state.org;
 	            var admin = this.state.acctype;
 	            var organizacion = this.state.orgselected;
@@ -67791,8 +67826,12 @@
 	                (0, _configJsx.saveUser)(objeto);
 	                (0, _configJsx.saveUserEnOrg)(organizacion, userRecord, objeto.name);
 	                userRecord.updateProfile({ displayName: nametemp + " " + lastnametemp });
-	                alert('Usuario Creado');
-	                _this.props.history.push({ pathname: '/' });
+
+	                firebase.auth().sendPasswordResetEmail(emailtemp).then(function () {
+	                    localStorage.clear();
+	                    padre.setState({ snack: true });
+	                    padre.props.history.push({ pathname: '/login' });
+	                })['catch'](function (error) {});
 	            })['catch'](function (error) {
 	                var errorCode = error.code;
 	                var errorMessage = error.message;
@@ -67811,6 +67850,14 @@
 	            });
 	        }
 	    }, {
+	        key: 'handleRequestClose',
+	        value: function handleRequestClose() {
+
+	            this.setState({
+	                snack: false
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return React.createElement(
@@ -67822,7 +67869,7 @@
 	                    React.createElement(
 	                        'div',
 	                        null,
-	                        React.createElement(Nav, { history: this.props.history }),
+	                        React.createElement(Navlog, { history: this.props.history }),
 	                        React.createElement(
 	                            'form',
 	                            { className: 'cardloginregistro', onSubmit: this.handleSubmit },
@@ -67848,11 +67895,6 @@
 	                                        React.createElement(_materialUiTextField2['default'], {
 
 	                                            floatingLabelText: 'Correo Electronico', value: this.state.email, onChange: this.handleChange, name: 'email', type: 'mail'
-	                                        }),
-	                                        React.createElement('br', null),
-	                                        React.createElement(_materialUiTextField2['default'], {
-
-	                                            floatingLabelText: 'Password', value: this.state.password, onChange: this.handleChange, name: 'password', type: 'password'
 	                                        }),
 	                                        React.createElement('br', null),
 	                                        React.createElement(
@@ -67891,7 +67933,13 @@
 	                                            'Aceptar'
 	                                        )
 	                                    )
-	                                )
+	                                ),
+	                                React.createElement(_materialUiSnackbar2['default'], {
+	                                    open: this.state.snack,
+	                                    message: 'Organizacion Creada',
+	                                    autoHideDuration: 2000,
+	                                    onRequestClose: this.handleRequestClose
+	                                })
 	                            )
 	                        )
 	                    )
@@ -73021,7 +73069,6 @@
 
 	          token.updatePassword(newpass).then(function () {
 
-	            (0, _configJsx.updatepass)(padre.state.id, newpass);
 	            alert('Contraseña actualizada - Ingrese nuevamente');
 	            (0, _configJsx.logout)();
 	            localStorage.clear();
@@ -74060,7 +74107,7 @@
 
 	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
 
-	var _materialUiSvgIconsNavigationArrowDropDownCircle = __webpack_require__(660);
+	var _materialUiSvgIconsNavigationArrowDropDownCircle = __webpack_require__(609);
 
 	var _materialUiSvgIconsNavigationArrowDropDownCircle2 = _interopRequireDefault(_materialUiSvgIconsNavigationArrowDropDownCircle);
 
@@ -74084,11 +74131,11 @@
 
 	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
 
-	var _materialUiIconMenu = __webpack_require__(661);
+	var _materialUiIconMenu = __webpack_require__(610);
 
 	var _materialUiIconMenu2 = _interopRequireDefault(_materialUiIconMenu);
 
-	var _materialUiTable = __webpack_require__(609);
+	var _materialUiTable = __webpack_require__(612);
 
 	var React = __webpack_require__(241);
 	var Navlog = __webpack_require__(554);
@@ -74354,7 +74401,6 @@
 	                                                    onChange: _this.menu,
 	                                                    value: _this.state.menu
 	                                                },
-	                                                React.createElement(_materialUiMenuItem2['default'], { value: 1, primaryText: 'Menu' }),
 	                                                React.createElement(_materialUiMenuItem2['default'], { value: 2, primaryText: 'Ver Perfil', onClick: function () {
 	                                                        return _this.verperfil(item.uid);
 	                                                    } }),
@@ -74390,33 +74436,516 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _react = __webpack_require__(241);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _pure = __webpack_require__(508);
+
+	var _pure2 = _interopRequireDefault(_pure);
+
+	var _SvgIcon = __webpack_require__(514);
+
+	var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NavigationArrowDropDownCircle = function NavigationArrowDropDownCircle(props) {
+	  return _react2.default.createElement(
+	    _SvgIcon2.default,
+	    props,
+	    _react2.default.createElement('path', { d: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 12l-4-4h8l-4 4z' })
+	  );
+	};
+	NavigationArrowDropDownCircle = (0, _pure2.default)(NavigationArrowDropDownCircle);
+	NavigationArrowDropDownCircle.displayName = 'NavigationArrowDropDownCircle';
+	NavigationArrowDropDownCircle.muiName = 'SvgIcon';
+
+	exports.default = NavigationArrowDropDownCircle;
+
+/***/ }),
+/* 610 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = exports.MenuItem = exports.IconMenu = undefined;
+
+	var _IconMenu2 = __webpack_require__(611);
+
+	var _IconMenu3 = _interopRequireDefault(_IconMenu2);
+
+	var _MenuItem2 = __webpack_require__(593);
+
+	var _MenuItem3 = _interopRequireDefault(_MenuItem2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.IconMenu = _IconMenu3.default;
+	exports.MenuItem = _MenuItem3.default;
+	exports.default = _IconMenu3.default;
+
+/***/ }),
+/* 611 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _extends2 = __webpack_require__(338);
+
+	var _extends3 = _interopRequireDefault(_extends2);
+
+	var _objectWithoutProperties2 = __webpack_require__(343);
+
+	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
+
+	var _getPrototypeOf = __webpack_require__(156);
+
+	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+	var _classCallCheck2 = __webpack_require__(182);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _createClass2 = __webpack_require__(183);
+
+	var _createClass3 = _interopRequireDefault(_createClass2);
+
+	var _possibleConstructorReturn2 = __webpack_require__(187);
+
+	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+	var _inherits2 = __webpack_require__(233);
+
+	var _inherits3 = _interopRequireDefault(_inherits2);
+
+	var _simpleAssign = __webpack_require__(344);
+
+	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
+
+	var _react = __webpack_require__(241);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _propTypes = __webpack_require__(276);
+
+	var _propTypes2 = _interopRequireDefault(_propTypes);
+
+	var _reactDom = __webpack_require__(345);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _events = __webpack_require__(520);
+
+	var _events2 = _interopRequireDefault(_events);
+
+	var _propTypes3 = __webpack_require__(505);
+
+	var _propTypes4 = _interopRequireDefault(_propTypes3);
+
+	var _Menu = __webpack_require__(582);
+
+	var _Menu2 = _interopRequireDefault(_Menu);
+
+	var _Popover = __webpack_require__(589);
+
+	var _Popover2 = _interopRequireDefault(_Popover);
+
+	var _warning = __webpack_require__(292);
+
+	var _warning2 = _interopRequireDefault(_warning);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var IconMenu = function (_Component) {
+	  (0, _inherits3.default)(IconMenu, _Component);
+
+	  function IconMenu() {
+	    var _ref;
+
+	    var _temp, _this, _ret;
+
+	    (0, _classCallCheck3.default)(this, IconMenu);
+
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    return _ret = (_temp = (_this = (0, _possibleConstructorReturn3.default)(this, (_ref = IconMenu.__proto__ || (0, _getPrototypeOf2.default)(IconMenu)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+	      menuInitiallyKeyboardFocused: false,
+	      open: false
+	    }, _this.handleItemTouchTap = function (event, child) {
+	      if (_this.props.touchTapCloseDelay !== 0 && !child.props.hasOwnProperty('menuItems')) {
+	        var isKeyboard = _events2.default.isKeyboard(event);
+	        _this.timerCloseId = setTimeout(function () {
+	          _this.close(isKeyboard ? 'enter' : 'itemTap', isKeyboard);
+	        }, _this.props.touchTapCloseDelay);
+	      }
+
+	      _this.props.onItemTouchTap(event, child);
+	    }, _this.handleRequestClose = function (reason) {
+	      _this.close(reason);
+	    }, _this.handleEscKeyDownMenu = function (event) {
+	      _this.close('escape', event);
+	    }, _temp), (0, _possibleConstructorReturn3.default)(_this, _ret);
+	  }
+
+	  (0, _createClass3.default)(IconMenu, [{
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      if (nextProps.open != null) {
+	        this.setState({
+	          open: nextProps.open,
+	          anchorEl: this.refs.iconMenuContainer
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      clearTimeout(this.timerCloseId);
+	    }
+	  }, {
+	    key: 'isOpen',
+	    value: function isOpen() {
+	      return this.state.open;
+	    }
+	  }, {
+	    key: 'close',
+	    value: function close(reason, isKeyboard) {
+	      var _this2 = this;
+
+	      if (!this.state.open) {
+	        return;
+	      }
+
+	      if (this.props.open !== null) {
+	        this.props.onRequestChange(false, reason);
+	      } else {
+	        this.setState({ open: false }, function () {
+	          // Set focus on the icon button when the menu close
+	          if (isKeyboard) {
+	            var iconButton = _this2.refs.iconButton;
+	            _reactDom2.default.findDOMNode(iconButton).focus();
+	            iconButton.setKeyboardFocus();
+	          }
+	        });
+	      }
+	    }
+	  }, {
+	    key: 'open',
+	    value: function open(reason, event) {
+	      if (this.props.open !== null) {
+	        this.props.onRequestChange(true, reason);
+
+	        return this.setState({
+	          menuInitiallyKeyboardFocused: _events2.default.isKeyboard(event),
+	          anchorEl: event.currentTarget
+	        });
+	      }
+
+	      this.setState({
+	        open: true,
+	        menuInitiallyKeyboardFocused: _events2.default.isKeyboard(event),
+	        anchorEl: event.currentTarget
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this3 = this;
+
+	      var _props = this.props,
+	          anchorOrigin = _props.anchorOrigin,
+	          className = _props.className,
+	          animated = _props.animated,
+	          animation = _props.animation,
+	          iconButtonElement = _props.iconButtonElement,
+	          iconStyle = _props.iconStyle,
+	          onItemTouchTap = _props.onItemTouchTap,
+	          onKeyboardFocus = _props.onKeyboardFocus,
+	          onMouseDown = _props.onMouseDown,
+	          onMouseLeave = _props.onMouseLeave,
+	          onMouseEnter = _props.onMouseEnter,
+	          onMouseUp = _props.onMouseUp,
+	          onRequestChange = _props.onRequestChange,
+	          onClick = _props.onClick,
+	          listStyle = _props.listStyle,
+	          menuStyle = _props.menuStyle,
+	          style = _props.style,
+	          targetOrigin = _props.targetOrigin,
+	          touchTapCloseDelay = _props.touchTapCloseDelay,
+	          useLayerForClickAway = _props.useLayerForClickAway,
+	          other = (0, _objectWithoutProperties3.default)(_props, ['anchorOrigin', 'className', 'animated', 'animation', 'iconButtonElement', 'iconStyle', 'onItemTouchTap', 'onKeyboardFocus', 'onMouseDown', 'onMouseLeave', 'onMouseEnter', 'onMouseUp', 'onRequestChange', 'onClick', 'listStyle', 'menuStyle', 'style', 'targetOrigin', 'touchTapCloseDelay', 'useLayerForClickAway']);
+	      var prepareStyles = this.context.muiTheme.prepareStyles;
+	      var _state = this.state,
+	          open = _state.open,
+	          anchorEl = _state.anchorEl;
+
+
+	      var styles = {
+	        root: {
+	          display: 'inline-block',
+	          position: 'relative'
+	        },
+	        menu: {
+	          position: 'relative'
+	        }
+	      };
+
+	      var mergedRootStyles = (0, _simpleAssign2.default)(styles.root, style);
+	      var mergedMenuStyles = (0, _simpleAssign2.default)(styles.menu, menuStyle);
+
+	      process.env.NODE_ENV !== "production" ? (0, _warning2.default)(iconButtonElement.type.muiName !== 'SvgIcon', 'Material-UI: You shoud not provide an <SvgIcon /> to the \'iconButtonElement\' property of <IconMenu />.\nYou should wrapped it with an <IconButton />.') : void 0;
+
+	      var iconButtonProps = {
+	        onKeyboardFocus: onKeyboardFocus,
+	        onClick: function onClick(event) {
+	          _this3.open(_events2.default.isKeyboard(event) ? 'keyboard' : 'iconTap', event);
+	          if (iconButtonElement.props.onClick) {
+	            iconButtonElement.props.onClick(event);
+	          }
+	        },
+	        ref: 'iconButton'
+	      };
+	      if (iconStyle || iconButtonElement.props.iconStyle) {
+	        iconButtonProps.iconStyle = iconStyle ? (0, _simpleAssign2.default)({}, iconStyle, iconButtonElement.props.iconStyle) : iconButtonElement.props.iconStyle;
+	      }
+	      var iconButton = _react2.default.cloneElement(iconButtonElement, iconButtonProps);
+
+	      var menu = _react2.default.createElement(
+	        _Menu2.default,
+	        (0, _extends3.default)({}, other, {
+	          initiallyKeyboardFocused: this.state.menuInitiallyKeyboardFocused,
+	          onEscKeyDown: this.handleEscKeyDownMenu,
+	          onItemTouchTap: this.handleItemTouchTap,
+	          style: mergedMenuStyles,
+	          listStyle: listStyle
+	        }),
+	        this.props.children
+	      );
+
+	      return _react2.default.createElement(
+	        'div',
+	        {
+	          ref: 'iconMenuContainer',
+	          className: className,
+	          onMouseDown: onMouseDown,
+	          onMouseLeave: onMouseLeave,
+	          onMouseEnter: onMouseEnter,
+	          onMouseUp: onMouseUp,
+	          onClick: onClick,
+	          style: prepareStyles(mergedRootStyles)
+	        },
+	        iconButton,
+	        _react2.default.createElement(
+	          _Popover2.default,
+	          {
+	            anchorOrigin: anchorOrigin,
+	            targetOrigin: targetOrigin,
+	            open: open,
+	            anchorEl: anchorEl,
+	            childContextTypes: this.constructor.childContextTypes,
+	            useLayerForClickAway: useLayerForClickAway,
+	            onRequestClose: this.handleRequestClose,
+	            animated: animated,
+	            animation: animation,
+	            context: this.context
+	          },
+	          menu
+	        )
+	      );
+	    }
+	  }]);
+	  return IconMenu;
+	}(_react.Component);
+
+	IconMenu.muiName = 'IconMenu';
+	IconMenu.defaultProps = {
+	  anchorOrigin: {
+	    vertical: 'top',
+	    horizontal: 'left'
+	  },
+	  animated: true,
+	  multiple: false,
+	  open: null,
+	  onItemTouchTap: function onItemTouchTap() {},
+	  onKeyboardFocus: function onKeyboardFocus() {},
+	  onMouseDown: function onMouseDown() {},
+	  onMouseLeave: function onMouseLeave() {},
+	  onMouseEnter: function onMouseEnter() {},
+	  onMouseUp: function onMouseUp() {},
+	  onRequestChange: function onRequestChange() {},
+	  onClick: function onClick() {},
+	  targetOrigin: {
+	    vertical: 'top',
+	    horizontal: 'left'
+	  },
+	  touchTapCloseDelay: 200,
+	  useLayerForClickAway: false
+	};
+	IconMenu.contextTypes = {
+	  muiTheme: _propTypes2.default.object.isRequired
+	};
+	IconMenu.propTypes = process.env.NODE_ENV !== "production" ? {
+	  /**
+	   * This is the point on the icon where the menu
+	   * `targetOrigin` will attach.
+	   * Options:
+	   * vertical: [top, center, bottom]
+	   * horizontal: [left, middle, right].
+	   */
+	  anchorOrigin: _propTypes4.default.origin,
+	  /**
+	   * If true, the popover will apply transitions when
+	   * it gets added to the DOM.
+	   */
+	  animated: _propTypes2.default.bool,
+	  /**
+	   * Override the default animation component used.
+	   */
+	  animation: _propTypes2.default.func,
+	  /**
+	   * Should be used to pass `MenuItem` components.
+	   */
+	  children: _propTypes2.default.node,
+	  /**
+	   * The CSS class name of the root element.
+	   */
+	  className: _propTypes2.default.string,
+	  /**
+	   * This is the `IconButton` to render. This button will open the menu.
+	   */
+	  iconButtonElement: _propTypes2.default.element.isRequired,
+	  /**
+	   * Override the inline-styles of the underlying icon element.
+	   */
+	  iconStyle: _propTypes2.default.object,
+	  /**
+	   * Override the inline-styles of the underlying `List` element.
+	   */
+	  listStyle: _propTypes2.default.object,
+	  /**
+	   * Override the inline-styles of the menu element.
+	   */
+	  menuStyle: _propTypes2.default.object,
+	  /**
+	   * If true, the value can an be array and allow the menu to be a multi-select.
+	   */
+	  multiple: _propTypes2.default.bool,
+	  /**
+	   * Callback function fired when the `IconButton` element is touch-tapped.
+	   *
+	   * @param {object} event TouchTap event targeting the `IconButton` element.
+	   */
+	  onClick: _propTypes2.default.func,
+	  /**
+	   * Callback function fired when a menu item is selected with a touch-tap.
+	   *
+	   * @param {object} event TouchTap event targeting the selected menu item element.
+	   * @param {object} child The selected element.
+	   */
+	  onItemTouchTap: _propTypes2.default.func,
+	  /**
+	   * Callback function fired when the `IconButton` element is focused or blurred by the keyboard.
+	   *
+	   * @param {object} event `focus` or `blur` event targeting the `IconButton` element.
+	   * @param {boolean} keyboardFocused If true, the `IconButton` element is focused.
+	   */
+	  onKeyboardFocus: _propTypes2.default.func,
+	  /** @ignore */
+	  onMouseDown: _propTypes2.default.func,
+	  /** @ignore */
+	  onMouseEnter: _propTypes2.default.func,
+	  /** @ignore */
+	  onMouseLeave: _propTypes2.default.func,
+	  /** @ignore */
+	  onMouseUp: _propTypes2.default.func,
+	  /**
+	   * Callback function fired when the `open` state of the menu is requested to be changed.
+	   *
+	   * @param {boolean} open If true, the menu was requested to be opened.
+	   * @param {string} reason The reason for the open or close request. Possible values are
+	   * 'keyboard' and 'iconTap' for open requests; 'enter', 'escape', 'itemTap', and 'clickAway'
+	   * for close requests.
+	   */
+	  onRequestChange: _propTypes2.default.func,
+	  /**
+	   * If true, the `IconMenu` is opened.
+	   */
+	  open: _propTypes2.default.bool,
+	  /**
+	   * Override the inline-styles of the root element.
+	   */
+	  style: _propTypes2.default.object,
+	  /**
+	   * This is the point on the menu which will stick to the menu
+	   * origin.
+	   * Options:
+	   * vertical: [top, center, bottom]
+	   * horizontal: [left, middle, right].
+	   */
+	  targetOrigin: _propTypes4.default.origin,
+	  /**
+	   * Sets the delay in milliseconds before closing the
+	   * menu when an item is clicked.
+	   * If set to 0 then the auto close functionality
+	   * will be disabled.
+	   */
+	  touchTapCloseDelay: _propTypes2.default.number,
+	  /**
+	   * If true, the popover will render on top of an invisible
+	   * layer, which will prevent clicks to the underlying elements.
+	   */
+	  useLayerForClickAway: _propTypes2.default.bool
+	} : {};
+	exports.default = IconMenu;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
+
+/***/ }),
+/* 612 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.default = exports.TableRowColumn = exports.TableRow = exports.TableHeaderColumn = exports.TableHeader = exports.TableFooter = exports.TableBody = exports.Table = undefined;
 
-	var _Table2 = __webpack_require__(610);
+	var _Table2 = __webpack_require__(613);
 
 	var _Table3 = _interopRequireDefault(_Table2);
 
-	var _TableBody2 = __webpack_require__(611);
+	var _TableBody2 = __webpack_require__(614);
 
 	var _TableBody3 = _interopRequireDefault(_TableBody2);
 
-	var _TableFooter2 = __webpack_require__(618);
+	var _TableFooter2 = __webpack_require__(621);
 
 	var _TableFooter3 = _interopRequireDefault(_TableFooter2);
 
-	var _TableHeader2 = __webpack_require__(619);
+	var _TableHeader2 = __webpack_require__(622);
 
 	var _TableHeader3 = _interopRequireDefault(_TableHeader2);
 
-	var _TableHeaderColumn2 = __webpack_require__(620);
+	var _TableHeaderColumn2 = __webpack_require__(623);
 
 	var _TableHeaderColumn3 = _interopRequireDefault(_TableHeaderColumn2);
 
-	var _TableRow2 = __webpack_require__(621);
+	var _TableRow2 = __webpack_require__(624);
 
 	var _TableRow3 = _interopRequireDefault(_TableRow2);
 
-	var _TableRowColumn2 = __webpack_require__(617);
+	var _TableRowColumn2 = __webpack_require__(620);
 
 	var _TableRowColumn3 = _interopRequireDefault(_TableRowColumn2);
 
@@ -74432,7 +74961,7 @@
 	exports.default = _Table3.default;
 
 /***/ }),
-/* 610 */
+/* 613 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -74814,7 +75343,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 611 */
+/* 614 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -74871,11 +75400,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _Checkbox = __webpack_require__(612);
+	var _Checkbox = __webpack_require__(615);
 
 	var _Checkbox2 = _interopRequireDefault(_Checkbox);
 
-	var _TableRowColumn = __webpack_require__(617);
+	var _TableRowColumn = __webpack_require__(620);
 
 	var _TableRowColumn2 = _interopRequireDefault(_TableRowColumn);
 
@@ -75361,7 +75890,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 612 */
+/* 615 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -75371,7 +75900,7 @@
 	});
 	exports.default = undefined;
 
-	var _Checkbox = __webpack_require__(613);
+	var _Checkbox = __webpack_require__(616);
 
 	var _Checkbox2 = _interopRequireDefault(_Checkbox);
 
@@ -75380,7 +75909,7 @@
 	exports.default = _Checkbox2.default;
 
 /***/ }),
-/* 613 */
+/* 616 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -75429,7 +75958,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _EnhancedSwitch = __webpack_require__(614);
+	var _EnhancedSwitch = __webpack_require__(617);
 
 	var _EnhancedSwitch2 = _interopRequireDefault(_EnhancedSwitch);
 
@@ -75437,11 +75966,11 @@
 
 	var _transitions2 = _interopRequireDefault(_transitions);
 
-	var _checkBoxOutlineBlank = __webpack_require__(615);
+	var _checkBoxOutlineBlank = __webpack_require__(618);
 
 	var _checkBoxOutlineBlank2 = _interopRequireDefault(_checkBoxOutlineBlank);
 
-	var _checkBox = __webpack_require__(616);
+	var _checkBox = __webpack_require__(619);
 
 	var _checkBox2 = _interopRequireDefault(_checkBox);
 
@@ -75680,7 +76209,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 614 */
+/* 617 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -76150,7 +76679,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 615 */
+/* 618 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -76187,7 +76716,7 @@
 	exports.default = ToggleCheckBoxOutlineBlank;
 
 /***/ }),
-/* 616 */
+/* 619 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -76224,7 +76753,7 @@
 	exports.default = ToggleCheckBox;
 
 /***/ }),
-/* 617 */
+/* 620 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -76413,7 +76942,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 618 */
+/* 621 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -76466,7 +76995,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _TableRowColumn = __webpack_require__(617);
+	var _TableRowColumn = __webpack_require__(620);
 
 	var _TableRowColumn2 = _interopRequireDefault(_TableRowColumn);
 
@@ -76573,7 +77102,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 619 */
+/* 622 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -76614,11 +77143,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _Checkbox = __webpack_require__(612);
+	var _Checkbox = __webpack_require__(615);
 
 	var _Checkbox2 = _interopRequireDefault(_Checkbox);
 
-	var _TableHeaderColumn = __webpack_require__(620);
+	var _TableHeaderColumn = __webpack_require__(623);
 
 	var _TableHeaderColumn2 = _interopRequireDefault(_TableHeaderColumn);
 
@@ -76837,7 +77366,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 620 */
+/* 623 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -77045,7 +77574,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 621 */
+/* 624 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -77334,7 +77863,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 622 */
+/* 625 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -77342,55 +77871,55 @@
 	exports.__esModule = true;
 	exports.withRouter = exports.matchPath = exports.Switch = exports.StaticRouter = exports.Router = exports.Route = exports.Redirect = exports.Prompt = exports.NavLink = exports.MemoryRouter = exports.Link = exports.HashRouter = exports.BrowserRouter = undefined;
 
-	var _BrowserRouter2 = __webpack_require__(623);
+	var _BrowserRouter2 = __webpack_require__(626);
 
 	var _BrowserRouter3 = _interopRequireDefault(_BrowserRouter2);
 
-	var _HashRouter2 = __webpack_require__(634);
+	var _HashRouter2 = __webpack_require__(637);
 
 	var _HashRouter3 = _interopRequireDefault(_HashRouter2);
 
-	var _Link2 = __webpack_require__(636);
+	var _Link2 = __webpack_require__(639);
 
 	var _Link3 = _interopRequireDefault(_Link2);
 
-	var _MemoryRouter2 = __webpack_require__(637);
+	var _MemoryRouter2 = __webpack_require__(640);
 
 	var _MemoryRouter3 = _interopRequireDefault(_MemoryRouter2);
 
-	var _NavLink2 = __webpack_require__(640);
+	var _NavLink2 = __webpack_require__(643);
 
 	var _NavLink3 = _interopRequireDefault(_NavLink2);
 
-	var _Prompt2 = __webpack_require__(646);
+	var _Prompt2 = __webpack_require__(649);
 
 	var _Prompt3 = _interopRequireDefault(_Prompt2);
 
-	var _Redirect2 = __webpack_require__(648);
+	var _Redirect2 = __webpack_require__(651);
 
 	var _Redirect3 = _interopRequireDefault(_Redirect2);
 
-	var _Route2 = __webpack_require__(641);
+	var _Route2 = __webpack_require__(644);
 
 	var _Route3 = _interopRequireDefault(_Route2);
 
-	var _Router2 = __webpack_require__(632);
+	var _Router2 = __webpack_require__(635);
 
 	var _Router3 = _interopRequireDefault(_Router2);
 
-	var _StaticRouter2 = __webpack_require__(651);
+	var _StaticRouter2 = __webpack_require__(654);
 
 	var _StaticRouter3 = _interopRequireDefault(_StaticRouter2);
 
-	var _Switch2 = __webpack_require__(653);
+	var _Switch2 = __webpack_require__(656);
 
 	var _Switch3 = _interopRequireDefault(_Switch2);
 
-	var _matchPath2 = __webpack_require__(655);
+	var _matchPath2 = __webpack_require__(658);
 
 	var _matchPath3 = _interopRequireDefault(_matchPath2);
 
-	var _withRouter2 = __webpack_require__(656);
+	var _withRouter2 = __webpack_require__(659);
 
 	var _withRouter3 = _interopRequireDefault(_withRouter2);
 
@@ -77411,7 +77940,7 @@
 	exports.withRouter = _withRouter3.default;
 
 /***/ }),
-/* 623 */
+/* 626 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -77430,11 +77959,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createBrowserHistory = __webpack_require__(624);
+	var _createBrowserHistory = __webpack_require__(627);
 
 	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-	var _Router = __webpack_require__(632);
+	var _Router = __webpack_require__(635);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -77485,7 +78014,7 @@
 	exports.default = BrowserRouter;
 
 /***/ }),
-/* 624 */
+/* 627 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -77500,19 +78029,19 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _LocationUtils = __webpack_require__(626);
+	var _LocationUtils = __webpack_require__(629);
 
-	var _PathUtils = __webpack_require__(629);
+	var _PathUtils = __webpack_require__(632);
 
-	var _createTransitionManager = __webpack_require__(630);
+	var _createTransitionManager = __webpack_require__(633);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _DOMUtils = __webpack_require__(631);
+	var _DOMUtils = __webpack_require__(634);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -77797,7 +78326,7 @@
 	exports.default = createBrowserHistory;
 
 /***/ }),
-/* 625 */
+/* 628 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -77855,7 +78384,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 626 */
+/* 629 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -77865,15 +78394,15 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _resolvePathname = __webpack_require__(627);
+	var _resolvePathname = __webpack_require__(630);
 
 	var _resolvePathname2 = _interopRequireDefault(_resolvePathname);
 
-	var _valueEqual = __webpack_require__(628);
+	var _valueEqual = __webpack_require__(631);
 
 	var _valueEqual2 = _interopRequireDefault(_valueEqual);
 
-	var _PathUtils = __webpack_require__(629);
+	var _PathUtils = __webpack_require__(632);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -77938,7 +78467,7 @@
 	};
 
 /***/ }),
-/* 627 */
+/* 630 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78017,7 +78546,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 628 */
+/* 631 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78065,7 +78594,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 629 */
+/* 632 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78131,7 +78660,7 @@
 	};
 
 /***/ }),
-/* 630 */
+/* 633 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78221,7 +78750,7 @@
 	exports.default = createTransitionManager;
 
 /***/ }),
-/* 631 */
+/* 634 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78281,14 +78810,14 @@
 	};
 
 /***/ }),
-/* 632 */
+/* 635 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Router = __webpack_require__(633);
+	var _Router = __webpack_require__(636);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -78297,7 +78826,7 @@
 	exports.default = _Router2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 633 */
+/* 636 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78310,7 +78839,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -78421,7 +78950,7 @@
 	exports.default = Router;
 
 /***/ }),
-/* 634 */
+/* 637 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78440,11 +78969,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createHashHistory = __webpack_require__(635);
+	var _createHashHistory = __webpack_require__(638);
 
 	var _createHashHistory2 = _interopRequireDefault(_createHashHistory);
 
-	var _Router = __webpack_require__(632);
+	var _Router = __webpack_require__(635);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -78494,7 +79023,7 @@
 	exports.default = HashRouter;
 
 /***/ }),
-/* 635 */
+/* 638 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78507,19 +79036,19 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _LocationUtils = __webpack_require__(626);
+	var _LocationUtils = __webpack_require__(629);
 
-	var _PathUtils = __webpack_require__(629);
+	var _PathUtils = __webpack_require__(632);
 
-	var _createTransitionManager = __webpack_require__(630);
+	var _createTransitionManager = __webpack_require__(633);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _DOMUtils = __webpack_require__(631);
+	var _DOMUtils = __webpack_require__(634);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -78823,7 +79352,7 @@
 	exports.default = createHashHistory;
 
 /***/ }),
-/* 636 */
+/* 639 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78840,7 +79369,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -78938,14 +79467,14 @@
 	exports.default = Link;
 
 /***/ }),
-/* 637 */
+/* 640 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _MemoryRouter = __webpack_require__(638);
+	var _MemoryRouter = __webpack_require__(641);
 
 	var _MemoryRouter2 = _interopRequireDefault(_MemoryRouter);
 
@@ -78954,7 +79483,7 @@
 	exports.default = _MemoryRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 638 */
+/* 641 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78973,11 +79502,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createMemoryHistory = __webpack_require__(639);
+	var _createMemoryHistory = __webpack_require__(642);
 
 	var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
 
-	var _Router = __webpack_require__(633);
+	var _Router = __webpack_require__(636);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -79028,7 +79557,7 @@
 	exports.default = MemoryRouter;
 
 /***/ }),
-/* 639 */
+/* 642 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79043,11 +79572,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _PathUtils = __webpack_require__(629);
+	var _PathUtils = __webpack_require__(632);
 
-	var _LocationUtils = __webpack_require__(626);
+	var _LocationUtils = __webpack_require__(629);
 
-	var _createTransitionManager = __webpack_require__(630);
+	var _createTransitionManager = __webpack_require__(633);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
@@ -79203,7 +79732,7 @@
 	exports.default = createMemoryHistory;
 
 /***/ }),
-/* 640 */
+/* 643 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79222,11 +79751,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _Route = __webpack_require__(641);
+	var _Route = __webpack_require__(644);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
-	var _Link = __webpack_require__(636);
+	var _Link = __webpack_require__(639);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
@@ -79294,14 +79823,14 @@
 	exports.default = NavLink;
 
 /***/ }),
-/* 641 */
+/* 644 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Route = __webpack_require__(642);
+	var _Route = __webpack_require__(645);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
@@ -79310,7 +79839,7 @@
 	exports.default = _Route2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 642 */
+/* 645 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79323,7 +79852,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -79335,7 +79864,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _matchPath = __webpack_require__(643);
+	var _matchPath = __webpack_require__(646);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -79467,14 +79996,14 @@
 	exports.default = Route;
 
 /***/ }),
-/* 643 */
+/* 646 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _pathToRegexp = __webpack_require__(644);
+	var _pathToRegexp = __webpack_require__(647);
 
 	var _pathToRegexp2 = _interopRequireDefault(_pathToRegexp);
 
@@ -79549,10 +80078,10 @@
 	exports.default = matchPath;
 
 /***/ }),
-/* 644 */
+/* 647 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var isarray = __webpack_require__(645)
+	var isarray = __webpack_require__(648)
 
 	/**
 	 * Expose `pathToRegexp`.
@@ -79981,7 +80510,7 @@
 
 
 /***/ }),
-/* 645 */
+/* 648 */
 /***/ (function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -79990,14 +80519,14 @@
 
 
 /***/ }),
-/* 646 */
+/* 649 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Prompt = __webpack_require__(647);
+	var _Prompt = __webpack_require__(650);
 
 	var _Prompt2 = _interopRequireDefault(_Prompt);
 
@@ -80006,7 +80535,7 @@
 	exports.default = _Prompt2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 647 */
+/* 650 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80021,7 +80550,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -80101,14 +80630,14 @@
 	exports.default = Prompt;
 
 /***/ }),
-/* 648 */
+/* 651 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Redirect = __webpack_require__(649);
+	var _Redirect = __webpack_require__(652);
 
 	var _Redirect2 = _interopRequireDefault(_Redirect);
 
@@ -80117,7 +80646,7 @@
 	exports.default = _Redirect2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 649 */
+/* 652 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80136,11 +80665,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _history = __webpack_require__(650);
+	var _history = __webpack_require__(653);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -80230,7 +80759,7 @@
 	exports.default = Redirect;
 
 /***/ }),
-/* 650 */
+/* 653 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80238,7 +80767,7 @@
 	exports.__esModule = true;
 	exports.createPath = exports.parsePath = exports.locationsAreEqual = exports.createLocation = exports.createMemoryHistory = exports.createHashHistory = exports.createBrowserHistory = undefined;
 
-	var _LocationUtils = __webpack_require__(626);
+	var _LocationUtils = __webpack_require__(629);
 
 	Object.defineProperty(exports, 'createLocation', {
 	  enumerable: true,
@@ -80253,7 +80782,7 @@
 	  }
 	});
 
-	var _PathUtils = __webpack_require__(629);
+	var _PathUtils = __webpack_require__(632);
 
 	Object.defineProperty(exports, 'parsePath', {
 	  enumerable: true,
@@ -80268,15 +80797,15 @@
 	  }
 	});
 
-	var _createBrowserHistory2 = __webpack_require__(624);
+	var _createBrowserHistory2 = __webpack_require__(627);
 
 	var _createBrowserHistory3 = _interopRequireDefault(_createBrowserHistory2);
 
-	var _createHashHistory2 = __webpack_require__(635);
+	var _createHashHistory2 = __webpack_require__(638);
 
 	var _createHashHistory3 = _interopRequireDefault(_createHashHistory2);
 
-	var _createMemoryHistory2 = __webpack_require__(639);
+	var _createMemoryHistory2 = __webpack_require__(642);
 
 	var _createMemoryHistory3 = _interopRequireDefault(_createMemoryHistory2);
 
@@ -80287,14 +80816,14 @@
 	exports.createMemoryHistory = _createMemoryHistory3.default;
 
 /***/ }),
-/* 651 */
+/* 654 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _StaticRouter = __webpack_require__(652);
+	var _StaticRouter = __webpack_require__(655);
 
 	var _StaticRouter2 = _interopRequireDefault(_StaticRouter);
 
@@ -80303,7 +80832,7 @@
 	exports.default = _StaticRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 652 */
+/* 655 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80316,7 +80845,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -80328,9 +80857,9 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _PathUtils = __webpack_require__(629);
+	var _PathUtils = __webpack_require__(632);
 
-	var _Router = __webpack_require__(633);
+	var _Router = __webpack_require__(636);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -80493,14 +81022,14 @@
 	exports.default = StaticRouter;
 
 /***/ }),
-/* 653 */
+/* 656 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Switch = __webpack_require__(654);
+	var _Switch = __webpack_require__(657);
 
 	var _Switch2 = _interopRequireDefault(_Switch);
 
@@ -80509,7 +81038,7 @@
 	exports.default = _Switch2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 654 */
+/* 657 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80528,11 +81057,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(625);
+	var _invariant = __webpack_require__(628);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _matchPath = __webpack_require__(643);
+	var _matchPath = __webpack_require__(646);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -80610,14 +81139,14 @@
 	exports.default = Switch;
 
 /***/ }),
-/* 655 */
+/* 658 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _matchPath = __webpack_require__(643);
+	var _matchPath = __webpack_require__(646);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -80626,14 +81155,14 @@
 	exports.default = _matchPath2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 656 */
+/* 659 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _withRouter = __webpack_require__(657);
+	var _withRouter = __webpack_require__(660);
 
 	var _withRouter2 = _interopRequireDefault(_withRouter);
 
@@ -80642,7 +81171,7 @@
 	exports.default = _withRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 657 */
+/* 660 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80659,11 +81188,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _hoistNonReactStatics = __webpack_require__(658);
+	var _hoistNonReactStatics = __webpack_require__(661);
 
 	var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 
-	var _Route = __webpack_require__(642);
+	var _Route = __webpack_require__(645);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
@@ -80696,7 +81225,7 @@
 	exports.default = withRouter;
 
 /***/ }),
-/* 658 */
+/* 661 */
 /***/ (function(module, exports) {
 
 	/**
@@ -80767,493 +81296,10 @@
 
 
 /***/ }),
-/* 659 */
+/* 662 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 660 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(241);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _pure = __webpack_require__(508);
-
-	var _pure2 = _interopRequireDefault(_pure);
-
-	var _SvgIcon = __webpack_require__(514);
-
-	var _SvgIcon2 = _interopRequireDefault(_SvgIcon);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var NavigationArrowDropDownCircle = function NavigationArrowDropDownCircle(props) {
-	  return _react2.default.createElement(
-	    _SvgIcon2.default,
-	    props,
-	    _react2.default.createElement('path', { d: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 12l-4-4h8l-4 4z' })
-	  );
-	};
-	NavigationArrowDropDownCircle = (0, _pure2.default)(NavigationArrowDropDownCircle);
-	NavigationArrowDropDownCircle.displayName = 'NavigationArrowDropDownCircle';
-	NavigationArrowDropDownCircle.muiName = 'SvgIcon';
-
-	exports.default = NavigationArrowDropDownCircle;
-
-/***/ }),
-/* 661 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = exports.MenuItem = exports.IconMenu = undefined;
-
-	var _IconMenu2 = __webpack_require__(662);
-
-	var _IconMenu3 = _interopRequireDefault(_IconMenu2);
-
-	var _MenuItem2 = __webpack_require__(593);
-
-	var _MenuItem3 = _interopRequireDefault(_MenuItem2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.IconMenu = _IconMenu3.default;
-	exports.MenuItem = _MenuItem3.default;
-	exports.default = _IconMenu3.default;
-
-/***/ }),
-/* 662 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _extends2 = __webpack_require__(338);
-
-	var _extends3 = _interopRequireDefault(_extends2);
-
-	var _objectWithoutProperties2 = __webpack_require__(343);
-
-	var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
-
-	var _getPrototypeOf = __webpack_require__(156);
-
-	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-
-	var _classCallCheck2 = __webpack_require__(182);
-
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-	var _createClass2 = __webpack_require__(183);
-
-	var _createClass3 = _interopRequireDefault(_createClass2);
-
-	var _possibleConstructorReturn2 = __webpack_require__(187);
-
-	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-	var _inherits2 = __webpack_require__(233);
-
-	var _inherits3 = _interopRequireDefault(_inherits2);
-
-	var _simpleAssign = __webpack_require__(344);
-
-	var _simpleAssign2 = _interopRequireDefault(_simpleAssign);
-
-	var _react = __webpack_require__(241);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _propTypes = __webpack_require__(276);
-
-	var _propTypes2 = _interopRequireDefault(_propTypes);
-
-	var _reactDom = __webpack_require__(345);
-
-	var _reactDom2 = _interopRequireDefault(_reactDom);
-
-	var _events = __webpack_require__(520);
-
-	var _events2 = _interopRequireDefault(_events);
-
-	var _propTypes3 = __webpack_require__(505);
-
-	var _propTypes4 = _interopRequireDefault(_propTypes3);
-
-	var _Menu = __webpack_require__(582);
-
-	var _Menu2 = _interopRequireDefault(_Menu);
-
-	var _Popover = __webpack_require__(589);
-
-	var _Popover2 = _interopRequireDefault(_Popover);
-
-	var _warning = __webpack_require__(292);
-
-	var _warning2 = _interopRequireDefault(_warning);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var IconMenu = function (_Component) {
-	  (0, _inherits3.default)(IconMenu, _Component);
-
-	  function IconMenu() {
-	    var _ref;
-
-	    var _temp, _this, _ret;
-
-	    (0, _classCallCheck3.default)(this, IconMenu);
-
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	      args[_key] = arguments[_key];
-	    }
-
-	    return _ret = (_temp = (_this = (0, _possibleConstructorReturn3.default)(this, (_ref = IconMenu.__proto__ || (0, _getPrototypeOf2.default)(IconMenu)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
-	      menuInitiallyKeyboardFocused: false,
-	      open: false
-	    }, _this.handleItemTouchTap = function (event, child) {
-	      if (_this.props.touchTapCloseDelay !== 0 && !child.props.hasOwnProperty('menuItems')) {
-	        var isKeyboard = _events2.default.isKeyboard(event);
-	        _this.timerCloseId = setTimeout(function () {
-	          _this.close(isKeyboard ? 'enter' : 'itemTap', isKeyboard);
-	        }, _this.props.touchTapCloseDelay);
-	      }
-
-	      _this.props.onItemTouchTap(event, child);
-	    }, _this.handleRequestClose = function (reason) {
-	      _this.close(reason);
-	    }, _this.handleEscKeyDownMenu = function (event) {
-	      _this.close('escape', event);
-	    }, _temp), (0, _possibleConstructorReturn3.default)(_this, _ret);
-	  }
-
-	  (0, _createClass3.default)(IconMenu, [{
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
-	      if (nextProps.open != null) {
-	        this.setState({
-	          open: nextProps.open,
-	          anchorEl: this.refs.iconMenuContainer
-	        });
-	      }
-	    }
-	  }, {
-	    key: 'componentWillUnmount',
-	    value: function componentWillUnmount() {
-	      clearTimeout(this.timerCloseId);
-	    }
-	  }, {
-	    key: 'isOpen',
-	    value: function isOpen() {
-	      return this.state.open;
-	    }
-	  }, {
-	    key: 'close',
-	    value: function close(reason, isKeyboard) {
-	      var _this2 = this;
-
-	      if (!this.state.open) {
-	        return;
-	      }
-
-	      if (this.props.open !== null) {
-	        this.props.onRequestChange(false, reason);
-	      } else {
-	        this.setState({ open: false }, function () {
-	          // Set focus on the icon button when the menu close
-	          if (isKeyboard) {
-	            var iconButton = _this2.refs.iconButton;
-	            _reactDom2.default.findDOMNode(iconButton).focus();
-	            iconButton.setKeyboardFocus();
-	          }
-	        });
-	      }
-	    }
-	  }, {
-	    key: 'open',
-	    value: function open(reason, event) {
-	      if (this.props.open !== null) {
-	        this.props.onRequestChange(true, reason);
-
-	        return this.setState({
-	          menuInitiallyKeyboardFocused: _events2.default.isKeyboard(event),
-	          anchorEl: event.currentTarget
-	        });
-	      }
-
-	      this.setState({
-	        open: true,
-	        menuInitiallyKeyboardFocused: _events2.default.isKeyboard(event),
-	        anchorEl: event.currentTarget
-	      });
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _this3 = this;
-
-	      var _props = this.props,
-	          anchorOrigin = _props.anchorOrigin,
-	          className = _props.className,
-	          animated = _props.animated,
-	          animation = _props.animation,
-	          iconButtonElement = _props.iconButtonElement,
-	          iconStyle = _props.iconStyle,
-	          onItemTouchTap = _props.onItemTouchTap,
-	          onKeyboardFocus = _props.onKeyboardFocus,
-	          onMouseDown = _props.onMouseDown,
-	          onMouseLeave = _props.onMouseLeave,
-	          onMouseEnter = _props.onMouseEnter,
-	          onMouseUp = _props.onMouseUp,
-	          onRequestChange = _props.onRequestChange,
-	          onClick = _props.onClick,
-	          listStyle = _props.listStyle,
-	          menuStyle = _props.menuStyle,
-	          style = _props.style,
-	          targetOrigin = _props.targetOrigin,
-	          touchTapCloseDelay = _props.touchTapCloseDelay,
-	          useLayerForClickAway = _props.useLayerForClickAway,
-	          other = (0, _objectWithoutProperties3.default)(_props, ['anchorOrigin', 'className', 'animated', 'animation', 'iconButtonElement', 'iconStyle', 'onItemTouchTap', 'onKeyboardFocus', 'onMouseDown', 'onMouseLeave', 'onMouseEnter', 'onMouseUp', 'onRequestChange', 'onClick', 'listStyle', 'menuStyle', 'style', 'targetOrigin', 'touchTapCloseDelay', 'useLayerForClickAway']);
-	      var prepareStyles = this.context.muiTheme.prepareStyles;
-	      var _state = this.state,
-	          open = _state.open,
-	          anchorEl = _state.anchorEl;
-
-
-	      var styles = {
-	        root: {
-	          display: 'inline-block',
-	          position: 'relative'
-	        },
-	        menu: {
-	          position: 'relative'
-	        }
-	      };
-
-	      var mergedRootStyles = (0, _simpleAssign2.default)(styles.root, style);
-	      var mergedMenuStyles = (0, _simpleAssign2.default)(styles.menu, menuStyle);
-
-	      process.env.NODE_ENV !== "production" ? (0, _warning2.default)(iconButtonElement.type.muiName !== 'SvgIcon', 'Material-UI: You shoud not provide an <SvgIcon /> to the \'iconButtonElement\' property of <IconMenu />.\nYou should wrapped it with an <IconButton />.') : void 0;
-
-	      var iconButtonProps = {
-	        onKeyboardFocus: onKeyboardFocus,
-	        onClick: function onClick(event) {
-	          _this3.open(_events2.default.isKeyboard(event) ? 'keyboard' : 'iconTap', event);
-	          if (iconButtonElement.props.onClick) {
-	            iconButtonElement.props.onClick(event);
-	          }
-	        },
-	        ref: 'iconButton'
-	      };
-	      if (iconStyle || iconButtonElement.props.iconStyle) {
-	        iconButtonProps.iconStyle = iconStyle ? (0, _simpleAssign2.default)({}, iconStyle, iconButtonElement.props.iconStyle) : iconButtonElement.props.iconStyle;
-	      }
-	      var iconButton = _react2.default.cloneElement(iconButtonElement, iconButtonProps);
-
-	      var menu = _react2.default.createElement(
-	        _Menu2.default,
-	        (0, _extends3.default)({}, other, {
-	          initiallyKeyboardFocused: this.state.menuInitiallyKeyboardFocused,
-	          onEscKeyDown: this.handleEscKeyDownMenu,
-	          onItemTouchTap: this.handleItemTouchTap,
-	          style: mergedMenuStyles,
-	          listStyle: listStyle
-	        }),
-	        this.props.children
-	      );
-
-	      return _react2.default.createElement(
-	        'div',
-	        {
-	          ref: 'iconMenuContainer',
-	          className: className,
-	          onMouseDown: onMouseDown,
-	          onMouseLeave: onMouseLeave,
-	          onMouseEnter: onMouseEnter,
-	          onMouseUp: onMouseUp,
-	          onClick: onClick,
-	          style: prepareStyles(mergedRootStyles)
-	        },
-	        iconButton,
-	        _react2.default.createElement(
-	          _Popover2.default,
-	          {
-	            anchorOrigin: anchorOrigin,
-	            targetOrigin: targetOrigin,
-	            open: open,
-	            anchorEl: anchorEl,
-	            childContextTypes: this.constructor.childContextTypes,
-	            useLayerForClickAway: useLayerForClickAway,
-	            onRequestClose: this.handleRequestClose,
-	            animated: animated,
-	            animation: animation,
-	            context: this.context
-	          },
-	          menu
-	        )
-	      );
-	    }
-	  }]);
-	  return IconMenu;
-	}(_react.Component);
-
-	IconMenu.muiName = 'IconMenu';
-	IconMenu.defaultProps = {
-	  anchorOrigin: {
-	    vertical: 'top',
-	    horizontal: 'left'
-	  },
-	  animated: true,
-	  multiple: false,
-	  open: null,
-	  onItemTouchTap: function onItemTouchTap() {},
-	  onKeyboardFocus: function onKeyboardFocus() {},
-	  onMouseDown: function onMouseDown() {},
-	  onMouseLeave: function onMouseLeave() {},
-	  onMouseEnter: function onMouseEnter() {},
-	  onMouseUp: function onMouseUp() {},
-	  onRequestChange: function onRequestChange() {},
-	  onClick: function onClick() {},
-	  targetOrigin: {
-	    vertical: 'top',
-	    horizontal: 'left'
-	  },
-	  touchTapCloseDelay: 200,
-	  useLayerForClickAway: false
-	};
-	IconMenu.contextTypes = {
-	  muiTheme: _propTypes2.default.object.isRequired
-	};
-	IconMenu.propTypes = process.env.NODE_ENV !== "production" ? {
-	  /**
-	   * This is the point on the icon where the menu
-	   * `targetOrigin` will attach.
-	   * Options:
-	   * vertical: [top, center, bottom]
-	   * horizontal: [left, middle, right].
-	   */
-	  anchorOrigin: _propTypes4.default.origin,
-	  /**
-	   * If true, the popover will apply transitions when
-	   * it gets added to the DOM.
-	   */
-	  animated: _propTypes2.default.bool,
-	  /**
-	   * Override the default animation component used.
-	   */
-	  animation: _propTypes2.default.func,
-	  /**
-	   * Should be used to pass `MenuItem` components.
-	   */
-	  children: _propTypes2.default.node,
-	  /**
-	   * The CSS class name of the root element.
-	   */
-	  className: _propTypes2.default.string,
-	  /**
-	   * This is the `IconButton` to render. This button will open the menu.
-	   */
-	  iconButtonElement: _propTypes2.default.element.isRequired,
-	  /**
-	   * Override the inline-styles of the underlying icon element.
-	   */
-	  iconStyle: _propTypes2.default.object,
-	  /**
-	   * Override the inline-styles of the underlying `List` element.
-	   */
-	  listStyle: _propTypes2.default.object,
-	  /**
-	   * Override the inline-styles of the menu element.
-	   */
-	  menuStyle: _propTypes2.default.object,
-	  /**
-	   * If true, the value can an be array and allow the menu to be a multi-select.
-	   */
-	  multiple: _propTypes2.default.bool,
-	  /**
-	   * Callback function fired when the `IconButton` element is touch-tapped.
-	   *
-	   * @param {object} event TouchTap event targeting the `IconButton` element.
-	   */
-	  onClick: _propTypes2.default.func,
-	  /**
-	   * Callback function fired when a menu item is selected with a touch-tap.
-	   *
-	   * @param {object} event TouchTap event targeting the selected menu item element.
-	   * @param {object} child The selected element.
-	   */
-	  onItemTouchTap: _propTypes2.default.func,
-	  /**
-	   * Callback function fired when the `IconButton` element is focused or blurred by the keyboard.
-	   *
-	   * @param {object} event `focus` or `blur` event targeting the `IconButton` element.
-	   * @param {boolean} keyboardFocused If true, the `IconButton` element is focused.
-	   */
-	  onKeyboardFocus: _propTypes2.default.func,
-	  /** @ignore */
-	  onMouseDown: _propTypes2.default.func,
-	  /** @ignore */
-	  onMouseEnter: _propTypes2.default.func,
-	  /** @ignore */
-	  onMouseLeave: _propTypes2.default.func,
-	  /** @ignore */
-	  onMouseUp: _propTypes2.default.func,
-	  /**
-	   * Callback function fired when the `open` state of the menu is requested to be changed.
-	   *
-	   * @param {boolean} open If true, the menu was requested to be opened.
-	   * @param {string} reason The reason for the open or close request. Possible values are
-	   * 'keyboard' and 'iconTap' for open requests; 'enter', 'escape', 'itemTap', and 'clickAway'
-	   * for close requests.
-	   */
-	  onRequestChange: _propTypes2.default.func,
-	  /**
-	   * If true, the `IconMenu` is opened.
-	   */
-	  open: _propTypes2.default.bool,
-	  /**
-	   * Override the inline-styles of the root element.
-	   */
-	  style: _propTypes2.default.object,
-	  /**
-	   * This is the point on the menu which will stick to the menu
-	   * origin.
-	   * Options:
-	   * vertical: [top, center, bottom]
-	   * horizontal: [left, middle, right].
-	   */
-	  targetOrigin: _propTypes4.default.origin,
-	  /**
-	   * Sets the delay in milliseconds before closing the
-	   * menu when an item is clicked.
-	   * If set to 0 then the auto close functionality
-	   * will be disabled.
-	   */
-	  touchTapCloseDelay: _propTypes2.default.number,
-	  /**
-	   * If true, the popover will render on top of an invisible
-	   * layer, which will prevent clicks to the underlying elements.
-	   */
-	  useLayerForClickAway: _propTypes2.default.bool
-	} : {};
-	exports.default = IconMenu;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ })
 /******/ ]);

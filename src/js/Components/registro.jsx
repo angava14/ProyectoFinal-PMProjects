@@ -1,6 +1,6 @@
 
 const React = require('react');
-const Nav = require('./nav.jsx');
+const Navlog = require('./navlog.jsx');
 import {saveUser} from './../config.jsx';
 import {saveUserEnOrg} from './../config.jsx';
 import {auth} from './../config.jsx';
@@ -10,6 +10,8 @@ import TextField from 'material-ui/TextField';
 import {Card, CardActions, CardTitle, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import Snackbar from 'material-ui/Snackbar';
+
 
   const card ={
 	display:'flex',
@@ -31,21 +33,41 @@ class Registro extends React.Component {
             name: '',
             orgselected: '',
             lastname: '',
-            password: '',
             admin:'',
             orglist: [] ,
             org: "",
             acctype:'false',
+            snack: false ,
           
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
+            this.handleRequestClose = this.handleRequestClose.bind(this);
           
     }
     
 	
 	componentWillMount(){
-	    const padre = this;
+	    
+	var padre = this;
+firebase.auth().onAuthStateChanged(function(user) {
+   
+    if (user) { 
+	    
+	       firebase.database().ref().child('usuarios/'+ user.uid).on('value',(snapshot) =>{
+            let messages = snapshot.val();
+            
+            padre.setState({
+                auth: true,
+               admin: messages.admin,
+               orgid: messages.orgid
+            });
+	       });
+	    
+	    
+	    
+	 if ( padre.state.admin == "true"){
+	     
 	    const messageRef = firebase.database().ref().child('organizacion');
         messageRef.on('value',(snapshot) =>{
             
@@ -66,6 +88,19 @@ class Registro extends React.Component {
             });
             
         });
+        
+    }else{
+        
+        padre.props.history.push({pathname:'/ '})      
+        }
+
+	} else {
+padre.setState({ auth: false});
+ padre.props.history.push({pathname:'/login'})
+  }
+});
+
+        
 	}
 	
 	
@@ -79,10 +114,11 @@ class Registro extends React.Component {
 	
 	handleSubmit(e) {
         e.preventDefault();
+        const padre = this;
 		const emailtemp = this.state.email;
 		const nametemp = this.state.name;
 		const lastnametemp= this.state.lastname;
-		const passwordtemp = this.state.password;
+		const passwordtemp = '137946852';
 		const orgtemp  = this.state.org;
 		const admin = this.state.acctype ;
 		const organizacion = this.state.orgselected;
@@ -100,8 +136,27 @@ class Registro extends React.Component {
 				saveUser(objeto);
 				saveUserEnOrg(organizacion , userRecord , objeto.name);
 				userRecord.updateProfile({displayName: nametemp+" "+lastnametemp});
-            alert('Usuario Creado'); 
-            this.props.history.push({pathname:'/'});
+				
+   
+  firebase.auth().sendPasswordResetEmail(
+    emailtemp)
+    .then(function() {
+        localStorage.clear();
+        padre.setState({snack:true});
+        padre.props.history.push({pathname: '/login'})
+      
+      
+      
+      
+      
+    })
+    .catch(function(error) {
+     
+    });
+				
+            
+            
+            
 			}).catch(function(error) {
 			  var errorCode = error.code;
 			  var errorMessage = error.message;
@@ -126,7 +181,13 @@ class Registro extends React.Component {
 
 	}
 	
-
+	
+      handleRequestClose () {
+          
+    this.setState({
+      snack: false,
+    });
+  }
 	
 	render() {
 	return (<section>
@@ -134,7 +195,7 @@ class Registro extends React.Component {
 
 		<MuiThemeProvider>
   <div>
- <Nav history={this.props.history} />
+ <Navlog history={this.props.history} />
  <form className="cardloginregistro"  onSubmit={this.handleSubmit} >
       <div className="login">
   
@@ -154,10 +215,6 @@ class Registro extends React.Component {
       
       floatingLabelText="Correo Electronico" value={this.state.email} onChange={this.handleChange}  name="email"  type="mail"
     /><br />
-                <TextField
-      
-      floatingLabelText="Password" value={this.state.password} onChange={this.handleChange}  name="password"  type="password"
-    /><br />
     
 <select className="selectfield" value={this.state.acctype} onChange={this.handleChange} name="acctype">
   <option value={false}>Usuario</option>
@@ -176,6 +233,16 @@ class Registro extends React.Component {
         <button className="botoncard">Aceptar</button>
 		</CardActions>
         </Card>
+        
+       <Snackbar
+          open={this.state.snack}
+          message="Organizacion Creada"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+        
+        
+        
   </div>
   </form>
   </div>

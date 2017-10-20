@@ -269,7 +269,7 @@ handlemenu  (event, index, value) {
           onChange={this.menu}
           value={this.state.menu}
         >
-          <MenuItem value={1} primaryText="Menu" />
+
           <MenuItem value={2} primaryText="Ver Perfil" onClick={ () => this.verperfil(item.uid)} />
           {  this.state.admin == "true" ?
           <MenuItem value={3} primaryText="Eliminar" onClick={ ()=> this.eliminar(item.uid)}/>

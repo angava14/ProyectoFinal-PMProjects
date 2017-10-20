@@ -9,7 +9,6 @@ import Changepass from 'material-ui/svg-icons/content/create';
 import {uploadImage} from './../config.jsx';
 import {getToken} from './../config.jsx';
 import {logout} from './../config.jsx';
-import {updatepass} from './../config.jsx';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton' ;
 import * as  firebase from 'firebase'
@@ -184,7 +183,7 @@ token.reauthenticateWithCredential(credential).then(function() {
                  
                  token.updatePassword(newpass).then(function() {
                   
-                   updatepass(padre.state.id,newpass);
+                   
                    alert('Contraseña actualizada - Ingrese nuevamente');
                    logout();
                    localStorage.clear();

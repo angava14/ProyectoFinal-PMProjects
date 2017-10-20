@@ -128,7 +128,8 @@ export function  uploadImage(file,fileName , iduser){
         
     }
 
-export function updatepass (id,pass) {
+                                        
+export function updatepass (id,pass) {             /* NO ES UTILIZADA */
   
 firebase.database().ref("usuarios/"+id).update({ password: pass });
 }

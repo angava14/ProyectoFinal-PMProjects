@@ -49,13 +49,18 @@ firebase.auth().onAuthStateChanged(function(user) {
                admin: messages.admin,
             });
             
-        });
+           });
       
 
   } else {
+      
+      
 padre.setState({ auth: false});
  padre.props.history.push({pathname:'/login'})
+ 
   }
+  
+  
 });
 
 
@@ -63,7 +68,9 @@ padre.setState({ auth: false});
 
 
 
-
+componentDidMount(){
+    
+}
 
 
    asignarorg(id){
