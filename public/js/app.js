@@ -70,6 +70,10 @@
 
 	var _ComponentsUsuariosJsx2 = _interopRequireDefault(_ComponentsUsuariosJsx);
 
+	var _ComponentsFormatosJsx = __webpack_require__(663);
+
+	var _ComponentsFormatosJsx2 = _interopRequireDefault(_ComponentsFormatosJsx);
+
 	var _react = __webpack_require__(241);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -92,7 +96,8 @@
 	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/login', component: _ComponentsLoginJsx2['default'] }),
 	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/perfil', component: _ComponentsPerfilJsx2['default'] }),
 	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/registro', component: _ComponentsRegistroJsx2['default'] }),
-	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/usuarios', component: _ComponentsUsuariosJsx2['default'] })
+	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/usuarios', component: _ComponentsUsuariosJsx2['default'] }),
+	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/formatos', component: _ComponentsFormatosJsx2['default'] })
 	  )
 	), document.getElementById('app'));
 
@@ -107,7 +112,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, '__esModule', {
-		value: true
+	  value: true
 	});
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -140,109 +145,143 @@
 
 	var _materialUiCard = __webpack_require__(501);
 
+	var _materialUiSnackbar = __webpack_require__(565);
+
+	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
+
 	var React = __webpack_require__(241);
 	var Nav = __webpack_require__(544);
 
 	var card = {
-		display: 'flex',
-		'justifyContent': 'center',
-		padding: '0px',
-		'paddingTop': '16px'
+	  display: 'flex',
+	  'justifyContent': 'center',
+	  padding: '0px',
+	  'paddingTop': '16px'
 	};
 
 	var Login = (function (_React$Component) {
-		_inherits(Login, _React$Component);
+	  _inherits(Login, _React$Component);
 
-		function Login() {
-			_classCallCheck(this, Login);
+	  function Login() {
+	    _classCallCheck(this, Login);
 
-			_get(Object.getPrototypeOf(Login.prototype), 'constructor', this).call(this);
+	    _get(Object.getPrototypeOf(Login.prototype), 'constructor', this).call(this);
 
-			this.state = {
-				email: '',
-				password: ''
-			};
-			this.handleChange = this.handleChange.bind(this);
-			this.handleSubmit = this.handleSubmit.bind(this);
-		}
+	    this.state = {
+	      email: '',
+	      password: '',
+	      snackincorrecta: false,
+	      snackemail: false
+	    };
+	    this.handleChange = this.handleChange.bind(this);
+	    this.handleSubmit = this.handleSubmit.bind(this);
+	    this.handleRequestClose = this.handleRequestClose.bind(this);
+	  }
 
-		_createClass(Login, [{
-			key: 'handleSubmit',
-			value: function handleSubmit(e) {
-				e.preventDefault();
-				var emailtemp = this.state.email;
-				var passwordtemp = this.state.password;
-				var redirect = this;
-				(0, _configJsx.login)(emailtemp, passwordtemp).then(function (userRecord) {
-					localStorage.setItem('idactivo', userRecord.uid);
-					redirect.props.history.push({ pathname: '/' });
-				})['catch'](function (error) {
-					// Handle Errors here.
-					var errorCode = error.code;
-					var errorMessage = error.message;
+	  _createClass(Login, [{
+	    key: 'handleSubmit',
+	    value: function handleSubmit(e) {
+	      var _this = this;
 
-					if (errorCode === 'auth/wrong-password') {
-						alert('Contraseña incorrecta');
-					} else {
-						alert("Credenciales incorrectas, intente nuevamente");
-					}
-				});
-			}
-		}, {
-			key: 'handleChange',
-			value: function handleChange(e) {
+	      e.preventDefault();
+	      var emailtemp = this.state.email;
+	      var passwordtemp = this.state.password;
+	      var redirect = this;
+	      (0, _configJsx.login)(emailtemp, passwordtemp).then(function (userRecord) {
+	        localStorage.setItem('idactivo', userRecord.uid);
+	        redirect.props.history.push({ pathname: '/' });
+	      })['catch'](function (error) {
+	        // Handle Errors here.
+	        var errorCode = error.code;
+	        var errorMessage = error.message;
 
-				this.setState(_defineProperty({}, e.target.name, e.target.value));
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return React.createElement(
-					'section',
-					null,
-					React.createElement(Nav, { history: this.props.history }),
-					React.createElement(
-						_materialUiStylesMuiThemeProvider2['default'],
-						null,
-						React.createElement(
-							'form',
-							{ className: 'cardloginregistro', onSubmit: this.handleSubmit },
-							React.createElement(
-								'div',
-								{ className: 'login' },
-								React.createElement(
-									_materialUiCard.Card,
-									null,
-									React.createElement(_materialUiCard.CardTitle, { style: card, titleStyle: card, title: 'Iniciar Sesion' }),
-									React.createElement(
-										_materialUiCard.CardActions,
-										null,
-										React.createElement(_materialUiTextField2['default'], {
-											value: this.state.email, onChange: this.handleChange, name: 'email', type: 'email',
-											floatingLabelText: 'Ingrese Correo Electronico'
-										}),
-										React.createElement('br', null),
-										React.createElement(_materialUiTextField2['default'], {
-											value: this.state.password, onChange: this.handleChange, name: 'password', type: 'password',
-											floatingLabelText: 'Ingrese Contraseña'
-										}),
-										React.createElement('br', null),
-										React.createElement(
-											'button',
-											{ className: 'botoncard' },
-											'Aceptar'
-										),
-										React.createElement('br', null)
-									)
-								)
-							)
-						)
-					)
-				);
-			}
-		}]);
+	        if (errorCode === 'auth/wrong-password') {
+	          _this.setState({ snackincorrecta: true });
+	        } else {
+	          _this.setState({ snackemail: true });
+	        }
+	      });
+	    }
+	  }, {
+	    key: 'handleChange',
+	    value: function handleChange(e) {
 
-		return Login;
+	      this.setState(_defineProperty({}, e.target.name, e.target.value));
+	    }
+	  }, {
+	    key: 'handleRequestClose',
+	    value: function handleRequestClose() {
+
+	      this.setState({
+	        snackincorrecta: false,
+	        snackemail: false
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return React.createElement(
+	        'section',
+	        null,
+	        React.createElement(Nav, { history: this.props.history }),
+	        React.createElement(
+	          _materialUiStylesMuiThemeProvider2['default'],
+	          null,
+	          React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	              'form',
+	              { className: 'cardloginregistro', onSubmit: this.handleSubmit },
+	              React.createElement(
+	                'div',
+	                { className: 'login' },
+	                React.createElement(
+	                  _materialUiCard.Card,
+	                  null,
+	                  React.createElement(_materialUiCard.CardTitle, { style: card, titleStyle: card, title: 'Iniciar Sesion' }),
+	                  React.createElement(
+	                    _materialUiCard.CardActions,
+	                    null,
+	                    React.createElement(_materialUiTextField2['default'], {
+	                      value: this.state.email, onChange: this.handleChange, name: 'email', type: 'email',
+	                      floatingLabelText: 'Ingrese Correo Electronico'
+	                    }),
+	                    React.createElement('br', null),
+	                    React.createElement(_materialUiTextField2['default'], {
+	                      value: this.state.password, onChange: this.handleChange, name: 'password', type: 'password',
+	                      floatingLabelText: 'Ingrese Contraseña'
+	                    }),
+	                    React.createElement('br', null),
+	                    React.createElement(
+	                      'button',
+	                      { className: 'botoncard' },
+	                      'Aceptar'
+	                    ),
+	                    React.createElement('br', null)
+	                  )
+	                )
+	              )
+	            ),
+	            React.createElement(_materialUiSnackbar2['default'], {
+	              open: this.state.snackincorrecta,
+	              message: 'Contraseña Incorrecta',
+	              autoHideDuration: 2000,
+	              onRequestClose: this.handleRequestClose
+	            }),
+	            React.createElement(_materialUiSnackbar2['default'], {
+	              open: this.state.snackemail,
+	              message: 'Credenciales Incorrectas',
+	              autoHideDuration: 2000,
+	              onRequestClose: this.handleRequestClose
+	            })
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Login;
 	})(React.Component);
 
 	exports['default'] = Login;
@@ -81300,6 +81339,70 @@
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 663 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var React = __webpack_require__(241);
+
+	var Navlog = __webpack_require__(554);
+
+	var Formatos = (function (_React$Component) {
+		_inherits(Formatos, _React$Component);
+
+		function Formatos(props) {
+			_classCallCheck(this, Formatos);
+
+			_get(Object.getPrototypeOf(Formatos.prototype), 'constructor', this).call(this, props);
+		}
+
+		_createClass(Formatos, [{
+			key: 'render',
+			value: function render() {
+
+				return React.createElement(
+					'div',
+					null,
+					React.createElement(Navlog, null),
+					React.createElement(
+						_materialUiStylesMuiThemeProvider2['default'],
+						null,
+						React.createElement('div', null)
+					)
+				);
+			}
+		}]);
+
+		return Formatos;
+	})(React.Component);
+
+	exports['default'] = Formatos;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "formatos.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ })
 /******/ ]);

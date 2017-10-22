@@ -5,7 +5,7 @@ import * as firebase from 'firebase';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import TextField from 'material-ui/TextField';
 import {Card, CardActions, CardTitle, CardText} from 'material-ui/Card';
-
+import Snackbar from 'material-ui/Snackbar';
 
 const card ={
 	display:'flex',
@@ -21,10 +21,13 @@ class Login extends React.Component {
 
         this.state = {
             email: '',
-            password: ''
+            password: '',
+            snackincorrecta:false,
+            snackemail:false,
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
+            this.handleRequestClose = this.handleRequestClose.bind(this);
     }
     
     	handleSubmit(e) {
@@ -44,9 +47,9 @@ class Login extends React.Component {
 			  var errorMessage = error.message;
 			  
 			  if (errorCode === 'auth/wrong-password') {
-			    alert('Contraseña incorrecta');
+			    this.setState({snackincorrecta: true});
 			  } else {
-			    alert("Credenciales incorrectas, intente nuevamente");
+			     this.setState({snackemail: true});
 			  }
 			});
 	}
@@ -63,13 +66,21 @@ class Login extends React.Component {
         });
     }
     
+          handleRequestClose () {
+          
+    this.setState({
+      snackincorrecta: false,
+      snackemail: false,
+    });
+  }
+  
 	
 	
 	render() {
 	return (<section>
 	<Nav  history={this.props.history} />
 <MuiThemeProvider>
-	
+<div>	
 		<form  className="cardloginregistro"  onSubmit={this.handleSubmit} >
 		<div className="login">
 		<Card  >
@@ -92,6 +103,22 @@ class Login extends React.Component {
         </Card>
         </div>
         </form>
+		
+		        <Snackbar
+          open={this.state.snackincorrecta}
+          message="Contraseña Incorrecta"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+        
+                <Snackbar
+          open={this.state.snackemail}
+          message="Credenciales Incorrectas"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+		
+</div>		
 		
 </MuiThemeProvider>
 
