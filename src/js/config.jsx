@@ -145,5 +145,31 @@ export function getToken(){
 }
 
 
+export function saveFormato (object) {
+        const messagesRef =firebase.database().ref().child('formatos/documentos/'+object);
+        const newformat = {
+        nombre: object,
+        }
+        
+        messagesRef.set(newformat);
+        
+}
+
+export function CompAdd (object) {
+  console.log(object);
+        const messagesRef =firebase.database().ref().child('formatos/documentos/'+ object + '/componente');
+        const newformat={nombre : 'componente'}
+        
+        messagesRef.push(newformat);
+        
+}
 
 
+        
+    export function agregarnodo (nombreformato,id) {
+        const messagesRef =firebase.database().ref().child('formatos/documentos/'+ nombreformato + '/componente/'+id+'/nodo');
+        const newnodo={nombre : 'nodo'}
+        messagesRef.push(newnodo);
+        
+}    
+        

@@ -12,8 +12,10 @@
   justify-content: center;
   align-items: center; }
 
+.nombreicon {
+  margin-bottom: 40%; }
+
 .iconwrapper {
-  margin-bottom: 80%;
   margin-top: 20%; }
 
 .login {
@@ -74,6 +76,16 @@
   flex-direction: column;
   align-items: center; }
 
+.botonavatar {
+  color: #FFFFFF;
+  width: 150px;
+  height: 50px;
+  background-color: #00bcd4;
+  border-radius: 12px; }
+
+.botonavatar:hover {
+  background-color: #006775; }
+
 .selectorg {
   margin: 3%;
   height: 50px;
@@ -87,6 +99,43 @@
   width: 80%;
   margin-left: 10%;
   margin-right: 10%; }
+
+.paper {
+  width: 70%;
+  margin: 0 10% 0 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center; }
+
+.nodos {
+  display: flex;
+  flex-direction: row; }
+
+.botoncrearformato {
+  color: #FFFFFF;
+  width: 150px;
+  height: 50px;
+  background-color: #00bcd4;
+  border-radius: 12px;
+  margin: 3% 0 3% 5%; }
+
+.botonesformato {
+  display: flex;
+  flex-direction: row; }
+
+.botoncrearformato:hover {
+  background-color: #006775; }
+
+.botonagregarcomponente {
+  color: #FFFFFF;
+  width: 150px;
+  height: 50px;
+  background-color: #00bcd4;
+  border-radius: 12px;
+  margin: 0 0 0 2%; }
+
+.botonagregarcomponente:hover {
+  background-color: #006775; }
 
 .reset, body {
   margin: 0;

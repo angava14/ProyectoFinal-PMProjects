@@ -155,8 +155,8 @@ class Organizacion extends React.Component {
 
                  	 {this.state.messages.map(item=>{
     	            return (
-    	            
-    	            <div className="iconwrapper" key={item.id}>
+    	            <div className="nombreicon" key={item.id}>
+    	            <div className="iconwrapper" >
    <Badge
       
       badgeContent={<IconButton style={iconbutton}  iconStyle={styles.mediumIcon} onClick={ () => this.orgseleccionada(item.id)} tooltip={item.nombre}><Orgicon /></IconButton>}
@@ -165,7 +165,8 @@ class Organizacion extends React.Component {
    
     	            </div>
     	            
-    	           
+    <p >{item.nombre}</p>
+    </div>
     	           )
     	        })
     	      } 

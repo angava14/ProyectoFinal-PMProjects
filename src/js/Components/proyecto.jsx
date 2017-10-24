@@ -133,13 +133,16 @@ this.montarproyecto(nextProps.data , nextProps.dataport);
  
                  	 {window.proyectos.map(item=>{
     	            return (
-    	            <div className="iconwrapper" key={item.id}>
+    	            <div className="nombreicon" key={item.id} >
+    	            <div className="iconwrapper" >
    <Badge
       badgeContent={<IconButton style={iconbutton} iconStyle={styles.mediumIcon}  onClick={ () => this.proyseleccionada(item.id)} tooltip={item.nombre}><Proyect/> </IconButton>}
     >
    </Badge>
    
     	            </div>
+    	                <p>{item.nombre}</p>
+                        </div>
     	           )
     	        })
     	      }

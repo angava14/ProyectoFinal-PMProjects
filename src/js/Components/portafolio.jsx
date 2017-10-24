@@ -144,13 +144,17 @@ this.montarportafolios(nextProps.data);
  
                  	 {window.mensajes.map(item=>{
     	            return (
-    	            <div className="iconwrapper" key={item.id}>
+    	            <div className="nombreicon" key={item.id}>
+    	            <div className="iconwrapper" >
    <Badge
       badgeContent={<IconButton  style={iconbutton}  iconStyle={styles.mediumIcon} onClick={ () => this.portseleccionada(item.id)} tooltip={item.nombre}><Folder/> </IconButton>}
     >
    </Badge>
    
     	            </div>
+        <p >{item.nombre}</p>
+    </div>	            
+    	            
     	           )
     	        })
     	      }

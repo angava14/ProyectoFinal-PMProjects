@@ -144,13 +144,16 @@ modificardocumento(id){
  
                  	 {window.documentos.map(item=>{
     	            return (
-    	            <div className="iconwrapper" key={item.id}>
+    	            <div className="nombreicon" key={item.id} >
+    	            <div className="iconwrapper">
    <Badge
       badgeContent={<IconButton style={iconbutton} iconStyle={styles.mediumIcon} onClick={ ()=> this.modificardocumento(item.id)} tooltip={item.nombre}><File/> </IconButton>}
     >
    </Badge>
    
     	            </div>
+    	                <p>{item.nombre}</p>
+                           </div>
     	           )
     	        })
     	      }

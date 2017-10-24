@@ -19,8 +19,12 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 const itemcolor ={
   color: '#FFFFFF',
   marginTop: '1%',
-  marginRight: '2%'
+  marginRight: '2%',
+  display:'flex',
+  height: '5%'
 }
+
+
 
 const styles = {
   floatingLabelStyle: {
@@ -231,8 +235,8 @@ token.reauthenticateWithCredential(credential).then(function() {
 
 
 
-  <Tabs  >
-    <Tab
+  <Tabs >
+    <Tab 
       icon={<Info/>}
       label="Informacion Basica"
     >
@@ -244,7 +248,7 @@ token.reauthenticateWithCredential(credential).then(function() {
 
 { this.state.mostrar == true ?
 <div>
-   <FlatButton style={itemcolor} label="Cambiar Avatar" onClick={ () => this.handleOpen()} backgroundColor="#00bcd4" hoverColor="#006775"/>
+    <button className="botonavatar"   onClick={ () => this.handleOpen()} >Cambiar Avatar</button>
 
  
               <Dialog
