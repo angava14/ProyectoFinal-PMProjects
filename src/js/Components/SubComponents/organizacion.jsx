@@ -8,7 +8,7 @@ import Orgicon from 'material-ui/svg-icons/hardware/developer-board';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import {saveOrg} from './../config.jsx';
+import {saveOrg} from './../../config.jsx';
 import Snackbar from 'material-ui/Snackbar';
 import * as  firebase from 'firebase'
 /*global localStorage*/

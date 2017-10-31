@@ -4,8 +4,8 @@ import Divider from 'material-ui/Divider';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
-import {CompAdd} from './../config.jsx';
-import {agregarnodo} from './../config.jsx';
+import {CompAdd} from './../../config.jsx';
+import {agregarnodo} from './../../config.jsx';
 import * as  firebase from 'firebase'
 import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
@@ -75,6 +75,7 @@ borrarcomp(id){
 }
 
 crearnodo(id){
+    
     agregarnodo(this.props.nombreformato,id);
     
 }

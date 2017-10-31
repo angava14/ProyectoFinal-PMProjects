@@ -1,0 +1,28 @@
+.selectoresformatos{
+    display:flex;
+    flex-direction:row ;
+    justify-content: center ;
+    align-items: center;
+}
+
+
+.selecteditar{
+    margin: 2% 5% 5% 0;
+    width: 20%;
+    height: 40px;
+}
+
+.formatoeditartitulo{
+    margin-top : 2% ;
+    display:flex;
+    justify-content: center ;
+    align-items: center;
+}
+
+.papereditar{
+    width : 60% ;
+    margin: 0 20% 0 20%;
+    display: flex;
+    justify-content: center ;
+    align-items: center;
+}

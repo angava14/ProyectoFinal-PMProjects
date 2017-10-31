@@ -1,10 +1,10 @@
 
 const React = require('react');
-const Navlog = require('./navlog.jsx');
-const Organizacion= require('./organizacion.jsx');
-const Portafolio = require('./portafolio.jsx');
-const Proyecto = require('./proyecto.jsx');
-const Documento = require('./documento.jsx');
+const Navlog = require('./SubComponents/navlog.jsx');
+const Organizacion= require('./SubComponents/organizacion.jsx');
+const Portafolio = require('./SubComponents/portafolio.jsx');
+const Proyecto = require('./SubComponents/proyecto.jsx');
+const Documento = require('./SubComponents/documento.jsx');
 import {getToken} from './../config.jsx';
 import {verify} from './../config.jsx';
 import * as  firebase from 'firebase'

@@ -5,8 +5,8 @@ import Acerca from 'material-ui/svg-icons/action/help';
 import Home from 'material-ui/svg-icons/action/home';
 import AppBar from 'material-ui/AppBar';
 import FlatButton from 'material-ui/FlatButton';
-import {logout} from './../config.jsx';
-import {getToken} from './../config.jsx';
+import {logout} from './../../config.jsx';
+import {getToken} from './../../config.jsx';
 /*global localStorage*/
 
 const itemcolor ={
@@ -32,7 +32,6 @@ class Navlog extends React.Component {
 
 shouldComponentUpdate(nextProps, nextState){
    
-console.log(nextProps);
     return true;
 }
 

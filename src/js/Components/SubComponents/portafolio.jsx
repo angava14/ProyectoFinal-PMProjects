@@ -9,7 +9,7 @@ import * as  firebase from 'firebase';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import {savePort} from './../config.jsx';
+import {savePort} from './../../config.jsx';
 import Snackbar from 'material-ui/Snackbar';
 /*global localStorage*/
 

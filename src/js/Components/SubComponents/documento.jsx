@@ -9,7 +9,7 @@ import * as  firebase from 'firebase';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import {saveDoc} from './../config.jsx';
+import {saveDoc} from './../../config.jsx';
 import Snackbar from 'material-ui/Snackbar';
 /*global localStorage*/
 
@@ -35,7 +35,7 @@ class Documento extends React.Component {
             description:'',
             messages:[],
             snack: false
-           
+            
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
@@ -128,9 +128,18 @@ this.montardocumento(nextProps.data, nextProps.dataport , nextProps.dataproy);
     }
     
     
-modificardocumento(id){
+modificardocumento(id , nombre){
     localStorage.setItem('iddocumento',id);
-    console.log(this.props);
+    const ruta = {
+        orgname: this.props.data ,
+        portname: this.props.dataport ,
+        proyname: this.props.dataproy ,
+        docname: nombre ,
+        docid: id ,
+    }
+    
+    localStorage.setItem('ruta', JSON.stringify(ruta));
+    
     this.props.history.push({pathname:'/editardocumento'});
 }
     
@@ -147,7 +156,7 @@ modificardocumento(id){
     	            <div className="nombreicon" key={item.id} >
     	            <div className="iconwrapper">
    <Badge
-      badgeContent={<IconButton style={iconbutton} iconStyle={styles.mediumIcon} onClick={ ()=> this.modificardocumento(item.id)} tooltip={item.nombre}><File/> </IconButton>}
+      badgeContent={<IconButton style={iconbutton} iconStyle={styles.mediumIcon} onClick={ ()=> this.modificardocumento(item.id , item.nombre)} tooltip={item.nombre}><File/> </IconButton>}
     >
    </Badge>
    

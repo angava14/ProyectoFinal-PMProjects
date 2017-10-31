@@ -1,5 +1,5 @@
 const React = require('react');
-const Navlog = require('./navlog.jsx');
+const Navlog = require('./SubComponents/navlog.jsx');
 import * as  firebase from 'firebase'
 import {listarorgs} from './../config.jsx';
  import Badge from 'material-ui/Badge';

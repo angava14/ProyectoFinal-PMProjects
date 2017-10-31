@@ -1,7 +1,7 @@
 
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-const Navlog = require('./navlog.jsx');
+const Navlog = require('./SubComponents/navlog.jsx');
 import Avatar from 'material-ui/Avatar';
 import Dialog from 'material-ui/Dialog';
 import Info from 'material-ui/svg-icons/communication/contact-mail';

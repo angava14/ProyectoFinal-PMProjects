@@ -1,5 +1,5 @@
 const React = require('react');
-const Nav = require('./nav.jsx');
+const Nav = require('./SubComponents/nav.jsx');
 import {login} from './../config.jsx';
 import * as firebase from 'firebase';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';

@@ -191,3 +191,9 @@ export function saveTabla (object) {
         messagesRef.set(newformat);
         
 }
+
+    export function nodospropios ( idcomponente, objeto) {
+      const messagesRef =firebase.database().ref().child('organizacion/'+objeto.orgname+"/portafolio/"+objeto.portname+'/proyecto/'+objeto.proyname+"/documentos/"+ objeto.docid+"/extras/"+ idcomponente);
+      const nodoextra ={nombre: 'extra'}
+      messagesRef.push(nodoextra);
+}

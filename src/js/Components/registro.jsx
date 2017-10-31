@@ -1,6 +1,6 @@
 
 const React = require('react');
-const Navlog = require('./navlog.jsx');
+const Navlog = require('./SubComponents/navlog.jsx');
 import {saveUser} from './../config.jsx';
 import {saveFotoDefault} from './../config.jsx';
 import {saveUserEnOrg} from './../config.jsx';
@@ -39,6 +39,9 @@ class Registro extends React.Component {
             org: "",
             acctype:'false',
             snack: false ,
+            snackuso: false ,
+            snackinvalido: false ,
+            snackdebil: false ,
           
         }
             this.handleChange = this.handleChange.bind(this);
@@ -167,14 +170,16 @@ padre.setState({ auth: false});
 			  var errorCode = error.code;
 			  var errorMessage = error.message;
        if (errorCode === "auth/email-already-in-use"){
-           alert("Correo Electronico en Uso");
+          padre.setState({ snackuso: true})
        }else{
            if(errorCode === "auth/invalid-email"){
-               alert('Correo Electronico Invalido');
+               
+               padre.setState({ snackinvalido: true})
            }else{
                
                if (errorCode === "auth/weak-password"){
-                   alert("Contraseña muy debil");
+                  
+                   padre.setState({ snackdebil: true})
                }
            }
            
@@ -192,6 +197,9 @@ padre.setState({ auth: false});
           
     this.setState({
       snack: false,
+      snackuso: false,
+      snackinvalido: false,
+      snackdebil: false,
     });
   }
 	
@@ -242,11 +250,29 @@ padre.setState({ auth: false});
         
        <Snackbar
           open={this.state.snack}
-          message="Organizacion Creada"
+          message="Usuario Creado"
           autoHideDuration={2000}
           onRequestClose={this.handleRequestClose}
         />
         
+               <Snackbar
+          open={this.state.snackuso}
+          message="Correo Electronico en Uso"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+               <Snackbar
+          open={this.state.snackinvalido}
+          message="Correo Electronico Invalido"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+               <Snackbar
+          open={this.state.snackdebil}
+          message="Contraseña muy debil"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
         
         
   </div>
