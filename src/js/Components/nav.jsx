@@ -35,7 +35,7 @@ redirect(){
     showMenuIconButton={false}
     onTitleTouchTap={() => this.redirect() }
     iconElementRight={<div >
-    <FlatButton style={itemcolor} label="Iniciar Sesion" href="/login" /> <FlatButton style={itemcolor} label="Acerca de" href="/contacto"/>
+    <FlatButton style={itemcolor} label="Iniciar Sesión" href="/login" /> <FlatButton style={itemcolor} label="Acerca de" href="/contacto"/>
     </div>}
   />
 </MuiThemeProvider>

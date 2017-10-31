@@ -17,8 +17,8 @@ const cursor= {
 }
 class Navlog extends React.Component {
     
-    	    constructor() {
-        super();
+    	    constructor(props) {
+        super(props);
 
             this.lout = this.lout.bind(this);
             this.redirect = this.redirect.bind(this);
@@ -29,6 +29,13 @@ class Navlog extends React.Component {
   
   this.props.history.push({pathname:'/'})
 }
+
+shouldComponentUpdate(nextProps, nextState){
+   
+console.log(nextProps);
+    return true;
+}
+
 
 guardarid(){
   const token = getToken() ; 
@@ -54,7 +61,9 @@ guardarid(){
     <FlatButton style={itemcolor} label="Inicio" href="/" />
     <FlatButton style={itemcolor} label="Mi Perfil" href="/perfil"  onClick={() => this.guardarid()}/>
     <FlatButton style={itemcolor} label="Usuarios" href="/usuarios"/> 
-    <FlatButton style={itemcolor} label="Formatos" href="/formatos"/>
+    { this.props.admin == 'true' ?
+    <FlatButton style={itemcolor} label="Formatos" href="/formatos"   />
+    : null }
     <FlatButton style={itemcolor} label="Acerca de" href="/contacto"/>
     <FlatButton style={itemcolor} label="Logout" onClick={() => this.lout()} />
     </div>}

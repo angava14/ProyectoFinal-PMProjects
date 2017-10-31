@@ -35,7 +35,7 @@ componentWillMount(){
         messageRef.on('value',(snapshot) =>{
             
             let messages = snapshot.val();
-            console.log(messages);
+            
             let newState = [];
             for (let message in messages){
 
@@ -69,8 +69,8 @@ borrarnodo(id){
 {this.state.nodos.map(item=>{
     return(
 <div key={item.id} className='nodos'>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true} />    
-  <IconButton style={iconbutton} onClick={ () => this.borrarnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Nodo"><Delicon /></IconButton>  
+ <TextField   hintText="Texto" fullWidth={true} multiLine={true}  disabled={true} />    
+  <IconButton style={iconbutton} onClick={ () => this.borrarnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Campo"><Delicon /></IconButton>  
  </div> )
 })}
 </div>

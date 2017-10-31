@@ -81,6 +81,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       newState.push({
                      id: message,
                      nombre: messages[message].nombre,
+                     
             });  
 
                  
@@ -181,7 +182,7 @@ handlemenu  (event, index, value) {
             
         });
         
-        
+        console.log(org);
         const messageRef = firebase.database().ref().child('organizacion/'+org+'/miembros');
         messageRef.on('value',(snapshot) =>{
             
@@ -194,7 +195,8 @@ handlemenu  (event, index, value) {
                      id: message,
                      nombre: messages[message].nombre,
                      email: messages[message].correo ,
-                     uid: messages[message].uid
+                     uid: messages[message].uid,
+                     
             });  
             
  
@@ -215,7 +217,7 @@ handlemenu  (event, index, value) {
 	   
 		return (
 <div>
-<Navlog  history={this.props.history}/>
+<Navlog  history={this.props.history} admin={this.state.admin} />
 
 
 
@@ -247,7 +249,7 @@ handlemenu  (event, index, value) {
 <TableRow    >
         <TableHeaderColumn>Nombre</TableHeaderColumn>
         <TableHeaderColumn>Correo</TableHeaderColumn>
-        <TableHeaderColumn>Organizacion</TableHeaderColumn>
+        <TableHeaderColumn>Organización</TableHeaderColumn>
         <TableHeaderColumn>Opciones</TableHeaderColumn>
 </TableRow>
 </TableHeader>

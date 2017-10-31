@@ -11,6 +11,7 @@ import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
 import Delicon from 'material-ui/svg-icons/content/delete-sweep';
 const Nodos = require('./nodos.jsx');
+import RaisedButton from 'material-ui/RaisedButton';
 
 const paper={
     width: "100%" ,
@@ -18,6 +19,11 @@ const paper={
 const iconbutton ={
     padding: 0 
 }
+const botones ={
+    margin: '0% 0% 0% 5%' ,
+    height: '15%'
+}
+
  var styles={
   mediumIcon: {
     width: 36,
@@ -95,12 +101,13 @@ CompAdd(this.props.nombreformato);
 
 <div className="paper" >
   <Paper zDepth={2} style={paper}  >
-    <h4>Titulo</h4>
-    <TextField fullWidth={true} />
+    <h4>Título del Documento</h4>
+    <TextField fullWidth={true}  disabled={true}/>
     <Divider />
   </Paper>
+  
+<RaisedButton label="Agregar Seccion" primary={true} onClick={ () => this.agregarcomponente()} style={botones}  />
 
-<button className="botonagregarcomponente"   onClick={ () => this.agregarcomponente()} >Agregar Componente</button>
 
 </div>
 
@@ -109,11 +116,11 @@ return(
 <div className="paper" key={item.id}>
 
   <Paper zDepth={2} style={paper}  >
-  <IconButton style={iconbutton} onClick={ () => this.borrarcomp(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Componente"><Delicon /></IconButton>
-    <TextField hintText="Texto" fullWidth={true} multiLine={true}/>
-    <TextField   hintText="Texto" fullWidth={true} multiLine={true} />
+  <IconButton style={iconbutton} onClick={ () => this.borrarcomp(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Seccion"><Delicon /></IconButton>
+    <TextField hintText="Titulo" fullWidth={true} multiLine={true} disabled={true}/>
+    <TextField   hintText="Texto" fullWidth={true} multiLine={true}  disabled={true} />
     <Nodos idcomponente={item.id} nombreformato={this.props.nombreformato} />
-    <IconButton style={iconbutton} onClick={ () => this.crearnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Crear Nodos"><Addicon /></IconButton>
+    <IconButton style={iconbutton} onClick={ () => this.crearnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Crear Campo"><Addicon /></IconButton>
     <Divider />
   </Paper>
 

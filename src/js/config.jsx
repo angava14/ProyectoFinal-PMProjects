@@ -47,6 +47,15 @@ export function saveUser (user) {
     .then(() => user)
 }
   
+ export function saveFotoDefault (objeto) {
+  return ref.child('usuarios/'+objeto.uid+'/avatar')
+    .set({
+       link: objeto.link ,
+       name: 'photo.jpg'
+    })
+    
+} 
+  
 export function saveUserEnOrg (orgid , user , name) {
   return ref.child('organizacion/'+orgid+'/miembros')
     .push({
@@ -173,3 +182,12 @@ export function CompAdd (object) {
         
 }    
         
+export function saveTabla (object) {
+        const messagesRef =firebase.database().ref().child('formatos/tablas/'+object);
+        const newformat = {
+        nombre: object,
+        }
+        
+        messagesRef.set(newformat);
+        
+}

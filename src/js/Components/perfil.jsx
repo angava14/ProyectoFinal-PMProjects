@@ -14,6 +14,7 @@ import FlatButton from 'material-ui/FlatButton' ;
 import * as  firebase from 'firebase'
 import {Card, CardActions, CardTitle, CardText} from 'material-ui/Card';
 import {Tabs, Tab} from 'material-ui/Tabs';
+import Snackbar from 'material-ui/Snackbar';
 /*global  localStorage */
 
 const itemcolor ={
@@ -63,6 +64,8 @@ class Perfil extends React.Component {
             showchangepass: true ,
             admin:'',
             mostrar: false ,
+            snack:false,
+            snackerror:false,
         }
             this.handleChange = this.handleChange.bind(this);
             this.getFileName = this.getFileName.bind(this);
@@ -92,14 +95,14 @@ padre.setState({ auth: false});
                             /*  Verificacion si es ADMIN O MI LA MISMA PERSONA VIENDO SU PERFIL */
 
            if ( (messages.admin == 'true') || (padre.state.id == padre.state.idusuarioactivo) ){
-               console.log('true');
+               
                this.setState({
                admin: messages.admin,
                mostrar: true 
                  }); 
                  
            }else{
-           console.log('false');
+           
             this.setState({
                admin: messages.admin,
                  });
@@ -188,17 +191,17 @@ token.reauthenticateWithCredential(credential).then(function() {
                  token.updatePassword(newpass).then(function() {
                   
                    
-                   alert('Contraseña actualizada - Ingrese nuevamente');
+                   padre.setState({ snack: true}) ;
                    logout();
                    localStorage.clear();
                    padre.props.history.push({pathname:'/'})
   
                   }).catch(function(error) {
-                  alert('Error Firebase');
+                  
                    });
                    
                }else{
-                 alert('Credenciales no coinciden');
+                 padre.setState({ snackerror: true}) ;
                   padre.setState({
                     password:'',
                     newpassword:'',
@@ -208,7 +211,7 @@ token.reauthenticateWithCredential(credential).then(function() {
 
         
 }).catch(function(error) {
- alert('Credencial existente no coincide');
+ padre.setState({ snackerror: true}) ;
                    padre.setState({
                     password:'',
                     newpassword:'',
@@ -223,27 +226,33 @@ token.reauthenticateWithCredential(credential).then(function() {
     	this.setState({ open: false })
     }
 
-
+          handleRequestClose () {
+          
+    this.setState({
+      snack: false,
+      snackerror:false,
+    });
+  }
 
 
 	render() {
 	    
 		return (<section>
 <div>
-<Navlog history={this.props.history} />
+<Navlog history={this.props.history} admin={this.state.admin} />
 <MuiThemeProvider>
 
-
+<div>
 
   <Tabs >
     <Tab 
       icon={<Info/>}
-      label="Informacion Basica"
+      label="Información Basica"
     >
     <div className="pantallaperfil">
 
 <div className="divisorfoto">
-<h1>Foto de Perfil</h1>
+<h1  >Foto de Perfil</h1>
 <Avatar src={this.state.avatar} size={240} className="avatar" />
 
 { this.state.mostrar == true ?
@@ -269,7 +278,7 @@ token.reauthenticateWithCredential(credential).then(function() {
 </div>
 
 <div className="divisorperfil" >
-<h1>Informacion Basica</h1>
+<h1>Información Basica</h1>
 
 <div className="perfil" >
 
@@ -285,13 +294,13 @@ token.reauthenticateWithCredential(credential).then(function() {
         <TextField
       floatingLabelStyle={styles.floatingLabelStyle}
       value={this.state.email}
-      floatingLabelText="Correo Electronico"
+      floatingLabelText="Correo  Electrónico"
     />
     <br/>
         <TextField
       floatingLabelStyle={styles.floatingLabelStyle}
       value={this.state.orgname}
-      floatingLabelText="Organizacion"
+      floatingLabelText="Organización"
     />
 		</CardActions>
     </Card>
@@ -348,8 +357,20 @@ null
 
   </Tabs>
 
-
-
+		 <Snackbar
+          open={this.state.snack}
+          message="Contraseña Actualizada - Ingrese Nuevamente"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+        
+        <Snackbar
+          open={this.state.snackerror}
+          message="Credenciales Incorrectas - Intente Nuevamente"
+          autoHideDuration={2000}
+          onRequestClose={this.handleRequestClose}
+        />
+</div>
 </MuiThemeProvider>
 </div>
 				</section>);

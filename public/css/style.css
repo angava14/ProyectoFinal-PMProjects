@@ -58,10 +58,10 @@
   align-items: center; }
 
 .avatar {
-  margin: 10% 0 10% 0; }
+  margin: 5% 0 10% 0; }
 
 .perfil {
-  margin: 5% 20% 0 20%;
+  margin: 10% 20% 0 20%;
   width: 60%;
   display: flex;
   flex-direction: column;
@@ -136,6 +136,17 @@
 
 .botonagregarcomponente:hover {
   background-color: #006775; }
+
+.selectfieldformato {
+  height: 50px;
+  width: 55%;
+  font-size: medium;
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+
+.tituloselect {
+  margin-top: 5%; }
 
 .reset, body {
   margin: 0;

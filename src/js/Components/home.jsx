@@ -93,7 +93,7 @@ componentDidMount(){
 		 if (this.state.auth == true) {    /*  IF */
 	return (
 	<div>
-<Navlog history={this.props.history} />
+<Navlog history={this.props.history} admin={this.state.admin} />
 <div className="pantalla">
 
 

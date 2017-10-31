@@ -117,8 +117,6 @@ class Organizacion extends React.Component {
     }
     
     
-
-    
     orgseleccionada(id){
         
         this.props.guardarid(id);
@@ -173,12 +171,12 @@ class Organizacion extends React.Component {
 
    <Badge
       
-      badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Organizacion"><Addicon /></IconButton>}
+      badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Organización"><Addicon /></IconButton>}
     >
    </Badge>
    
            <Dialog
-          title="Crear Organizacion"
+          title="Crear Organización"
           
           modal={true}
           open={this.state.open}
@@ -192,7 +190,7 @@ class Organizacion extends React.Component {
     <TextField
         value={this.state.description} onChange={ this.handleChange}  name="description"    type="text"
         fullWidth={true}
-      floatingLabelText="Descripcion"
+      floatingLabelText="Descripción"
        multiLine={true}
       rows={3}
     /><br />
@@ -214,7 +212,7 @@ class Organizacion extends React.Component {
         
         <Snackbar
           open={this.state.snack}
-          message="Organizacion Creada"
+          message="Organización Creada"
           autoHideDuration={2000}
           onRequestClose={this.handleRequestClose}
         />

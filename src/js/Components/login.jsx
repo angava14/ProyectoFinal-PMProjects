@@ -84,13 +84,13 @@ class Login extends React.Component {
 		<form  className="cardloginregistro"  onSubmit={this.handleSubmit} >
 		<div className="login">
 		<Card  >
-		<CardTitle style={card} titleStyle={card}  title="Iniciar Sesion"  />
+		<CardTitle style={card} titleStyle={card}  title="Iniciar Sesión"  />
 		
     	<CardActions>
 
         <TextField
        value={this.state.email} onChange={this.handleChange}  name="email"    type="email" 
-      floatingLabelText="Ingrese Correo Electronico"
+      floatingLabelText="Ingrese Correo Electrónico"
     /><br />
     <TextField
        value={this.state.password} onChange={this.handleChange}  name="password"    type="password" 

@@ -2,6 +2,7 @@
 const React = require('react');
 const Navlog = require('./navlog.jsx');
 import {saveUser} from './../config.jsx';
+import {saveFotoDefault} from './../config.jsx';
 import {saveUserEnOrg} from './../config.jsx';
 import {auth} from './../config.jsx';
 import * as firebase from 'firebase';
@@ -11,7 +12,7 @@ import {Card, CardActions, CardTitle, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import Snackbar from 'material-ui/Snackbar';
-
+import {logout} from './../config.jsx';
 
   const card ={
 	display:'flex',
@@ -60,7 +61,8 @@ firebase.auth().onAuthStateChanged(function(user) {
             padre.setState({
                 auth: true,
                admin: messages.admin,
-               orgid: messages.orgid
+               orgid: messages.orgid,
+               
             });
 	       });
 	    
@@ -131,9 +133,11 @@ padre.setState({ auth: false});
 					name: nametemp+" "+lastnametemp ,
 					password: passwordtemp,
 					admin: admin ,
-					org: organizacion
+					org: organizacion,
+					link: 'https://firebasestorage.googleapis.com/v0/b/proyectofinal-a3139.appspot.com/o/fotodefault%2Fphoto.jpg?alt=media&token=1a60d501-a316-403f-80e5-28f9c9cd9358'
 				}
 				saveUser(objeto);
+				saveFotoDefault(objeto);
 				saveUserEnOrg(organizacion , userRecord , objeto.name);
 				userRecord.updateProfile({displayName: nametemp+" "+lastnametemp});
 				
@@ -141,9 +145,11 @@ padre.setState({ auth: false});
   firebase.auth().sendPasswordResetEmail(
     emailtemp)
     .then(function() {
-        localStorage.clear();
         padre.setState({snack:true});
-        padre.props.history.push({pathname: '/login'})
+         logout();
+         location.reload();
+        
+        
       
       
       

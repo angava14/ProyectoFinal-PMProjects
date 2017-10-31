@@ -178,7 +178,7 @@ modificardocumento(id){
     <TextField
         value={this.state.description} onChange={ this.handleChange}  name="description"    type="text"
         fullWidth={true}
-      floatingLabelText="Descripcion"
+      floatingLabelText="Descripción"
        multiLine={true}
       rows={3}
     /><br />
