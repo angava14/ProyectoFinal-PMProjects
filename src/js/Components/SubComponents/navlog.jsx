@@ -1,4 +1,4 @@
-
+/*Componente de barra nav CON login*/
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Acerca from 'material-ui/svg-icons/action/help';
@@ -31,7 +31,7 @@ class Navlog extends React.Component {
 }
 
 shouldComponentUpdate(nextProps, nextState){
-   
+
     return true;
 }
 

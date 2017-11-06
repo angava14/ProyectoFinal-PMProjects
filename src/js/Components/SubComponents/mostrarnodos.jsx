@@ -1,3 +1,4 @@
+/*Se muestran los nodos al momento de editar el documento selecionado*/
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import * as  firebase from 'firebase'
@@ -30,7 +31,7 @@ class MostrarNodos extends React.Component {
 
 componentWillMount(){
     
-        const messageRef = firebase.database().ref().child('formatos/documentos/'+this.props.nombreformato+'/componente/'+this.props.idcomponente+'/nodo');
+        const messageRef = firebase.database().ref().child('/documentos/'+ this.props.docid+'/componente/'+this.props.idcomponente+'/nodo');
         messageRef.on('value',(snapshot) =>{
             
             let messages = snapshot.val();
@@ -53,7 +54,6 @@ componentWillMount(){
     
     
 }
-
 
 
 

@@ -1,4 +1,4 @@
-
+/*Componente Documento de Home*/
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Badge from 'material-ui/Badge';
@@ -10,6 +10,8 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import {saveDoc} from './../../config.jsx';
+import {CrearDocumentoConFormato} from './../../config.jsx';
+import {CrearTablaConFormato} from './../../config.jsx';
 import Snackbar from 'material-ui/Snackbar';
 /*global localStorage*/
 
@@ -34,13 +36,17 @@ class Documento extends React.Component {
             name: " ",
             description:'',
             messages:[],
-            snack: false
+            snack: false ,
+            tipoformato : 0 ,
+            formatoseleccionado : '' ,
+            formatolist : [] ,
             
         }
             this.handleChange = this.handleChange.bind(this);
             this.handleSubmit = this.handleSubmit.bind(this);
             this.montardocumento = this.montardocumento.bind(this);
             this.handleRequestClose = this.handleRequestClose.bind(this);
+            this.tipoformatoseleccionado = this.tipoformatoseleccionado.bind(this);
     }
 
 
@@ -120,28 +126,127 @@ this.montardocumento(nextProps.data, nextProps.dataport , nextProps.dataproy);
         const idproy = this.props.dataproy ;
         const object= {
         name: nametemp,
-        description: descriptiontemp
+        description: descriptiontemp ,
+        formato: this.state.formatoseleccionado , 
+        tipoformato: this.state.tipoformato
         }
         
-     saveDoc(idorg , idport , idproy,object);
+         saveDoc(idorg , idport , idproy,object);
+         const keydocumentoagregado = localStorage.getItem("keyagregada");
+     
+     if (this.state.tipoformato == 1){
+         
+        const messageRef = firebase.database().ref().child('formatos/documentos/'+this.state.formatoseleccionado);
+        messageRef.on('value',(snapshot) =>{
+        CrearDocumentoConFormato( keydocumentoagregado , snapshot.val() , object , this.state.tipoformato);
+        });
+        
+     }
+     
+     if (this.state.tipoformato == 2){
+         
+                 const messageRef = firebase.database().ref().child('formatos/tablas/'+this.state.formatoseleccionado);
+                 messageRef.on('value',(snapshot) =>{
+                 CrearTablaConFormato( keydocumentoagregado , snapshot.val() , object , this.state.tipoformato);
+                 });
+     }
+     
      this.setState({open: false , name: '' , description: '' , snack: true});
+     
     }
     
     
 modificardocumento(id , nombre){
-    localStorage.setItem('iddocumento',id);
-    const ruta = {
-        orgname: this.props.data ,
-        portname: this.props.dataport ,
-        proyname: this.props.dataproy ,
-        docname: nombre ,
-        docid: id ,
-    }
+                 localStorage.setItem('iddocumento',id);
+                 const tipo = '' ;
+                 const padre = this;
+                 const messageRef = firebase.database().ref().child('documentos/'+id+"/");
+                 messageRef.on('value',(snapshot) =>{
+                     padre.tipo = snapshot.val().tipoformato ;
+                     const nombreformato = snapshot.val().formato ;
+                         localStorage.setItem('nombreformato',nombreformato);
+                         localStorage.setItem('doctitulo',nombre);
+                        
+                     
+                         if(padre.tipo == 1){
+                         this.props.history.push({pathname:'/editardocumento'});
+                         }
+                         
+                         if(padre.tipo == 2){
+                        this.props.history.push({pathname:'/editartabla'});
+                         }
+                     
+              });
     
-    localStorage.setItem('ruta', JSON.stringify(ruta));
-    
-    this.props.history.push({pathname:'/editardocumento'});
 }
+    
+    
+     tipoformatoseleccionado(e){
+                
+             var padre= this ;
+        this.setState({
+            [e.target.name]: e.target.value
+            
+        } , () => {   
+            
+            
+            
+             if (this.state.tipoformato == 1){
+             
+             const messageRef = firebase.database().ref().child('formatos/documentos/');
+             messageRef.on('value',(snapshot) =>{
+            
+            let messages = snapshot.val();
+            let newState = [];
+            for (let message in messages){
+
+            newState.push({
+                     id: message,
+                     nombre: messages[message].nombre,
+            });  
+
+                 
+            }
+            
+            padre.setState({
+                formatolist: newState
+            });
+            
+        });
+        
+        
+ }
+     
+     if(this.state.tipoformato == 2){
+         
+                      const messageRef = firebase.database().ref().child('formatos/tablas/');
+             messageRef.on('value',(snapshot) =>{
+            
+            let messages = snapshot.val();
+            let newState = [];
+            for (let message in messages){
+
+            newState.push({
+                     id: message,
+                     nombre: messages[message].nombre,
+            });  
+
+                 
+            }
+            
+            padre.setState({
+                formatolist: newState
+            });
+            
+        });
+        
+     }
+         
+        });
+       
+ }
+    
+    
     
 
 	render() {
@@ -191,6 +296,24 @@ modificardocumento(id , nombre){
        multiLine={true}
       rows={3}
     /><br />
+         
+         <div className="selectoresformatos">
+<select  className="selecteditar"  value={this.state.tipoformato} onChange={this.tipoformatoseleccionado} name="tipoformato" >
+             <option   value={0}  >Tipo de Formato</option>
+             <option   value={1}  >Documento</option>
+             <option   value={2}  >Tabla</option>
+ </select>
+ 
+<select  className="selecteditar"  value={this.state.formatoseleccionado} onChange={ this.handleChange } name="formatoseleccionado" >
+             <option   value="" >Seleccionar Formato</option>
+                 	 {this.state.formatolist.map(item=>{
+    	         return <option key={item.id}  value={item.id} > {item.nombre} </option> 
+    	        })
+    	      }
+ </select>
+
+ 
+</div>
          
                <FlatButton
         label="Cancel"

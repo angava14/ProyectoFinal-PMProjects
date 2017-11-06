@@ -1,3 +1,4 @@
+/*Router Page*/
 const Style = require('../css/style.scss');
 import Login from'./Components/login.jsx';
 import Home from'./Components/home.jsx';
@@ -6,6 +7,7 @@ import Perfil from'./Components/perfil.jsx';
 import Usuarios from'./Components/usuarios.jsx';
 import Formatos from'./Components/formatos.jsx';
 import EditarDoc from'./Components/editardocumento.jsx';
+import EditarTab from'./Components/editartabla.jsx';
 import React from 'react'
 import ReactDOM from 'react-dom';
 import {
@@ -26,6 +28,7 @@ import {
     <Route exact path="/usuarios"  component={Usuarios} />
     <Route exact path="/formatos"  component={Formatos} />
     <Route exact path="/editardocumento"  component={EditarDoc} />
+    <Route exact path="/editartabla"  component={EditarTab} />
     </div>
   </Router>
 ), document.getElementById('app'));

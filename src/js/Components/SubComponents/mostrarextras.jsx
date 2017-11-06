@@ -1,3 +1,5 @@
+/*Se muestran los campos extras agregados a los formatos, al momento de editar el documento*/
+
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import * as  firebase from 'firebase'
@@ -31,7 +33,7 @@ class MostrarExtras extends React.Component {
 
 componentWillMount(){
      
-        const messageRef = firebase.database().ref().child('organizacion/'+this.props.ruta.orgname+'/portafolio/'+this.props.ruta.portname+'/proyecto/'+ this.props.ruta.proyname + '/documentos/' + this.props.ruta.docid + "/extras/" + this.props.idcomponente);
+        const messageRef = firebase.database().ref().child('documentos/' + this.props.docid + "/componente/" + this.props.idcomponente + "/extras/");
        
         messageRef.on('value',(snapshot) =>{
             
@@ -58,7 +60,7 @@ componentWillMount(){
 
 borrarnodo(id){
    
-    firebase.database().ref().child('organizacion/'+this.props.ruta.orgname+'/portafolio/'+this.props.ruta.portname+'/proyecto/'+ this.props.ruta.proyname + '/documentos/' + this.props.ruta.docid + "/extras/" + this.props.idcomponente+"/"+ id).remove();
+    firebase.database().ref().child('documentos/' + this.props.docid + "/componente/" + this.props.idcomponente + "/extras/"+ id).remove();
 }
 
 

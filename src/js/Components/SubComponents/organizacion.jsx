@@ -1,4 +1,4 @@
-
+/*COMPONENTE ORGANIZACION DE LA PAGINA HOME*/
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Badge from 'material-ui/Badge';

@@ -1,8 +1,8 @@
+/*Pagina Formatos para la creacion de formatos*/
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 const Navlog = require('./SubComponents/navlog.jsx');
 import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
 import ArrayDocument from './SubComponents/arraydocument.jsx';
 import Tabla from './SubComponents/tablaformato.jsx';
 import Dialog from 'material-ui/Dialog';
@@ -11,12 +11,32 @@ import {saveFormato} from './../config.jsx';
 import {saveTabla} from './../config.jsx';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import MenuItem from 'material-ui/MenuItem';
+import IconMenu from 'material-ui/IconMenu';
+import IconButton from 'material-ui/IconButton';
+import Arrow from 'material-ui/svg-icons/navigation/arrow-drop-down-circle';
 import * as  firebase from 'firebase';
+import {
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderColumn,
+  TableRow,
+  TableRowColumn,
+} from 'material-ui/Table';
+
 /*global location*/
 
 const botones ={
     margin: '5% 0% 3% 5%' ,
 }
+
+const overflow={
+    overflow: 'scroll',
+}
+
+
 class Formatos extends React.Component {
     
         	    constructor(props) {
@@ -30,6 +50,7 @@ class Formatos extends React.Component {
         showdoc: false,
         showtable:false ,
         showboton: false,
+        menu: 1 ,
         showcrear: true,
         admin: false,
   }
@@ -37,6 +58,9 @@ class Formatos extends React.Component {
             this.handleSubmit = this.handleSubmit.bind(this);
             this.handleOpen = this.handleOpen.bind(this);
             this.handleClose = this.handleClose.bind(this);
+            this.modificarformato = this.modificarformato.bind(this);
+            this.eliminardocumento = this.eliminardocumento.bind(this);
+            this.eliminartabla = this.eliminartabla.bind(this);
     }
 
 componentWillMount(){
@@ -47,7 +71,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       
             firebase.database().ref().child('usuarios/'+ user.uid).on('value',(snapshot) =>{
             let messages = snapshot.val();
-           console.log(messages.admin);
+           
           if (messages.admin == 'true') {
               
             padre.setState({
@@ -62,13 +86,52 @@ firebase.auth().onAuthStateChanged(function(user) {
       
 
   } else {
-      
  padre.props.history.push({pathname:'/login'})
- 
   }
   
-  
 });
+
+        const messageRef = firebase.database().ref().child('formatos/documentos');
+        messageRef.on('value',(snapshot) =>{
+
+            let messages = snapshot.val();
+
+            let newState = [];
+            for (let message in messages){
+
+            newState.push({
+                     id: message,
+                     nombre: message,
+            });  
+
+                 
+            }
+            
+            window.listadocumentos = newState ;
+    
+});
+
+        const ref = firebase.database().ref().child('formatos/tablas');
+        ref.on('value',(snapshot) =>{
+
+            let messages = snapshot.val();
+
+            let newState = [];
+            for (let message in messages){
+
+            newState.push({
+                     id: message,
+                     nombre: message,
+            });  
+
+                 
+            }
+            
+            window.listatablas = newState ;
+    
+});
+
+
 }
 
 
@@ -81,12 +144,8 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
     
     handleShowAgain(){
-        this.setState({
-        dialogsalir:false,
-        showdoc: false,
-        showcrear: true , 
-        showboton: false ,
-       });
+        
+         this.setState({ dialogsalir:false, showdoc: false, showcrear: true , showboton: false , showtable: false,});
     }
           handleOpen() {
     this.setState({dialog: true , showboton: false});
@@ -99,7 +158,8 @@ firebase.auth().onAuthStateChanged(function(user) {
         handleClose () {
     this.setState({
       dialog: false,
-      dialogsalir:false,
+      dialogsalir:false ,
+      
     });
   }
          handleSubmit(){
@@ -118,6 +178,30 @@ firebase.auth().onAuthStateChanged(function(user) {
           }
     }
   
+ modificarformato(id , tipo){
+     console.log(id + " " + tipo);
+     if (tipo == 'documento'){
+this.setState({ dialog: false , showdoc: true , showboton:true , showtable: false , showcrear: false, name:id  });
+     
+     }
+     if (tipo == 'tabla'){
+this.setState({ dialog: false , showtable: true , showboton:true , showdoc: false , showcrear:false, name: id });
+
+     }
+
+     
+ }
+    
+        eliminardocumento(id){
+            console.log(id);
+             firebase.database().ref().child("formatos/documentos/"+id).remove();
+             location.reload()
+        }
+        eliminartabla(id){
+            console.log(id);
+             firebase.database().ref().child("formatos/tablas/"+id).remove();
+             location.reload()
+        }
     
 	render() {
 	     if ( this.state.admin == 'true') {
@@ -131,14 +215,101 @@ firebase.auth().onAuthStateChanged(function(user) {
 
 <div className="botonesformato">
 { this.state.showcrear ==  true ?
+<div>
+
 <RaisedButton label="Crear Formato" primary={true} onClick={() => this.handleOpen()} style={botones} />
+
+<div className="tabla">
+<Table style={overflow} >
+<TableHeader  adjustForCheckbox={false}  displaySelectAll={false}    >
+            <TableRow>
+              <TableHeaderColumn colSpan="3" tooltip="Lista de Formatos Creados" style={{textAlign: 'center'}}>
+                Lista de Formatos
+              </TableHeaderColumn>
+            </TableRow>
+<TableRow    >
+        <TableHeaderColumn>Nombre</TableHeaderColumn>
+        <TableHeaderColumn>Tipo</TableHeaderColumn>
+        <TableHeaderColumn>Opciones</TableHeaderColumn>
+</TableRow>
+</TableHeader>
+<TableBody  displayRowCheckbox={false} stripedRows={true} showRowHover={true} >
+
+
+                        	 {window.listadocumentos.map(item=>{
+    	            return (
+    	            
+    	<TableRow key={item.id}>
+        <TableRowColumn>{item.nombre}</TableRowColumn>
+        <TableRowColumn>Documento</TableRowColumn>
+  
+        
+        
+        <TableRowColumn> 
+        <IconMenu
+          iconButtonElement={<IconButton><Arrow /></IconButton>}
+          onChange={this.menu}
+          value={this.state.menu}
+        >
+
+          <MenuItem value={2} primaryText="Modificar" onClick={ ()=> this.modificarformato(item.nombre , 'documento') }/>
+          {  this.state.admin == "true" ?
+          <MenuItem value={3} primaryText="Eliminar" onClick={ () => this.eliminardocumento(item.nombre)} />
+          : null }
+        </IconMenu>
+        
+        </TableRowColumn>
+    	           </TableRow>
+    	            
+    	         )  
+    	           
+    	        })
+    	      }
+    	      
+    	                              	 {window.listatablas.map(item=>{
+    	            return (
+    	            
+    	<TableRow key={item.id}>
+        <TableRowColumn>{item.nombre}</TableRowColumn>
+        <TableRowColumn>Tabla</TableRowColumn>
+
+        
+        
+        <TableRowColumn> 
+        <IconMenu
+          iconButtonElement={<IconButton><Arrow /></IconButton>}
+          onChange={this.menu}
+          value={this.state.menu}
+        >
+
+          <MenuItem value={2} primaryText="Modificar" onClick={ ()=> this.modificarformato(item.nombre , 'tabla') } />
+          {  this.state.admin == "true" ?
+          <MenuItem value={3} primaryText="Eliminar" onClick={ () => this.eliminartabla(item.nombre)}  />
+          : null }
+        </IconMenu>
+        
+        </TableRowColumn>
+    	           </TableRow>
+    	            
+    	         )  
+    	           
+    	        })
+    	      }
+
+
+</TableBody>
+</Table>
+</div>
+
+</div>
+
 : 
 
 <RaisedButton label="Cancelar" primary={true} onClick={ ()=> this.handleOpenSalir()  } style={botones} />   
     
 }
 { this.state.showboton == true ?
-<RaisedButton label="Guardar" primary={true} onClick={ () => location.reload() } style={botones} />
+<RaisedButton label="Guardar" primary={true} onClick={ () =>  location.reload() } style={botones} />
 
 : null }
 </div>
@@ -173,7 +344,7 @@ firebase.auth().onAuthStateChanged(function(user) {
         </Dialog>
 
            <Dialog
-          title="Desea Deshacer el formato?"
+          title="Desea Deshacer el Formato?"
           
           modal={true}
           open={this.state.dialogsalir}
@@ -191,8 +362,6 @@ firebase.auth().onAuthStateChanged(function(user) {
       />
  
         </Dialog>
-
-
 
 
 

@@ -1,3 +1,4 @@
+/*MOSTRAR Y BORRAR NODOS AL MOMENTO DE CREAR FORMATOS*/
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import * as  firebase from 'firebase'

@@ -1,3 +1,4 @@
+/*Componente de barra Nav sin login*/
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Acerca from 'material-ui/svg-icons/action/help';

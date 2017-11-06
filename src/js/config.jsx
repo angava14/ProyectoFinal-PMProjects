@@ -1,4 +1,4 @@
-
+/*Firebase Functions Page*/
 import * as  firebase from 'firebase'
 
   var config = {
@@ -100,13 +100,21 @@ export function saveProy (id,idport,object) {
 }
 
 export function saveDoc (id,idport,idproy,object) {
+         
         const messagesRef =firebase.database().ref().child('organizacion/'+id+"/portafolio/"+idport+'/proyecto/'+idproy+"/documentos");
         const newport = {
         nombre: object.name,
-        descripcion: object.description
+        descripcion: object.description ,
+        formato: object.formato,
+        tipoformato: object.tipoformato
         }
         
         messagesRef.push(newport);
+        const ultimo  = firebase.database().ref('organizacion/'+id+"/portafolio/"+idport+'/proyecto/'+idproy+"/documentos")
+        ultimo.limitToLast(1).on('child_added', function(childSnapshot) {
+          localStorage.setItem("keyagregada",childSnapshot.key);
+        });
+        
         
 }
 
@@ -143,7 +151,19 @@ export function updatepass (id,pass) {             /* NO ES UTILIZADA */
 firebase.database().ref("usuarios/"+id).update({ password: pass });
 }
 
+export function formatotabla (columna,fila,nombre) {           
+  
+  let data = new Array;
+  for ( let i = 0 ; i <= fila ; i++ ){
+    data[i] = new Array;
+      for ( let j = 0 ; j < columna ; j++ ){
+    data[i][j] = "" ;
+  }
+  }
+  
+firebase.database().ref("formatos/tablas/"+nombre).update({ columnas: columna , filas: fila, datos: data });
 
+}
 
 
 
@@ -193,7 +213,50 @@ export function saveTabla (object) {
 }
 
     export function nodospropios ( idcomponente, objeto) {
-      const messagesRef =firebase.database().ref().child('organizacion/'+objeto.orgname+"/portafolio/"+objeto.portname+'/proyecto/'+objeto.proyname+"/documentos/"+ objeto.docid+"/extras/"+ idcomponente);
+      const messagesRef =firebase.database().ref().child("documentos/"+ objeto+"/componente/"+ idcomponente + "/extras/");
       const nodoextra ={nombre: 'extra'}
       messagesRef.push(nodoextra);
 }
+
+    export function guardarmatriz ( objeto) {
+      const messagesRef =firebase.database().ref().child("ejemplo/");
+      messagesRef.push(objeto);
+}
+
+
+export function CrearDocumentoConFormato (key , formato ,  objeto, tipo) {
+
+  const update= ({
+    formato: formato.nombre ,
+    componente: formato.componente ,
+    descripcion: objeto.description ,
+    nombre: objeto.name ,
+    tipoformato: tipo
+  });
+   const messagesRef =firebase.database().ref().child('documentos/'+ key + "/");
+    messagesRef.update(update);
+  
+}
+
+export function CrearTablaConFormato (key , format,  objeto , tipo) {
+  
+    
+    const messagesRef =firebase.database().ref().child('documentos/'+ key + "/");
+    const update = ({
+      formato: format.nombre , 
+      nombre: objeto.name , 
+      descripcion: objeto.description , 
+      filas:format.filas , 
+      columnas: format.columnas,
+      tipoformato: tipo ,
+      datos: format.datos , 
+    }) ; 
+    messagesRef.update( update);
+  
+}
+
+    export function guardarmatrizdatos (objeto , id) {
+      const messagesRef =firebase.database().ref().child("documentos/"+ id + '/datos');
+      messagesRef.update(objeto);
+}
+

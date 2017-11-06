@@ -46,6 +46,7 @@
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
+	/*Router Page*/
 	'use strict';
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -78,6 +79,10 @@
 
 	var _ComponentsEditardocumentoJsx2 = _interopRequireDefault(_ComponentsEditardocumentoJsx);
 
+	var _ComponentsEditartablaJsx = __webpack_require__(638);
+
+	var _ComponentsEditartablaJsx2 = _interopRequireDefault(_ComponentsEditartablaJsx);
+
 	var _react = __webpack_require__(241);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -86,9 +91,9 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _reactRouterDom = __webpack_require__(636);
+	var _reactRouterDom = __webpack_require__(639);
 
-	var Style = __webpack_require__(673);
+	var Style = __webpack_require__(676);
 
 	_reactDom2['default'].render(_react2['default'].createElement(
 	  _reactRouterDom.BrowserRouter,
@@ -102,7 +107,8 @@
 	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/registro', component: _ComponentsRegistroJsx2['default'] }),
 	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/usuarios', component: _ComponentsUsuariosJsx2['default'] }),
 	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/formatos', component: _ComponentsFormatosJsx2['default'] }),
-	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/editardocumento', component: _ComponentsEditardocumentoJsx2['default'] })
+	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/editardocumento', component: _ComponentsEditardocumentoJsx2['default'] }),
+	    _react2['default'].createElement(_reactRouterDom.Route, { exact: true, path: '/editartabla', component: _ComponentsEditartablaJsx2['default'] })
 	  )
 	), document.getElementById('app'));
 
@@ -155,7 +161,7 @@
 	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
 
 	var React = __webpack_require__(241);
-	var Nav = __webpack_require__(674);
+	var Nav = __webpack_require__(552);
 
 	var card = {
 	  display: 'flex',
@@ -300,6 +306,7 @@
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
+	/*Firebase Functions Page*/
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
@@ -318,12 +325,17 @@
 	exports.saveDoc = saveDoc;
 	exports.uploadImage = uploadImage;
 	exports.updatepass = updatepass;
+	exports.formatotabla = formatotabla;
 	exports.getToken = getToken;
 	exports.saveFormato = saveFormato;
 	exports.CompAdd = CompAdd;
 	exports.agregarnodo = agregarnodo;
 	exports.saveTabla = saveTabla;
 	exports.nodospropios = nodospropios;
+	exports.guardarmatriz = guardarmatriz;
+	exports.CrearDocumentoConFormato = CrearDocumentoConFormato;
+	exports.CrearTablaConFormato = CrearTablaConFormato;
+	exports.guardarmatrizdatos = guardarmatrizdatos;
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
@@ -425,13 +437,20 @@
 	}
 
 	function saveDoc(id, idport, idproy, object) {
+
 	  var messagesRef = firebase.database().ref().child('organizacion/' + id + "/portafolio/" + idport + '/proyecto/' + idproy + "/documentos");
 	  var newport = {
 	    nombre: object.name,
-	    descripcion: object.description
+	    descripcion: object.description,
+	    formato: object.formato,
+	    tipoformato: object.tipoformato
 	  };
 
 	  messagesRef.push(newport);
+	  var ultimo = firebase.database().ref('organizacion/' + id + "/portafolio/" + idport + '/proyecto/' + idproy + "/documentos");
+	  ultimo.limitToLast(1).on('child_added', function (childSnapshot) {
+	    localStorage.setItem("keyagregada", childSnapshot.key);
+	  });
 	}
 
 	function uploadImage(file, fileName, iduser) {
@@ -457,6 +476,19 @@
 	  /* NO ES UTILIZADA */
 
 	  firebase.database().ref("usuarios/" + id).update({ password: pass });
+	}
+
+	function formatotabla(columna, fila, nombre) {
+
+	  var data = new Array();
+	  for (var i = 0; i <= fila; i++) {
+	    data[i] = new Array();
+	    for (var j = 0; j < columna; j++) {
+	      data[i][j] = "";
+	    }
+	  }
+
+	  firebase.database().ref("formatos/tablas/" + nombre).update({ columnas: columna, filas: fila, datos: data });
 	}
 
 	function getToken() {
@@ -497,9 +529,47 @@
 	}
 
 	function nodospropios(idcomponente, objeto) {
-	  var messagesRef = firebase.database().ref().child('organizacion/' + objeto.orgname + "/portafolio/" + objeto.portname + '/proyecto/' + objeto.proyname + "/documentos/" + objeto.docid + "/extras/" + idcomponente);
+	  var messagesRef = firebase.database().ref().child("documentos/" + objeto + "/componente/" + idcomponente + "/extras/");
 	  var nodoextra = { nombre: 'extra' };
 	  messagesRef.push(nodoextra);
+	}
+
+	function guardarmatriz(objeto) {
+	  var messagesRef = firebase.database().ref().child("ejemplo/");
+	  messagesRef.push(objeto);
+	}
+
+	function CrearDocumentoConFormato(key, formato, objeto, tipo) {
+
+	  var update = {
+	    formato: formato.nombre,
+	    componente: formato.componente,
+	    descripcion: objeto.description,
+	    nombre: objeto.name,
+	    tipoformato: tipo
+	  };
+	  var messagesRef = firebase.database().ref().child('documentos/' + key + "/");
+	  messagesRef.update(update);
+	}
+
+	function CrearTablaConFormato(key, format, objeto, tipo) {
+
+	  var messagesRef = firebase.database().ref().child('documentos/' + key + "/");
+	  var update = {
+	    formato: format.nombre,
+	    nombre: objeto.name,
+	    descripcion: objeto.description,
+	    filas: format.filas,
+	    columnas: format.columnas,
+	    tipoformato: tipo,
+	    datos: format.datos
+	  };
+	  messagesRef.update(update);
+	}
+
+	function guardarmatrizdatos(objeto, id) {
+	  var messagesRef = firebase.database().ref().child("documentos/" + id + '/datos');
+	  messagesRef.update(objeto);
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "config.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -64198,7 +64268,121 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 552 */,
+/* 552 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Componente de barra Nav sin login*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiSvgIconsActionHelp = __webpack_require__(553);
+
+	var _materialUiSvgIconsActionHelp2 = _interopRequireDefault(_materialUiSvgIconsActionHelp);
+
+	var _materialUiSvgIconsActionHome = __webpack_require__(554);
+
+	var _materialUiSvgIconsActionHome2 = _interopRequireDefault(_materialUiSvgIconsActionHome);
+
+	var _materialUiAppBar = __webpack_require__(555);
+
+	var _materialUiAppBar2 = _interopRequireDefault(_materialUiAppBar);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var React = __webpack_require__(241);
+
+	var itemcolor = {
+	  color: '#FFFFFF'
+	};
+	var cursor = {
+	  cursor: 'pointer'
+	};
+
+	var Nav = (function (_React$Component) {
+	  _inherits(Nav, _React$Component);
+
+	  function Nav(props) {
+	    _classCallCheck(this, Nav);
+
+	    _get(Object.getPrototypeOf(Nav.prototype), 'constructor', this).call(this, props);
+
+	    this.redirect = this.redirect.bind(this);
+	  }
+
+	  _createClass(Nav, [{
+	    key: 'redirect',
+	    value: function redirect() {
+
+	      this.props.history.push({ pathname: '/' });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this = this;
+
+	      return React.createElement(
+	        'section',
+	        null,
+	        React.createElement(
+	          'div',
+	          null,
+	          React.createElement(
+	            _materialUiStylesMuiThemeProvider2['default'],
+	            null,
+	            React.createElement(_materialUiAppBar2['default'], {
+	              title: React.createElement(
+	                'span',
+	                { style: cursor },
+	                'PMPROJECTS'
+	              ),
+	              showMenuIconButton: false,
+	              onTitleTouchTap: function () {
+	                return _this.redirect();
+	              },
+	              iconElementRight: React.createElement(
+	                'div',
+	                null,
+	                React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Iniciar Sesión', href: '/login' }),
+	                ' ',
+	                React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Acerca de', href: '/contacto' })
+	              )
+	            })
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Nav;
+	})(React.Component);
+
+	exports['default'] = Nav;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "nav.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 553 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -64747,11 +64931,11 @@
 	var firebase = _interopRequireWildcard(_firebase);
 
 	var React = __webpack_require__(241);
-	var Navlog = __webpack_require__(679);
-	var Organizacion = __webpack_require__(675);
-	var Portafolio = __webpack_require__(676);
-	var Proyecto = __webpack_require__(677);
-	var Documento = __webpack_require__(678);
+	var Navlog = __webpack_require__(559);
+	var Organizacion = __webpack_require__(560);
+	var Portafolio = __webpack_require__(570);
+	var Proyecto = __webpack_require__(572);
+	var Documento = __webpack_require__(574);
 
 	var Home = (function (_React$Component) {
 	  _inherits(Home, _React$Component);
@@ -64874,8 +65058,453 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "home.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }),
-/* 559 */,
-/* 560 */,
+/* 559 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Componente de barra nav CON login*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiSvgIconsActionHelp = __webpack_require__(553);
+
+	var _materialUiSvgIconsActionHelp2 = _interopRequireDefault(_materialUiSvgIconsActionHelp);
+
+	var _materialUiSvgIconsActionHome = __webpack_require__(554);
+
+	var _materialUiSvgIconsActionHome2 = _interopRequireDefault(_materialUiSvgIconsActionHome);
+
+	var _materialUiAppBar = __webpack_require__(555);
+
+	var _materialUiAppBar2 = _interopRequireDefault(_materialUiAppBar);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var _configJsx = __webpack_require__(2);
+
+	var React = __webpack_require__(241);
+
+	/*global localStorage*/
+
+	var itemcolor = {
+	  color: '#FFFFFF'
+	};
+	var cursor = {
+	  cursor: 'pointer'
+	};
+
+	var Navlog = (function (_React$Component) {
+	  _inherits(Navlog, _React$Component);
+
+	  function Navlog(props) {
+	    _classCallCheck(this, Navlog);
+
+	    _get(Object.getPrototypeOf(Navlog.prototype), 'constructor', this).call(this, props);
+
+	    this.lout = this.lout.bind(this);
+	    this.redirect = this.redirect.bind(this);
+	  }
+
+	  _createClass(Navlog, [{
+	    key: 'redirect',
+	    value: function redirect() {
+
+	      this.props.history.push({ pathname: '/' });
+	    }
+	  }, {
+	    key: 'shouldComponentUpdate',
+	    value: function shouldComponentUpdate(nextProps, nextState) {
+
+	      return true;
+	    }
+	  }, {
+	    key: 'guardarid',
+	    value: function guardarid() {
+	      var token = (0, _configJsx.getToken)();
+	      var id = token.uid;
+	      localStorage.setItem('iduser', id);
+	    }
+	  }, {
+	    key: 'lout',
+	    value: function lout() {
+
+	      (0, _configJsx.logout)();
+	      localStorage.clear();
+	      this.props.history.push({ pathname: '/' });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this = this;
+
+	      return React.createElement(
+	        'header',
+	        null,
+	        React.createElement(
+	          _materialUiStylesMuiThemeProvider2['default'],
+	          null,
+	          React.createElement(_materialUiAppBar2['default'], {
+	            title: React.createElement(
+	              'span',
+	              { style: cursor },
+	              'PMPROJECTS'
+	            ),
+	            showMenuIconButton: false,
+	            onTitleTouchTap: function () {
+	              return _this.redirect();
+	            },
+	            iconElementRight: React.createElement(
+	              'div',
+	              null,
+	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Inicio', href: '/' }),
+	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Mi Perfil', href: '/perfil', onClick: function () {
+	                  return _this.guardarid();
+	                } }),
+	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Usuarios', href: '/usuarios' }),
+	              this.props.admin == 'true' ? React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Formatos', href: '/formatos' }) : null,
+	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Acerca de', href: '/contacto' }),
+	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Logout', onClick: function () {
+	                  return _this.lout();
+	                } })
+	            )
+	          })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Navlog;
+	})(React.Component);
+
+	exports['default'] = Navlog;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "navlog.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
+/* 560 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*COMPONENTE ORGANIZACION DE LA PAGINA HOME*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiBadge = __webpack_require__(561);
+
+	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
+
+	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
+
+	var _materialUiSvgIconsHardwareDeveloperBoard = __webpack_require__(564);
+
+	var _materialUiSvgIconsHardwareDeveloperBoard2 = _interopRequireDefault(_materialUiSvgIconsHardwareDeveloperBoard);
+
+	var _materialUiDialog = __webpack_require__(565);
+
+	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _configJsx = __webpack_require__(2);
+
+	var _materialUiSnackbar = __webpack_require__(544);
+
+	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	/*global localStorage*/
+
+	var React = __webpack_require__(241);
+	var iconbutton = {
+	  padding: 0
+	};
+	var styles = {
+	  mediumIcon: {
+	    width: 48,
+	    height: 48
+	  }
+	};
+
+	var Organizacion = (function (_React$Component) {
+	  _inherits(Organizacion, _React$Component);
+
+	  function Organizacion(props) {
+	    _classCallCheck(this, Organizacion);
+
+	    _get(Object.getPrototypeOf(Organizacion.prototype), 'constructor', this).call(this, props);
+
+	    this.state = {
+	      open: false,
+	      name: " ",
+	      description: '',
+	      messages: [],
+	      idactivo: localStorage.getItem('idactivo'),
+	      snack: false
+	    };
+	    this.handleChange = this.handleChange.bind(this);
+	    this.handleSubmit = this.handleSubmit.bind(this);
+	    this.handleRequestClose = this.handleRequestClose.bind(this);
+	  }
+
+	  _createClass(Organizacion, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      var _this = this;
+
+	      if (this.props.admin == "true") {
+
+	        var messageRef = firebase.database().ref().child('organizacion');
+	        messageRef.on('value', function (snapshot) {
+
+	          var messages = snapshot.val();
+	          var newState = [];
+	          for (var message in messages) {
+
+	            newState.push({
+	              id: message,
+	              nombre: messages[message].nombre,
+	              descripcion: messages[message].descripcion
+	            });
+	          }
+
+	          _this.setState({
+	            messages: newState
+	          });
+	        });
+	      } else {
+
+	        firebase.database().ref().child('usuarios/' + this.state.idactivo).on('value', function (snapshot) {
+	          var messages = snapshot.val();
+	          var orgid = messages.orgid;
+	          firebase.database().ref().child('organizacion/' + orgid + '/nombre').on('value', function (snapshot) {
+	            var messages = snapshot.val();
+	            var newState = [];
+
+	            newState.push({
+	              id: orgid,
+	              nombre: messages
+	            });
+
+	            _this.setState({
+	              messages: newState
+	            });
+	          }); /*    Segundo Query */
+	        }); /*  Primer Query  */
+	      } /* Else  */
+	    }
+	  }, {
+	    key: 'handleOpen',
+	    value: function handleOpen() {
+	      this.setState({ open: true });
+	    }
+	  }, {
+	    key: 'handleClose',
+	    value: function handleClose() {
+	      this.setState({ open: false });
+	    }
+	  }, {
+	    key: 'handleChange',
+	    value: function handleChange(e) {
+	      e.preventDefault();
+	      this.setState(_defineProperty({}, e.target.name, e.target.value));
+	    }
+	  }, {
+	    key: 'orgseleccionada',
+	    value: function orgseleccionada(id) {
+
+	      this.props.guardarid(id);
+	    }
+	  }, {
+	    key: 'handleRequestClose',
+	    value: function handleRequestClose() {
+
+	      this.setState({
+	        snack: false
+	      });
+	    }
+	  }, {
+	    key: 'handleSubmit',
+	    value: function handleSubmit() {
+
+	      var nametemp = this.state.name;
+	      var descriptiontemp = this.state.description;
+
+	      var object = {
+	        name: nametemp,
+	        description: descriptiontemp
+	      };
+
+	      (0, _configJsx.saveOrg)(object);
+	      this.setState({ open: false, name: '', description: '', snack: true });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      return React.createElement(
+	        'section',
+	        null,
+	        React.createElement(
+	          'div',
+	          null,
+	          React.createElement(
+	            _materialUiStylesMuiThemeProvider2['default'],
+	            null,
+	            React.createElement(
+	              'div',
+	              null,
+	              this.state.messages.map(function (item) {
+	                return React.createElement(
+	                  'div',
+	                  { className: 'nombreicon', key: item.id },
+	                  React.createElement(
+	                    'div',
+	                    { className: 'iconwrapper' },
+	                    React.createElement(_materialUiBadge2['default'], {
+
+	                      badgeContent: React.createElement(
+	                        _materialUiIconButton2['default'],
+	                        { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
+	                            return _this2.orgseleccionada(item.id);
+	                          }, tooltip: item.nombre },
+	                        React.createElement(_materialUiSvgIconsHardwareDeveloperBoard2['default'], null)
+	                      )
+	                    })
+	                  ),
+	                  React.createElement(
+	                    'p',
+	                    null,
+	                    item.nombre
+	                  )
+	                );
+	              }),
+	              React.createElement(_materialUiBadge2['default'], {
+
+	                badgeContent: React.createElement(
+	                  _materialUiIconButton2['default'],
+	                  { style: iconbutton, onClick: function () {
+	                      return _this2.handleOpen();
+	                    }, iconStyle: styles.mediumIcon, tooltip: 'Crear Organización' },
+	                  React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
+	                )
+	              }),
+	              React.createElement(
+	                _materialUiDialog2['default'],
+	                {
+	                  title: 'Crear Organización',
+
+	                  modal: true,
+	                  open: this.state.open
+	                },
+	                React.createElement(_materialUiTextField2['default'], {
+	                  value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
+	                  floatingLabelText: 'Nombre'
+	                }),
+	                React.createElement('br', null),
+	                React.createElement(_materialUiTextField2['default'], {
+	                  value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
+	                  fullWidth: true,
+	                  floatingLabelText: 'Descripción',
+	                  multiLine: true,
+	                  rows: 3
+	                }),
+	                React.createElement('br', null),
+	                React.createElement(_materialUiFlatButton2['default'], {
+	                  label: 'Cancel',
+	                  primary: true,
+	                  onClick: function () {
+	                    return _this2.handleClose();
+	                  }
+	                }),
+	                React.createElement(_materialUiFlatButton2['default'], {
+	                  label: 'Aceptar',
+	                  primary: true,
+	                  onClick: function () {
+	                    return _this2.handleSubmit();
+	                  }
+	                })
+	              ),
+	              React.createElement(_materialUiSnackbar2['default'], {
+	                open: this.state.snack,
+	                message: 'Organización Creada',
+	                autoHideDuration: 2000,
+	                onRequestClose: this.handleRequestClose
+	              })
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Organizacion;
+	})(React.Component);
+
+	exports['default'] = Organizacion;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "organizacion.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 561 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -66250,7 +66879,299 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 570 */,
+/* 570 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*COMPONENTE PORTAFOLIO DE LA PAGINA HOME*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiBadge = __webpack_require__(561);
+
+	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
+
+	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
+
+	var _materialUiSvgIconsFileFolder = __webpack_require__(571);
+
+	var _materialUiSvgIconsFileFolder2 = _interopRequireDefault(_materialUiSvgIconsFileFolder);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiDialog = __webpack_require__(565);
+
+	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _configJsx = __webpack_require__(2);
+
+	var _materialUiSnackbar = __webpack_require__(544);
+
+	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
+
+	/*global localStorage*/
+
+	var React = __webpack_require__(241);
+	var iconbutton = {
+	  padding: 0
+	};
+
+	var styles = {
+	  mediumIcon: {
+	    width: 48,
+	    height: 48
+	  }
+	};
+
+	var Portafolio = (function (_React$Component) {
+	  _inherits(Portafolio, _React$Component);
+
+	  function Portafolio(props) {
+	    _classCallCheck(this, Portafolio);
+
+	    _get(Object.getPrototypeOf(Portafolio.prototype), 'constructor', this).call(this, props);
+
+	    this.state = {
+	      open: false,
+	      name: " ",
+	      description: '',
+	      messages: [],
+	      snack: false
+
+	    };
+
+	    this.handleChange = this.handleChange.bind(this);
+	    this.handleSubmit = this.handleSubmit.bind(this);
+	    this.montarportafolios = this.montarportafolios.bind(this);
+	    this.handleRequestClose = this.handleRequestClose.bind(this);
+	  }
+
+	  _createClass(Portafolio, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+
+	      this.montarportafolios(this.props.data);
+	    }
+	  }, {
+	    key: 'shouldComponentUpdate',
+	    value: function shouldComponentUpdate(nextProps, nextState) {
+
+	      this.montarportafolios(nextProps.data);
+	      return true;
+	    }
+	  }, {
+	    key: 'montarportafolios',
+	    value: function montarportafolios(idorg) {
+
+	      var messageRef = firebase.database().ref().child('organizacion/' + idorg + '/portafolio');
+	      messageRef.on('value', function (snapshot) {
+
+	        var messages = snapshot.val();
+	        var newState = [];
+	        for (var message in messages) {
+
+	          newState.push({
+	            id: message,
+	            nombre: messages[message].nombre,
+	            descripcion: messages[message].descripcion
+	          });
+	        }
+
+	        window.mensajes = newState;
+	      });
+	    }
+	  }, {
+	    key: 'handleOpen',
+	    value: function handleOpen() {
+	      this.setState({ open: true });
+	    }
+	  }, {
+	    key: 'handleClose',
+	    value: function handleClose() {
+	      this.setState({ open: false, name: '', description: '' });
+	    }
+	  }, {
+	    key: 'handleRequestClose',
+	    value: function handleRequestClose() {
+
+	      this.setState({
+	        snack: false
+	      });
+	    }
+	  }, {
+	    key: 'handleChange',
+	    value: function handleChange(e) {
+	      e.preventDefault();
+	      this.setState(_defineProperty({}, e.target.name, e.target.value));
+	    }
+	  }, {
+	    key: 'handleSubmit',
+	    value: function handleSubmit() {
+
+	      var nametemp = this.state.name;
+	      var descriptiontemp = this.state.description;
+	      var idorg = this.props.data;
+	      console.log(this.props.data);
+	      var object = {
+	        name: nametemp,
+	        description: descriptiontemp
+	      };
+
+	      (0, _configJsx.savePort)(idorg, object);
+	      this.setState({ open: false, name: '', description: '', snack: true });
+	    }
+	  }, {
+	    key: 'portseleccionada',
+	    value: function portseleccionada(id) {
+	      this.props.guardarport(id);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this = this;
+
+	      return React.createElement(
+	        'section',
+	        null,
+	        React.createElement(
+	          'div',
+	          null,
+	          React.createElement(
+	            _materialUiStylesMuiThemeProvider2['default'],
+	            null,
+	            React.createElement(
+	              'div',
+	              null,
+	              window.mensajes.map(function (item) {
+	                return React.createElement(
+	                  'div',
+	                  { className: 'nombreicon', key: item.id },
+	                  React.createElement(
+	                    'div',
+	                    { className: 'iconwrapper' },
+	                    React.createElement(_materialUiBadge2['default'], {
+	                      badgeContent: React.createElement(
+	                        _materialUiIconButton2['default'],
+	                        { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
+	                            return _this.portseleccionada(item.id);
+	                          }, tooltip: item.nombre },
+	                        React.createElement(_materialUiSvgIconsFileFolder2['default'], null),
+	                        ' '
+	                      )
+	                    })
+	                  ),
+	                  React.createElement(
+	                    'p',
+	                    null,
+	                    item.nombre
+	                  )
+	                );
+	              }),
+	              React.createElement(_materialUiBadge2['default'], {
+	                badgeContent: React.createElement(
+	                  _materialUiIconButton2['default'],
+	                  { style: iconbutton, onClick: function () {
+	                      return _this.handleOpen();
+	                    }, iconStyle: styles.mediumIcon, tooltip: 'Crear Portafolio' },
+	                  React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
+	                )
+	              }),
+	              React.createElement(
+	                _materialUiDialog2['default'],
+	                {
+	                  title: 'Crear Portafolio',
+
+	                  modal: true,
+	                  open: this.state.open
+	                },
+	                React.createElement(_materialUiTextField2['default'], {
+	                  value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
+	                  floatingLabelText: 'Nombre'
+	                }),
+	                React.createElement('br', null),
+	                React.createElement(_materialUiTextField2['default'], {
+	                  value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
+	                  fullWidth: true,
+	                  floatingLabelText: 'Descripción',
+	                  multiLine: true,
+	                  rows: 3
+	                }),
+	                React.createElement('br', null),
+	                React.createElement(_materialUiFlatButton2['default'], {
+	                  label: 'Cancel',
+	                  primary: true,
+	                  onClick: function () {
+	                    return _this.handleClose();
+	                  }
+	                }),
+	                React.createElement(_materialUiFlatButton2['default'], {
+	                  label: 'Aceptar',
+	                  primary: true,
+	                  onClick: function () {
+	                    return _this.handleSubmit();
+	                  }
+	                })
+	              ),
+	              React.createElement(_materialUiSnackbar2['default'], {
+	                open: this.state.snack,
+	                message: 'Portafolio Creado',
+	                autoHideDuration: 2000,
+	                onRequestClose: this.handleRequestClose
+	              })
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Portafolio;
+	})(React.Component);
+
+	exports['default'] = Portafolio;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "portafolio.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 571 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -66288,7 +67209,298 @@
 	exports.default = FileFolder;
 
 /***/ }),
-/* 572 */,
+/* 572 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*COMPONENTE PROYECTOS DE LA PAGINA HOME*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiBadge = __webpack_require__(561);
+
+	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
+
+	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
+
+	var _materialUiSvgIconsActionWork = __webpack_require__(573);
+
+	var _materialUiSvgIconsActionWork2 = _interopRequireDefault(_materialUiSvgIconsActionWork);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiDialog = __webpack_require__(565);
+
+	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _configJsx = __webpack_require__(2);
+
+	var _materialUiSnackbar = __webpack_require__(544);
+
+	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
+
+	/*global localStorage*/
+
+	var React = __webpack_require__(241);
+	var styles = {
+	  mediumIcon: {
+	    width: 48,
+	    height: 48
+	  }
+	};
+
+	var iconbutton = {
+	  padding: 0
+	};
+
+	var Proyecto = (function (_React$Component) {
+	  _inherits(Proyecto, _React$Component);
+
+	  function Proyecto(props) {
+	    _classCallCheck(this, Proyecto);
+
+	    _get(Object.getPrototypeOf(Proyecto.prototype), 'constructor', this).call(this, props);
+
+	    this.state = {
+	      open: false,
+	      name: " ",
+	      description: '',
+	      messages: [],
+	      snack: false
+
+	    };
+	    this.handleChange = this.handleChange.bind(this);
+	    this.handleSubmit = this.handleSubmit.bind(this);
+	    this.montarproyecto = this.montarproyecto.bind(this);
+	    this.handleRequestClose = this.handleRequestClose.bind(this);
+	  }
+
+	  _createClass(Proyecto, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+
+	      this.montarproyecto(this.props.data, this.props.dataport);
+	    }
+	  }, {
+	    key: 'shouldComponentUpdate',
+	    value: function shouldComponentUpdate(nextProps, nextState) {
+
+	      this.montarproyecto(nextProps.data, nextProps.dataport);
+	      return true;
+	    }
+	  }, {
+	    key: 'montarproyecto',
+	    value: function montarproyecto(idorg, idport) {
+
+	      var messageRef = firebase.database().ref().child('organizacion/' + idorg + '/portafolio/' + idport + '/proyecto');
+	      messageRef.on('value', function (snapshot) {
+
+	        var messages = snapshot.val();
+	        var newState = [];
+	        for (var message in messages) {
+
+	          newState.push({
+	            id: message,
+	            nombre: messages[message].nombre,
+	            descripcion: messages[message].descripcion
+	          });
+	        }
+
+	        window.proyectos = newState;
+	      });
+	    }
+	  }, {
+	    key: 'handleOpen',
+	    value: function handleOpen() {
+	      this.setState({ open: true });
+	    }
+	  }, {
+	    key: 'handleClose',
+	    value: function handleClose() {
+	      this.setState({ open: false, name: '', description: '' });
+	    }
+	  }, {
+	    key: 'handleRequestClose',
+	    value: function handleRequestClose() {
+
+	      this.setState({
+	        snack: false
+	      });
+	    }
+	  }, {
+	    key: 'handleChange',
+	    value: function handleChange(e) {
+	      e.preventDefault();
+	      this.setState(_defineProperty({}, e.target.name, e.target.value));
+	    }
+	  }, {
+	    key: 'handleSubmit',
+	    value: function handleSubmit() {
+
+	      var nametemp = this.state.name;
+	      var descriptiontemp = this.state.description;
+	      var idorg = this.props.data;
+	      var idport = this.props.dataport;
+	      var object = {
+	        name: nametemp,
+	        description: descriptiontemp
+	      };
+
+	      (0, _configJsx.saveProy)(idorg, idport, object);
+	      this.setState({ open: false, name: '', description: '', snack: true });
+	    }
+	  }, {
+	    key: 'proyseleccionada',
+	    value: function proyseleccionada(id) {
+	      this.props.guardarproy(id);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this = this;
+
+	      return React.createElement(
+	        'section',
+	        null,
+	        React.createElement(
+	          'div',
+	          null,
+	          React.createElement(
+	            _materialUiStylesMuiThemeProvider2['default'],
+	            null,
+	            React.createElement(
+	              'div',
+	              null,
+	              window.proyectos.map(function (item) {
+	                return React.createElement(
+	                  'div',
+	                  { className: 'nombreicon', key: item.id },
+	                  React.createElement(
+	                    'div',
+	                    { className: 'iconwrapper' },
+	                    React.createElement(_materialUiBadge2['default'], {
+	                      badgeContent: React.createElement(
+	                        _materialUiIconButton2['default'],
+	                        { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
+	                            return _this.proyseleccionada(item.id);
+	                          }, tooltip: item.nombre },
+	                        React.createElement(_materialUiSvgIconsActionWork2['default'], null),
+	                        ' '
+	                      )
+	                    })
+	                  ),
+	                  React.createElement(
+	                    'p',
+	                    null,
+	                    item.nombre
+	                  )
+	                );
+	              }),
+	              React.createElement(_materialUiBadge2['default'], {
+	                badgeContent: React.createElement(
+	                  _materialUiIconButton2['default'],
+	                  { style: iconbutton, onClick: function () {
+	                      return _this.handleOpen();
+	                    }, iconStyle: styles.mediumIcon, tooltip: 'Crear Proyecto' },
+	                  React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
+	                )
+	              }),
+	              React.createElement(
+	                _materialUiDialog2['default'],
+	                {
+	                  title: 'Crear Proyecto',
+
+	                  modal: true,
+	                  open: this.state.open
+	                },
+	                React.createElement(_materialUiTextField2['default'], {
+	                  value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
+	                  floatingLabelText: 'Nombre'
+	                }),
+	                React.createElement('br', null),
+	                React.createElement(_materialUiTextField2['default'], {
+	                  value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
+	                  fullWidth: true,
+	                  floatingLabelText: 'Descripción',
+	                  multiLine: true,
+	                  rows: 3
+	                }),
+	                React.createElement('br', null),
+	                React.createElement(_materialUiFlatButton2['default'], {
+	                  label: 'Cancel',
+	                  primary: true,
+	                  onClick: function () {
+	                    return _this.handleClose();
+	                  }
+	                }),
+	                React.createElement(_materialUiFlatButton2['default'], {
+	                  label: 'Aceptar',
+	                  primary: true,
+	                  onClick: function () {
+	                    return _this.handleSubmit();
+	                  }
+	                })
+	              ),
+	              React.createElement(_materialUiSnackbar2['default'], {
+	                open: this.state.snack,
+	                message: 'Proyecto Creado',
+	                autoHideDuration: 2000,
+	                onRequestClose: this.handleRequestClose
+	              })
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return Proyecto;
+	})(React.Component);
+
+	exports['default'] = Proyecto;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "proyecto.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 573 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -66326,7 +67538,435 @@
 	exports.default = ActionWork;
 
 /***/ }),
-/* 574 */,
+/* 574 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Componente Documento de Home*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiBadge = __webpack_require__(561);
+
+	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
+
+	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
+
+	var _materialUiSvgIconsActionDescription = __webpack_require__(575);
+
+	var _materialUiSvgIconsActionDescription2 = _interopRequireDefault(_materialUiSvgIconsActionDescription);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiDialog = __webpack_require__(565);
+
+	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _configJsx = __webpack_require__(2);
+
+	var _materialUiSnackbar = __webpack_require__(544);
+
+	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
+
+	/*global localStorage*/
+
+	var React = __webpack_require__(241);
+	var styles = {
+	    mediumIcon: {
+	        width: 48,
+	        height: 48
+	    }
+	};
+
+	var iconbutton = {
+	    padding: 0
+	};
+
+	var Documento = (function (_React$Component) {
+	    _inherits(Documento, _React$Component);
+
+	    function Documento(props) {
+	        _classCallCheck(this, Documento);
+
+	        _get(Object.getPrototypeOf(Documento.prototype), 'constructor', this).call(this, props);
+
+	        this.state = {
+	            open: false,
+	            name: " ",
+	            description: '',
+	            messages: [],
+	            snack: false,
+	            tipoformato: 0,
+	            formatoseleccionado: '',
+	            formatolist: []
+
+	        };
+	        this.handleChange = this.handleChange.bind(this);
+	        this.handleSubmit = this.handleSubmit.bind(this);
+	        this.montardocumento = this.montardocumento.bind(this);
+	        this.handleRequestClose = this.handleRequestClose.bind(this);
+	        this.tipoformatoseleccionado = this.tipoformatoseleccionado.bind(this);
+	    }
+
+	    _createClass(Documento, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+
+	            this.montardocumento(this.props.data, this.props.dataport, this.props.dataproy);
+	        }
+	    }, {
+	        key: 'shouldComponentUpdate',
+	        value: function shouldComponentUpdate(nextProps, nextState) {
+
+	            this.montardocumento(nextProps.data, nextProps.dataport, nextProps.dataproy);
+	            return true;
+	        }
+	    }, {
+	        key: 'montardocumento',
+	        value: function montardocumento(idorg, idport, idproy) {
+
+	            var messageRef = firebase.database().ref().child('organizacion/' + idorg + '/portafolio/' + idport + '/proyecto/' + idproy + '/documentos');
+	            messageRef.on('value', function (snapshot) {
+
+	                var messages = snapshot.val();
+	                var newState = [];
+	                for (var message in messages) {
+
+	                    newState.push({
+	                        id: message,
+	                        nombre: messages[message].nombre,
+	                        descripcion: messages[message].descripcion
+	                    });
+	                }
+
+	                window.documentos = newState;
+	            });
+	        }
+	    }, {
+	        key: 'handleOpen',
+	        value: function handleOpen() {
+	            this.setState({ open: true });
+	        }
+	    }, {
+	        key: 'handleClose',
+	        value: function handleClose() {
+	            this.setState({ open: false, name: '', description: '' });
+	        }
+	    }, {
+	        key: 'handleRequestClose',
+	        value: function handleRequestClose() {
+
+	            this.setState({
+	                snack: false
+	            });
+	        }
+	    }, {
+	        key: 'handleChange',
+	        value: function handleChange(e) {
+	            e.preventDefault();
+	            this.setState(_defineProperty({}, e.target.name, e.target.value));
+	        }
+	    }, {
+	        key: 'handleSubmit',
+	        value: function handleSubmit() {
+	            var _this = this;
+
+	            var nametemp = this.state.name;
+	            var descriptiontemp = this.state.description;
+	            var idorg = this.props.data;
+	            var idport = this.props.dataport;
+	            var idproy = this.props.dataproy;
+	            var object = {
+	                name: nametemp,
+	                description: descriptiontemp,
+	                formato: this.state.formatoseleccionado,
+	                tipoformato: this.state.tipoformato
+	            };
+
+	            (0, _configJsx.saveDoc)(idorg, idport, idproy, object);
+	            var keydocumentoagregado = localStorage.getItem("keyagregada");
+
+	            if (this.state.tipoformato == 1) {
+
+	                var messageRef = firebase.database().ref().child('formatos/documentos/' + this.state.formatoseleccionado);
+	                messageRef.on('value', function (snapshot) {
+	                    (0, _configJsx.CrearDocumentoConFormato)(keydocumentoagregado, snapshot.val(), object, _this.state.tipoformato);
+	                });
+	            }
+
+	            if (this.state.tipoformato == 2) {
+
+	                var messageRef = firebase.database().ref().child('formatos/tablas/' + this.state.formatoseleccionado);
+	                messageRef.on('value', function (snapshot) {
+	                    (0, _configJsx.CrearTablaConFormato)(keydocumentoagregado, snapshot.val(), object, _this.state.tipoformato);
+	                });
+	            }
+
+	            this.setState({ open: false, name: '', description: '', snack: true });
+	        }
+	    }, {
+	        key: 'modificardocumento',
+	        value: function modificardocumento(id, nombre) {
+	            var _this2 = this;
+
+	            localStorage.setItem('iddocumento', id);
+	            var tipo = '';
+	            var padre = this;
+	            var messageRef = firebase.database().ref().child('documentos/' + id + "/");
+	            messageRef.on('value', function (snapshot) {
+	                padre.tipo = snapshot.val().tipoformato;
+	                var nombreformato = snapshot.val().formato;
+	                localStorage.setItem('nombreformato', nombreformato);
+	                localStorage.setItem('doctitulo', nombre);
+
+	                if (padre.tipo == 1) {
+	                    _this2.props.history.push({ pathname: '/editardocumento' });
+	                }
+
+	                if (padre.tipo == 2) {
+	                    _this2.props.history.push({ pathname: '/editartabla' });
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'tipoformatoseleccionado',
+	        value: function tipoformatoseleccionado(e) {
+	            var _this3 = this;
+
+	            var padre = this;
+	            this.setState(_defineProperty({}, e.target.name, e.target.value), function () {
+
+	                if (_this3.state.tipoformato == 1) {
+
+	                    var messageRef = firebase.database().ref().child('formatos/documentos/');
+	                    messageRef.on('value', function (snapshot) {
+
+	                        var messages = snapshot.val();
+	                        var newState = [];
+	                        for (var message in messages) {
+
+	                            newState.push({
+	                                id: message,
+	                                nombre: messages[message].nombre
+	                            });
+	                        }
+
+	                        padre.setState({
+	                            formatolist: newState
+	                        });
+	                    });
+	                }
+
+	                if (_this3.state.tipoformato == 2) {
+
+	                    var messageRef = firebase.database().ref().child('formatos/tablas/');
+	                    messageRef.on('value', function (snapshot) {
+
+	                        var messages = snapshot.val();
+	                        var newState = [];
+	                        for (var message in messages) {
+
+	                            newState.push({
+	                                id: message,
+	                                nombre: messages[message].nombre
+	                            });
+	                        }
+
+	                        padre.setState({
+	                            formatolist: newState
+	                        });
+	                    });
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this4 = this;
+
+	            return React.createElement(
+	                'section',
+	                null,
+	                React.createElement(
+	                    'div',
+	                    null,
+	                    React.createElement(
+	                        _materialUiStylesMuiThemeProvider2['default'],
+	                        null,
+	                        React.createElement(
+	                            'div',
+	                            null,
+	                            window.documentos.map(function (item) {
+	                                return React.createElement(
+	                                    'div',
+	                                    { className: 'nombreicon', key: item.id },
+	                                    React.createElement(
+	                                        'div',
+	                                        { className: 'iconwrapper' },
+	                                        React.createElement(_materialUiBadge2['default'], {
+	                                            badgeContent: React.createElement(
+	                                                _materialUiIconButton2['default'],
+	                                                { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
+	                                                        return _this4.modificardocumento(item.id, item.nombre);
+	                                                    }, tooltip: item.nombre },
+	                                                React.createElement(_materialUiSvgIconsActionDescription2['default'], null),
+	                                                ' '
+	                                            )
+	                                        })
+	                                    ),
+	                                    React.createElement(
+	                                        'p',
+	                                        null,
+	                                        item.nombre
+	                                    )
+	                                );
+	                            }),
+	                            React.createElement(_materialUiBadge2['default'], {
+	                                badgeContent: React.createElement(
+	                                    _materialUiIconButton2['default'],
+	                                    { style: iconbutton, onClick: function () {
+	                                            return _this4.handleOpen();
+	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Crear Portafolio' },
+	                                    React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
+	                                )
+	                            }),
+	                            React.createElement(
+	                                _materialUiDialog2['default'],
+	                                {
+	                                    title: 'Crear Documento',
+
+	                                    modal: true,
+	                                    open: this.state.open
+	                                },
+	                                React.createElement(_materialUiTextField2['default'], {
+	                                    value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
+	                                    floatingLabelText: 'Nombre'
+	                                }),
+	                                React.createElement('br', null),
+	                                React.createElement(_materialUiTextField2['default'], {
+	                                    value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
+	                                    fullWidth: true,
+	                                    floatingLabelText: 'Descripción',
+	                                    multiLine: true,
+	                                    rows: 3
+	                                }),
+	                                React.createElement('br', null),
+	                                React.createElement(
+	                                    'div',
+	                                    { className: 'selectoresformatos' },
+	                                    React.createElement(
+	                                        'select',
+	                                        { className: 'selecteditar', value: this.state.tipoformato, onChange: this.tipoformatoseleccionado, name: 'tipoformato' },
+	                                        React.createElement(
+	                                            'option',
+	                                            { value: 0 },
+	                                            'Tipo de Formato'
+	                                        ),
+	                                        React.createElement(
+	                                            'option',
+	                                            { value: 1 },
+	                                            'Documento'
+	                                        ),
+	                                        React.createElement(
+	                                            'option',
+	                                            { value: 2 },
+	                                            'Tabla'
+	                                        )
+	                                    ),
+	                                    React.createElement(
+	                                        'select',
+	                                        { className: 'selecteditar', value: this.state.formatoseleccionado, onChange: this.handleChange, name: 'formatoseleccionado' },
+	                                        React.createElement(
+	                                            'option',
+	                                            { value: '' },
+	                                            'Seleccionar Formato'
+	                                        ),
+	                                        this.state.formatolist.map(function (item) {
+	                                            return React.createElement(
+	                                                'option',
+	                                                { key: item.id, value: item.id },
+	                                                ' ',
+	                                                item.nombre,
+	                                                ' '
+	                                            );
+	                                        })
+	                                    )
+	                                ),
+	                                React.createElement(_materialUiFlatButton2['default'], {
+	                                    label: 'Cancel',
+	                                    primary: true,
+	                                    onClick: function () {
+	                                        return _this4.handleClose();
+	                                    }
+	                                }),
+	                                React.createElement(_materialUiFlatButton2['default'], {
+	                                    label: 'Aceptar',
+	                                    primary: true,
+	                                    onClick: function () {
+	                                        return _this4.handleSubmit();
+	                                    }
+	                                })
+	                            ),
+	                            React.createElement(_materialUiSnackbar2['default'], {
+	                                open: this.state.snack,
+	                                message: 'Documento Creado',
+	                                autoHideDuration: 2000,
+	                                onRequestClose: this.handleRequestClose
+	                            })
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Documento;
+	})(React.Component);
+
+	exports['default'] = Documento;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "documento.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 575 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -66418,7 +68058,7 @@
 	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
 
 	var React = __webpack_require__(241);
-	var Navlog = __webpack_require__(679);
+	var Navlog = __webpack_require__(559);
 
 	var card = {
 	    display: 'flex',
@@ -71654,7 +73294,7 @@
 
 	var React = __webpack_require__(241);
 
-	var Navlog = __webpack_require__(679);
+	var Navlog = __webpack_require__(559);
 	var itemcolor = {
 	  color: '#FFFFFF',
 	  marginTop: '1%',
@@ -72909,7 +74549,7 @@
 	var _materialUiTable = __webpack_require__(612);
 
 	var React = __webpack_require__(241);
-	var Navlog = __webpack_require__(679);
+	var Navlog = __webpack_require__(559);
 
 	var Usuarios = (function (_React$Component) {
 	    _inherits(Usuarios, _React$Component);
@@ -76642,6 +78282,7 @@
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
+	/*Pagina Formatos para la creacion de formatos*/
 	'use strict';
 
 	Object.defineProperty(exports, '__esModule', {
@@ -76670,15 +78311,11 @@
 
 	var _materialUiSelectField2 = _interopRequireDefault(_materialUiSelectField);
 
-	var _materialUiMenuItem = __webpack_require__(599);
-
-	var _materialUiMenuItem2 = _interopRequireDefault(_materialUiMenuItem);
-
-	var _SubComponentsArraydocumentJsx = __webpack_require__(680);
+	var _SubComponentsArraydocumentJsx = __webpack_require__(626);
 
 	var _SubComponentsArraydocumentJsx2 = _interopRequireDefault(_SubComponentsArraydocumentJsx);
 
-	var _SubComponentsTablaformatoJsx = __webpack_require__(682);
+	var _SubComponentsTablaformatoJsx = __webpack_require__(634);
 
 	var _SubComponentsTablaformatoJsx2 = _interopRequireDefault(_SubComponentsTablaformatoJsx);
 
@@ -76700,17 +78337,43 @@
 
 	var _materialUiRaisedButton2 = _interopRequireDefault(_materialUiRaisedButton);
 
+	var _materialUiDropDownMenu = __webpack_require__(579);
+
+	var _materialUiDropDownMenu2 = _interopRequireDefault(_materialUiDropDownMenu);
+
+	var _materialUiMenuItem = __webpack_require__(599);
+
+	var _materialUiMenuItem2 = _interopRequireDefault(_materialUiMenuItem);
+
+	var _materialUiIconMenu = __webpack_require__(610);
+
+	var _materialUiIconMenu2 = _interopRequireDefault(_materialUiIconMenu);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsNavigationArrowDropDownCircle = __webpack_require__(609);
+
+	var _materialUiSvgIconsNavigationArrowDropDownCircle2 = _interopRequireDefault(_materialUiSvgIconsNavigationArrowDropDownCircle);
+
 	var _firebase = __webpack_require__(3);
 
 	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiTable = __webpack_require__(612);
 
 	/*global location*/
 
 	var React = __webpack_require__(241);
 
-	var Navlog = __webpack_require__(679);
+	var Navlog = __webpack_require__(559);
 	var botones = {
 	    margin: '5% 0% 3% 5%'
+	};
+
+	var overflow = {
+	    overflow: 'scroll'
 	};
 
 	var Formatos = (function (_React$Component) {
@@ -76729,6 +78392,7 @@
 	            showdoc: false,
 	            showtable: false,
 	            showboton: false,
+	            menu: 1,
 	            showcrear: true,
 	            admin: false
 	        };
@@ -76736,6 +78400,9 @@
 	        this.handleSubmit = this.handleSubmit.bind(this);
 	        this.handleOpen = this.handleOpen.bind(this);
 	        this.handleClose = this.handleClose.bind(this);
+	        this.modificarformato = this.modificarformato.bind(this);
+	        this.eliminardocumento = this.eliminardocumento.bind(this);
+	        this.eliminartabla = this.eliminartabla.bind(this);
 	    }
 
 	    _createClass(Formatos, [{
@@ -76748,7 +78415,7 @@
 
 	                    firebase.database().ref().child('usuarios/' + user.uid).on('value', function (snapshot) {
 	                        var messages = snapshot.val();
-	                        console.log(messages.admin);
+
 	                        if (messages.admin == 'true') {
 
 	                            padre.setState({
@@ -76759,9 +78426,42 @@
 	                        }
 	                    });
 	                } else {
-
 	                    padre.props.history.push({ pathname: '/login' });
 	                }
+	            });
+
+	            var messageRef = firebase.database().ref().child('formatos/documentos');
+	            messageRef.on('value', function (snapshot) {
+
+	                var messages = snapshot.val();
+
+	                var newState = [];
+	                for (var message in messages) {
+
+	                    newState.push({
+	                        id: message,
+	                        nombre: message
+	                    });
+	                }
+
+	                window.listadocumentos = newState;
+	            });
+
+	            var ref = firebase.database().ref().child('formatos/tablas');
+	            ref.on('value', function (snapshot) {
+
+	                var messages = snapshot.val();
+
+	                var newState = [];
+	                for (var message in messages) {
+
+	                    newState.push({
+	                        id: message,
+	                        nombre: message
+	                    });
+	                }
+
+	                window.listatablas = newState;
 	            });
 	        }
 	    }, {
@@ -76773,12 +78473,8 @@
 	    }, {
 	        key: 'handleShowAgain',
 	        value: function handleShowAgain() {
-	            this.setState({
-	                dialogsalir: false,
-	                showdoc: false,
-	                showcrear: true,
-	                showboton: false
-	            });
+
+	            this.setState({ dialogsalir: false, showdoc: false, showcrear: true, showboton: false, showtable: false });
 	        }
 	    }, {
 	        key: 'handleOpen',
@@ -76796,6 +78492,7 @@
 	            this.setState({
 	                dialog: false,
 	                dialogsalir: false
+
 	            });
 	        }
 	    }, {
@@ -76812,6 +78509,31 @@
 	                this.setState({ dialog: false, showtable: true, showboton: true, showdoc: false, showcrear: false });
 	                (0, _configJsx.saveTabla)(nombre);
 	            }
+	        }
+	    }, {
+	        key: 'modificarformato',
+	        value: function modificarformato(id, tipo) {
+	            console.log(id + " " + tipo);
+	            if (tipo == 'documento') {
+	                this.setState({ dialog: false, showdoc: true, showboton: true, showtable: false, showcrear: false, name: id });
+	            }
+	            if (tipo == 'tabla') {
+	                this.setState({ dialog: false, showtable: true, showboton: true, showdoc: false, showcrear: false, name: id });
+	            }
+	        }
+	    }, {
+	        key: 'eliminardocumento',
+	        value: function eliminardocumento(id) {
+	            console.log(id);
+	            firebase.database().ref().child("formatos/documentos/" + id).remove();
+	            location.reload();
+	        }
+	    }, {
+	        key: 'eliminartabla',
+	        value: function eliminartabla(id) {
+	            console.log(id);
+	            firebase.database().ref().child("formatos/tablas/" + id).remove();
+	            location.reload();
 	        }
 	    }, {
 	        key: 'render',
@@ -76832,9 +78554,133 @@
 	                            React.createElement(
 	                                'div',
 	                                { className: 'botonesformato' },
-	                                this.state.showcrear == true ? React.createElement(_materialUiRaisedButton2['default'], { label: 'Crear Formato', primary: true, onClick: function () {
-	                                        return _this.handleOpen();
-	                                    }, style: botones }) : React.createElement(_materialUiRaisedButton2['default'], { label: 'Cancelar', primary: true, onClick: function () {
+	                                this.state.showcrear == true ? React.createElement(
+	                                    'div',
+	                                    null,
+	                                    React.createElement(_materialUiRaisedButton2['default'], { label: 'Crear Formato', primary: true, onClick: function () {
+	                                            return _this.handleOpen();
+	                                        }, style: botones }),
+	                                    React.createElement(
+	                                        'div',
+	                                        { className: 'tabla' },
+	                                        React.createElement(
+	                                            _materialUiTable.Table,
+	                                            { style: overflow },
+	                                            React.createElement(
+	                                                _materialUiTable.TableHeader,
+	                                                { adjustForCheckbox: false, displaySelectAll: false },
+	                                                React.createElement(
+	                                                    _materialUiTable.TableRow,
+	                                                    null,
+	                                                    React.createElement(
+	                                                        _materialUiTable.TableHeaderColumn,
+	                                                        { colSpan: '3', tooltip: 'Lista de Formatos Creados', style: { textAlign: 'center' } },
+	                                                        'Lista de Formatos'
+	                                                    )
+	                                                ),
+	                                                React.createElement(
+	                                                    _materialUiTable.TableRow,
+	                                                    null,
+	                                                    React.createElement(
+	                                                        _materialUiTable.TableHeaderColumn,
+	                                                        null,
+	                                                        'Nombre'
+	                                                    ),
+	                                                    React.createElement(
+	                                                        _materialUiTable.TableHeaderColumn,
+	                                                        null,
+	                                                        'Tipo'
+	                                                    ),
+	                                                    React.createElement(
+	                                                        _materialUiTable.TableHeaderColumn,
+	                                                        null,
+	                                                        'Opciones'
+	                                                    )
+	                                                )
+	                                            ),
+	                                            React.createElement(
+	                                                _materialUiTable.TableBody,
+	                                                { displayRowCheckbox: false, stripedRows: true, showRowHover: true },
+	                                                window.listadocumentos.map(function (item) {
+	                                                    return React.createElement(
+	                                                        _materialUiTable.TableRow,
+	                                                        { key: item.id },
+	                                                        React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            null,
+	                                                            item.nombre
+	                                                        ),
+	                                                        React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            null,
+	                                                            'Documento'
+	                                                        ),
+	                                                        React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            null,
+	                                                            React.createElement(
+	                                                                _materialUiIconMenu2['default'],
+	                                                                {
+	                                                                    iconButtonElement: React.createElement(
+	                                                                        _materialUiIconButton2['default'],
+	                                                                        null,
+	                                                                        React.createElement(_materialUiSvgIconsNavigationArrowDropDownCircle2['default'], null)
+	                                                                    ),
+	                                                                    onChange: _this.menu,
+	                                                                    value: _this.state.menu
+	                                                                },
+	                                                                React.createElement(_materialUiMenuItem2['default'], { value: 2, primaryText: 'Modificar', onClick: function () {
+	                                                                        return _this.modificarformato(item.nombre, 'documento');
+	                                                                    } }),
+	                                                                _this.state.admin == "true" ? React.createElement(_materialUiMenuItem2['default'], { value: 3, primaryText: 'Eliminar', onClick: function () {
+	                                                                        return _this.eliminardocumento(item.nombre);
+	                                                                    } }) : null
+	                                                            )
+	                                                        )
+	                                                    );
+	                                                }),
+	                                                window.listatablas.map(function (item) {
+	                                                    return React.createElement(
+	                                                        _materialUiTable.TableRow,
+	                                                        { key: item.id },
+	                                                        React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            null,
+	                                                            item.nombre
+	                                                        ),
+	                                                        React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            null,
+	                                                            'Tabla'
+	                                                        ),
+	                                                        React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            null,
+	                                                            React.createElement(
+	                                                                _materialUiIconMenu2['default'],
+	                                                                {
+	                                                                    iconButtonElement: React.createElement(
+	                                                                        _materialUiIconButton2['default'],
+	                                                                        null,
+	                                                                        React.createElement(_materialUiSvgIconsNavigationArrowDropDownCircle2['default'], null)
+	                                                                    ),
+	                                                                    onChange: _this.menu,
+	                                                                    value: _this.state.menu
+	                                                                },
+	                                                                React.createElement(_materialUiMenuItem2['default'], { value: 2, primaryText: 'Modificar', onClick: function () {
+	                                                                        return _this.modificarformato(item.nombre, 'tabla');
+	                                                                    } }),
+	                                                                _this.state.admin == "true" ? React.createElement(_materialUiMenuItem2['default'], { value: 3, primaryText: 'Eliminar', onClick: function () {
+	                                                                        return _this.eliminartabla(item.nombre);
+	                                                                    } }) : null
+	                                                            )
+	                                                        )
+	                                                    );
+	                                                })
+	                                            )
+	                                        )
+	                                    )
+	                                ) : React.createElement(_materialUiRaisedButton2['default'], { label: 'Cancelar', primary: true, onClick: function () {
 	                                        return _this.handleOpenSalir();
 	                                    }, style: botones }),
 	                                this.state.showboton == true ? React.createElement(_materialUiRaisedButton2['default'], { label: 'Guardar', primary: true, onClick: function () {
@@ -76891,7 +78737,7 @@
 	                            React.createElement(
 	                                _materialUiDialog2['default'],
 	                                {
-	                                    title: 'Desea Deshacer el formato?',
+	                                    title: 'Desea Deshacer el Formato?',
 
 	                                    modal: true,
 	                                    open: this.state.dialogsalir
@@ -76936,7 +78782,231 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "formatos.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }),
-/* 626 */,
+/* 626 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Componente para crear formatos documentos */
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiDivider = __webpack_require__(627);
+
+	var _materialUiDivider2 = _interopRequireDefault(_materialUiDivider);
+
+	var _materialUiPaper = __webpack_require__(503);
+
+	var _materialUiPaper2 = _interopRequireDefault(_materialUiPaper);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var _configJsx = __webpack_require__(2);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
+
+	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
+
+	var _materialUiSvgIconsContentDeleteSweep = __webpack_require__(629);
+
+	var _materialUiSvgIconsContentDeleteSweep2 = _interopRequireDefault(_materialUiSvgIconsContentDeleteSweep);
+
+	var _materialUiRaisedButton = __webpack_require__(630);
+
+	var _materialUiRaisedButton2 = _interopRequireDefault(_materialUiRaisedButton);
+
+	var React = __webpack_require__(241);
+
+	var Nodos = __webpack_require__(632);
+
+	var paper = {
+	    width: "100%"
+	};
+	var iconbutton = {
+	    padding: 0
+	};
+	var botones = {
+	    margin: '0% 0% 0% 5%',
+	    height: '15%'
+	};
+
+	var styles = {
+	    mediumIcon: {
+	        width: 36,
+	        height: 36
+	    }
+	};
+
+	var ArrayDocument = (function (_React$Component) {
+	    _inherits(ArrayDocument, _React$Component);
+
+	    function ArrayDocument(props) {
+	        _classCallCheck(this, ArrayDocument);
+
+	        _get(Object.getPrototypeOf(ArrayDocument.prototype), 'constructor', this).call(this, props);
+	        this.state = {
+	            componente: [],
+	            numero: 0
+
+	        };
+	        this.agregarcomponente = this.agregarcomponente.bind(this);
+	        this.handleChange = this.handleChange.bind(this);
+	        this.borrarcomp = this.borrarcomp.bind(this);
+	        this.crearnodo = this.crearnodo.bind(this);
+	    }
+
+	    _createClass(ArrayDocument, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            var _this = this;
+
+	            var messageRef = firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente');
+	            messageRef.on('value', function (snapshot) {
+
+	                var messages = snapshot.val();
+
+	                var newState = [];
+	                for (var message in messages) {
+
+	                    newState.push({
+	                        id: message
+	                    });
+	                }
+
+	                _this.setState({
+	                    componente: newState
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'borrarcomp',
+	        value: function borrarcomp(id) {
+	            firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente/' + id).remove();
+	        }
+	    }, {
+	        key: 'crearnodo',
+	        value: function crearnodo(id) {
+
+	            (0, _configJsx.agregarnodo)(this.props.nombreformato, id);
+	        }
+	    }, {
+	        key: 'agregarcomponente',
+	        value: function agregarcomponente() {
+
+	            (0, _configJsx.CompAdd)(this.props.nombreformato);
+	        }
+	    }, {
+	        key: 'handleChange',
+	        value: function handleChange(e) {
+
+	            this.setState(_defineProperty({}, e.target.name, e.target.value));
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+
+	            return React.createElement(
+	                _materialUiStylesMuiThemeProvider2['default'],
+	                null,
+	                React.createElement(
+	                    'div',
+	                    null,
+	                    React.createElement(
+	                        'div',
+	                        { className: 'paper' },
+	                        React.createElement(
+	                            _materialUiPaper2['default'],
+	                            { zDepth: 2, style: paper },
+	                            React.createElement(
+	                                'h4',
+	                                null,
+	                                'Título del Documento'
+	                            ),
+	                            React.createElement(_materialUiTextField2['default'], { fullWidth: true, disabled: true }),
+	                            React.createElement(_materialUiDivider2['default'], null)
+	                        ),
+	                        React.createElement(_materialUiRaisedButton2['default'], { label: 'Agregar Seccion', primary: true, onClick: function () {
+	                                return _this2.agregarcomponente();
+	                            }, style: botones })
+	                    ),
+	                    this.state.componente.map(function (item) {
+	                        return React.createElement(
+	                            'div',
+	                            { className: 'paper', key: item.id },
+	                            React.createElement(
+	                                _materialUiPaper2['default'],
+	                                { zDepth: 2, style: paper },
+	                                React.createElement(
+	                                    _materialUiIconButton2['default'],
+	                                    { style: iconbutton, onClick: function () {
+	                                            return _this2.borrarcomp(item.id);
+	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Borrar Seccion' },
+	                                    React.createElement(_materialUiSvgIconsContentDeleteSweep2['default'], null)
+	                                ),
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, disabled: true }),
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, disabled: true }),
+	                                React.createElement(Nodos, { idcomponente: item.id, nombreformato: _this2.props.nombreformato }),
+	                                React.createElement(
+	                                    _materialUiIconButton2['default'],
+	                                    { style: iconbutton, onClick: function () {
+	                                            return _this2.crearnodo(item.id);
+	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Crear Campo' },
+	                                    React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
+	                                ),
+	                                React.createElement(_materialUiDivider2['default'], null)
+	                            )
+	                        );
+	                    })
+	                )
+	            );
+	        }
+	    }]);
+
+	    return ArrayDocument;
+	})(React.Component);
+
+	exports['default'] = ArrayDocument;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "arraydocument.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 627 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -77582,7 +79652,151 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 632 */,
+/* 632 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*MOSTRAR Y BORRAR NODOS AL MOMENTO DE CREAR FORMATOS*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _materialUiSvgIconsActionDelete = __webpack_require__(633);
+
+	var _materialUiSvgIconsActionDelete2 = _interopRequireDefault(_materialUiSvgIconsActionDelete);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var React = __webpack_require__(241);
+
+	var iconbutton = {
+	    padding: 0
+	};
+	var styles = {
+	    mediumIcon: {
+	        width: 36,
+	        height: 36
+	    }
+	};
+
+	var nodos = {
+	    width: '80%'
+	};
+
+	var Nodos = (function (_React$Component) {
+	    _inherits(Nodos, _React$Component);
+
+	    function Nodos(props) {
+	        _classCallCheck(this, Nodos);
+
+	        _get(Object.getPrototypeOf(Nodos.prototype), 'constructor', this).call(this, props);
+
+	        this.state = {
+	            nodos: []
+	        };
+	        this.borrarnodo = this.borrarnodo.bind(this);
+	    }
+
+	    _createClass(Nodos, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            var _this = this;
+
+	            var messageRef = firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente/' + this.props.idcomponente + '/nodo');
+	            messageRef.on('value', function (snapshot) {
+
+	                var messages = snapshot.val();
+
+	                var newState = [];
+	                for (var message in messages) {
+
+	                    newState.push({
+	                        id: message
+	                    });
+	                }
+
+	                _this.setState({
+	                    nodos: newState
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'borrarnodo',
+	        value: function borrarnodo(id) {
+	            firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente/' + this.props.idcomponente + '/nodo/' + id).remove();
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+
+	            return React.createElement(
+	                'div',
+	                null,
+	                React.createElement(
+	                    _materialUiStylesMuiThemeProvider2['default'],
+	                    null,
+	                    React.createElement(
+	                        'div',
+	                        null,
+	                        this.state.nodos.map(function (item) {
+	                            return React.createElement(
+	                                'div',
+	                                { key: item.id, className: 'nodos' },
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, disabled: true }),
+	                                React.createElement(
+	                                    _materialUiIconButton2['default'],
+	                                    { style: iconbutton, onClick: function () {
+	                                            return _this2.borrarnodo(item.id);
+	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Borrar Campo' },
+	                                    React.createElement(_materialUiSvgIconsActionDelete2['default'], null)
+	                                )
+	                            );
+	                        })
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Nodos;
+	})(React.Component);
+
+	exports['default'] = Nodos;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "nodos.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 633 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -77620,12 +79834,223 @@
 	exports.default = ActionDelete;
 
 /***/ }),
-/* 634 */,
+/* 634 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+
+	/*CREACION DE FORMATOS TIPO TABLA */
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
+
+	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
+
+	var _materialUiDivider = __webpack_require__(627);
+
+	var _materialUiDivider2 = _interopRequireDefault(_materialUiDivider);
+
+	var _configJsx = __webpack_require__(2);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiTable = __webpack_require__(612);
+
+	var React = __webpack_require__(241);
+
+	var overflow = {
+	    overflow: 'scroll'
+	};
+
+	var iconbutton = {
+	    padding: 0
+	};
+
+	var styles = {
+	    smallIcon: {
+	        width: 36,
+	        height: 36
+	    }
+	};
+
+	var Tabla = (function (_React$Component) {
+	    _inherits(Tabla, _React$Component);
+
+	    function Tabla(props) {
+	        _classCallCheck(this, Tabla);
+
+	        _get(Object.getPrototypeOf(Tabla.prototype), 'constructor', this).call(this, props);
+	        this.state = {
+	            numfil: 0,
+	            numcol: 2,
+	            filas: [],
+	            columnas: []
+	        };
+	        this.agregarcolumna = this.agregarcolumna.bind(this);
+	        this.agregarfila = this.agregarfila.bind(this);
+	    }
+
+	    _createClass(Tabla, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {}
+	    }, {
+	        key: 'agregarcolumna',
+	        value: function agregarcolumna() {
+	            var _this = this;
+
+	            this.state.columnas.push({
+	                id: this.state.columnas.length
+	            });
+
+	            this.setState({
+	                numcol: this.state.numcol + 1
+	            }, function () {
+	                (0, _configJsx.formatotabla)(_this.state.numcol, _this.state.numfil, _this.props.nombreformato);
+	            });
+	        }
+	    }, {
+	        key: 'agregarfila',
+	        value: function agregarfila() {
+	            var _this2 = this;
+
+	            this.state.filas.push({
+	                id: this.state.filas.length
+	            });
+
+	            this.setState({
+	                numfil: this.state.numfil + 1
+	            }, function () {
+	                (0, _configJsx.formatotabla)(_this2.state.numcol, _this2.state.numfil, _this2.props.nombreformato);
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+
+	            return React.createElement(
+	                'div',
+	                null,
+	                React.createElement(
+	                    _materialUiStylesMuiThemeProvider2['default'],
+	                    null,
+	                    React.createElement(
+	                        'div',
+	                        null,
+	                        React.createElement(
+	                            'h1',
+	                            { className: 'documentotitulo' },
+	                            this.props.nombreformato
+	                        ),
+	                        React.createElement(
+	                            'div',
+	                            { className: 'tabla' },
+	                            React.createElement(
+	                                _materialUiTable.Table,
+	                                { style: overflow },
+	                                React.createElement(
+	                                    _materialUiTable.TableHeader,
+	                                    { adjustForCheckbox: false, displaySelectAll: false },
+	                                    React.createElement(
+	                                        _materialUiTable.TableRow,
+	                                        null,
+	                                        React.createElement(
+	                                            _materialUiTable.TableHeaderColumn,
+	                                            null,
+	                                            'Columna'
+	                                        ),
+	                                        React.createElement(
+	                                            _materialUiTable.TableHeaderColumn,
+	                                            null,
+	                                            'Columna'
+	                                        ),
+	                                        this.state.columnas.map(function (item) {
+	                                            return React.createElement(
+	                                                _materialUiTable.TableHeaderColumn,
+	                                                { key: item.id },
+	                                                'Columna'
+	                                            );
+	                                        }),
+	                                        React.createElement(
+	                                            _materialUiTable.TableHeaderColumn,
+	                                            null,
+	                                            ' ',
+	                                            React.createElement(
+	                                                _materialUiIconButton2['default'],
+	                                                { style: iconbutton, iconStyle: styles.smallIcon, onClick: this.agregarcolumna },
+	                                                React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
+	                                            ),
+	                                            '    '
+	                                        )
+	                                    )
+	                                ),
+	                                React.createElement(
+	                                    _materialUiTable.TableBody,
+	                                    { displayRowCheckbox: false },
+	                                    this.state.filas.map(function (item) {
+	                                        return React.createElement(
+	                                            'div',
+	                                            { key: item.id },
+	                                            React.createElement(_materialUiTable.TableRow, null),
+	                                            React.createElement(_materialUiDivider2['default'], null)
+	                                        );
+	                                    })
+	                                )
+	                            ),
+	                            React.createElement(
+	                                _materialUiIconButton2['default'],
+	                                { style: iconbutton, iconStyle: styles.smallIcon, onClick: this.agregarfila },
+	                                React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Tabla;
+	})(React.Component);
+
+	exports['default'] = Tabla;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "tablaformato.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
 /* 635 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
+	/* PAGINA PARA EDITAR LOS DOCUMENTOS TIPO DOCUMENTO */
 	'use strict';
 
 	Object.defineProperty(exports, '__esModule', {
@@ -77682,13 +80107,15 @@
 
 	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
 
+	var _materialUiTable = __webpack_require__(612);
+
 	/*global localStorage */
 
 	var React = __webpack_require__(241);
 
-	var Navlog = __webpack_require__(679);
-	var MostrarNodos = __webpack_require__(685);
-	var MostrarExtras = __webpack_require__(686);
+	var Navlog = __webpack_require__(559);
+	var MostrarNodos = __webpack_require__(636);
+	var MostrarExtras = __webpack_require__(637);
 	var paper = {
 	    width: "100%"
 	};
@@ -77705,8 +80132,7 @@
 	};
 
 	var botonguardar = {
-	    marginBottom: '2.9%'
-
+	    margin: '3% 0 0% 3%'
 	};
 
 	var EditarDoc = (function (_React$Component) {
@@ -77719,27 +80145,21 @@
 
 	        this.state = {
 	            admin: false,
-	            formatoseleccionado: '',
-	            formatolist: [],
-	            tipoformato: 0,
-	            componente: [],
-	            rutatemp: localStorage.getItem('ruta'),
 	            titulodocumento: localStorage.getItem('doctitulo'),
-	            ruta: []
+	            ruta: [],
+	            nombreformato: localStorage.getItem('nombreformato'),
+	            titulo: "titulo",
+	            componente: [],
+	            iddocumento: localStorage.getItem('iddocumento')
 	        };
 	        this.handleChange = this.handleChange.bind(this);
-	        this.handleSubmit = this.handleSubmit.bind(this);
 	        this.crearextra = this.crearextra.bind(this);
-	        this.mostrarformato = this.mostrarformato.bind(this);
-	        this.tipoformatoseleccionado = this.tipoformatoseleccionado.bind(this);
 	    }
 
 	    _createClass(EditarDoc, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
-	            this.setState({
-	                ruta: JSON.parse(this.state.rutatemp)
-	            });
+
 	            var padre = this;
 	            firebase.auth().onAuthStateChanged(function (user) {
 
@@ -77751,97 +80171,28 @@
 	                        if (messages.admin == 'true') {
 
 	                            padre.setState({
-	                                admin: messages.admin
-	                            });
-	                        } else {
-
-	                            padre.setState({
-	                                admin: false
+	                                admin: 'true'
 	                            });
 	                        }
 	                    });
 	                } else {
-
 	                    padre.props.history.push({ pathname: '/login' });
 	                }
 	            });
-	        }
-	    }, {
-	        key: 'tipoformatoseleccionado',
-	        value: function tipoformatoseleccionado(e) {
-	            var _this = this;
 
-	            var padre = this;
-	            this.setState(_defineProperty({}, e.target.name, e.target.value), function () {
-
-	                if (_this.state.tipoformato == 1) {
-
-	                    var messageRef = firebase.database().ref().child('formatos/documentos/');
-	                    messageRef.on('value', function (snapshot) {
-
-	                        var messages = snapshot.val();
-	                        var newState = [];
-	                        for (var message in messages) {
-
-	                            newState.push({
-	                                id: message,
-	                                nombre: messages[message].nombre
-	                            });
-	                        }
-
-	                        padre.setState({
-	                            formatolist: newState
-	                        });
-	                    });
-	                }
-
-	                if (_this.state.tipoformato == 2) {
-
-	                    var messageRef = firebase.database().ref().child('formatos/tablas/');
-	                    messageRef.on('value', function (snapshot) {
-
-	                        var messages = snapshot.val();
-	                        var newState = [];
-	                        for (var message in messages) {
-
-	                            newState.push({
-	                                id: message,
-	                                nombre: messages[message].nombre
-	                            });
-	                        }
-
-	                        padre.setState({
-	                            formatolist: newState
-	                        });
-	                    });
-	                }
-	            });
-	        }
-	    }, {
-	        key: 'mostrarformato',
-	        value: function mostrarformato(e) {
-	            var _this2 = this;
-
-	            var padre = this;
-
-	            this.setState(_defineProperty({}, e.target.name, e.target.value), function () {
+	            var messageRef = firebase.database().ref().child('documentos/' + this.state.iddocumento + '/componente');
+	            messageRef.on('value', function (snapshot) {
+	                var messages = snapshot.val();
 
 	                var newState = [];
-	                var messageRef = firebase.database().ref().child('formatos/documentos/' + padre.state.formatoseleccionado + '/componente');
-	                messageRef.on('value', function (snapshot) {
-
-	                    var messages = snapshot.val();
-
-	                    for (var message in messages) {
-
-	                        newState.push({
-	                            id: message
-	                        });
-	                    }
-
-	                    _this2.setState({
-	                        componente: newState
+	                for (var message in messages) {
+	                    newState.push({
+	                        id: message
 	                    });
+	                }
+
+	                padre.setState({
+	                    componente: newState
 	                });
 	            });
 	        }
@@ -77849,7 +80200,7 @@
 	        key: 'crearextra',
 	        value: function crearextra(idcomponente) {
 
-	            (0, _configJsx.nodospropios)(idcomponente, this.state.ruta);
+	            (0, _configJsx.nodospropios)(idcomponente, this.state.iddocumento);
 	        }
 	    }, {
 	        key: 'handleChange',
@@ -77858,17 +80209,9 @@
 	            this.setState(_defineProperty({}, e.target.name, e.target.value));
 	        }
 	    }, {
-	        key: 'handleSubmit',
-	        value: function handleSubmit(e) {
-	            /* ASI AGARRO TEXTO DE FIELDS 
-	            const texto = document.getElementById('-Kxn4xOBibtaC32qmz-7').value;
-	             const text = document.getElementById('-Kxn4xOBibtaC32qmz-71').value; */
-
-	        }
-	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var _this = this;
 
 	            return React.createElement(
 	                'div',
@@ -77885,70 +80228,31 @@
 	                            null,
 	                            React.createElement(
 	                                _materialUiTabs.Tab,
+	                                { label: 'Ver Documento' },
+	                                React.createElement('div', null)
+	                            ),
+	                            React.createElement(
+	                                _materialUiTabs.Tab,
 	                                { label: 'Editar Documento' },
 	                                React.createElement(
 	                                    'div',
 	                                    null,
-	                                    React.createElement(
-	                                        'h1',
-	                                        { className: 'formatoeditartitulo' },
-	                                        'Seleccionar Formato'
-	                                    ),
+	                                    React.createElement(_materialUiRaisedButton2['default'], { label: 'Guardar', secondary: true, style: botonguardar }),
 	                                    React.createElement(
 	                                        'div',
-	                                        { className: 'selectoresformatos' },
+	                                        { className: 'documentotitulo' },
 	                                        React.createElement(
-	                                            'select',
-	                                            { className: 'selecteditar', value: this.state.tipoformato, onChange: this.tipoformatoseleccionado, name: 'tipoformato' },
-	                                            React.createElement(
-	                                                'option',
-	                                                { value: 0 },
-	                                                'Tipo de Formato'
-	                                            ),
-	                                            React.createElement(
-	                                                'option',
-	                                                { value: 1 },
-	                                                'Documento'
-	                                            ),
-	                                            React.createElement(
-	                                                'option',
-	                                                { value: 2 },
-	                                                'Tabla'
-	                                            )
+	                                            'h1',
+	                                            null,
+	                                            'Titulo: ',
+	                                            this.state.titulodocumento
 	                                        ),
 	                                        React.createElement(
-	                                            'select',
-	                                            { className: 'selecteditar', value: this.state.formatoseleccionado, onChange: this.mostrarformato, name: 'formatoseleccionado' },
-	                                            React.createElement(
-	                                                'option',
-	                                                { value: '' },
-	                                                'Seleccionar Formato'
-	                                            ),
-	                                            this.state.formatolist.map(function (item) {
-	                                                return React.createElement(
-	                                                    'option',
-	                                                    { key: item.id, value: item.id },
-	                                                    ' ',
-	                                                    item.nombre,
-	                                                    ' '
-	                                                );
-	                                            })
-	                                        ),
-	                                        React.createElement(_materialUiRaisedButton2['default'], { label: 'Guardar', secondary: true, style: botonguardar, onClick: this.handleSubmit })
-	                                    ),
-	                                    React.createElement(
-	                                        'div',
-	                                        { className: 'papereditar' },
-	                                        React.createElement(
-	                                            _materialUiPaper2['default'],
-	                                            { zDepth: 2, style: paper },
-	                                            React.createElement(
-	                                                'h4',
-	                                                null,
-	                                                'Título del Documento'
-	                                            ),
-	                                            React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: this.state.titulodocumento }),
-	                                            React.createElement(_materialUiDivider2['default'], null)
+	                                            'h4',
+	                                            null,
+	                                            'Formato: ',
+	                                            this.state.nombreformato,
+	                                            ' - Documento'
 	                                        )
 	                                    ),
 	                                    this.state.componente.map(function (item) {
@@ -77959,13 +80263,13 @@
 	                                                _materialUiPaper2['default'],
 	                                                { zDepth: 2, style: paper },
 	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, id: item.id }),
-	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: item.id + '1' }),
-	                                                React.createElement(MostrarNodos, { idcomponente: item.id, nombreformato: _this3.state.formatoseleccionado }),
-	                                                React.createElement(MostrarExtras, { ruta: _this3.state.ruta, idcomponente: item.id }),
+	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: _this.state.titulo + item.id }),
+	                                                React.createElement(MostrarNodos, { idcomponente: item.id, docid: _this.state.iddocumento }),
+	                                                React.createElement(MostrarExtras, { idcomponente: item.id, docid: _this.state.iddocumento }),
 	                                                React.createElement(
 	                                                    _materialUiIconButton2['default'],
 	                                                    { style: iconbutton, onClick: function () {
-	                                                            return _this3.crearextra(item.id);
+	                                                            return _this.crearextra(item.id);
 	                                                        }, iconStyle: styles.mediumIcon, tooltip: 'Agregar Campo' },
 	                                                    React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
 	                                                ),
@@ -77974,11 +80278,6 @@
 	                                        );
 	                                    })
 	                                )
-	                            ),
-	                            React.createElement(
-	                                _materialUiTabs.Tab,
-	                                { label: 'Ver Documento' },
-	                                React.createElement('div', null)
 	                            )
 	                        )
 	                    )
@@ -77999,60 +80298,664 @@
 /* 636 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Se muestran los nodos al momento de editar el documento selecionado*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _configJsx = __webpack_require__(2);
+
+	var React = __webpack_require__(241);
+
+	var iconbutton = {
+	    padding: 0
+	};
+	var styles = {
+	    mediumIcon: {
+	        width: 36,
+	        height: 36
+	    }
+	};
+
+	var nodos = {
+	    width: '80%'
+	};
+
+	var MostrarNodos = (function (_React$Component) {
+	    _inherits(MostrarNodos, _React$Component);
+
+	    function MostrarNodos(props) {
+	        _classCallCheck(this, MostrarNodos);
+
+	        _get(Object.getPrototypeOf(MostrarNodos.prototype), 'constructor', this).call(this, props);
+
+	        this.state = {
+	            nodos: []
+	        };
+	    }
+
+	    _createClass(MostrarNodos, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            var _this = this;
+
+	            var messageRef = firebase.database().ref().child('/documentos/' + this.props.docid + '/componente/' + this.props.idcomponente + '/nodo');
+	            messageRef.on('value', function (snapshot) {
+
+	                var messages = snapshot.val();
+
+	                var newState = [];
+	                for (var message in messages) {
+
+	                    newState.push({
+	                        id: message
+	                    });
+	                }
+
+	                _this.setState({
+	                    nodos: newState
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+
+	            return React.createElement(
+	                'div',
+	                null,
+	                React.createElement(
+	                    _materialUiStylesMuiThemeProvider2['default'],
+	                    null,
+	                    React.createElement(
+	                        'div',
+	                        null,
+	                        this.state.nodos.map(function (item) {
+	                            return React.createElement(
+	                                'div',
+	                                { className: 'nodos', key: item.id },
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true })
+	                            );
+	                        })
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return MostrarNodos;
+	})(React.Component);
+
+	exports['default'] = MostrarNodos;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "mostrarnodos.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
+/* 637 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Se muestran los campos extras agregados a los formatos, al momento de editar el documento*/
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _materialUiSvgIconsActionDelete = __webpack_require__(633);
+
+	var _materialUiSvgIconsActionDelete2 = _interopRequireDefault(_materialUiSvgIconsActionDelete);
+
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var React = __webpack_require__(241);
+
+	var iconbutton = {
+	    padding: 0
+	};
+	var styles = {
+	    mediumIcon: {
+	        width: 36,
+	        height: 36
+	    }
+	};
+
+	var nodos = {
+	    width: '80%'
+	};
+
+	var MostrarExtras = (function (_React$Component) {
+	    _inherits(MostrarExtras, _React$Component);
+
+	    function MostrarExtras(props) {
+	        _classCallCheck(this, MostrarExtras);
+
+	        _get(Object.getPrototypeOf(MostrarExtras.prototype), 'constructor', this).call(this, props);
+
+	        this.state = {
+	            nodos: []
+	        };
+	        this.borrarnodo = this.borrarnodo.bind(this);
+	    }
+
+	    _createClass(MostrarExtras, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            var _this = this;
+
+	            var messageRef = firebase.database().ref().child('documentos/' + this.props.docid + "/componente/" + this.props.idcomponente + "/extras/");
+
+	            messageRef.on('value', function (snapshot) {
+
+	                var messages = snapshot.val();
+
+	                var newState = [];
+	                for (var message in messages) {
+
+	                    newState.push({
+	                        id: message
+	                    });
+	                }
+
+	                _this.setState({
+	                    nodos: newState
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'borrarnodo',
+	        value: function borrarnodo(id) {
+
+	            firebase.database().ref().child('documentos/' + this.props.docid + "/componente/" + this.props.idcomponente + "/extras/" + id).remove();
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+
+	            return React.createElement(
+	                'div',
+	                null,
+	                React.createElement(
+	                    _materialUiStylesMuiThemeProvider2['default'],
+	                    null,
+	                    React.createElement(
+	                        'div',
+	                        null,
+	                        this.state.nodos.map(function (item) {
+	                            return React.createElement(
+	                                'div',
+	                                { key: item.id, className: 'nodos' },
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true }),
+	                                React.createElement(
+	                                    _materialUiIconButton2['default'],
+	                                    { style: iconbutton, onClick: function () {
+	                                            return _this2.borrarnodo(item.id);
+	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Borrar Campo' },
+	                                    React.createElement(_materialUiSvgIconsActionDelete2['default'], null)
+	                                )
+	                            );
+	                        })
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return MostrarExtras;
+	})(React.Component);
+
+	exports['default'] = MostrarExtras;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "mostrarextras.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
+/* 638 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/* PAGINA PARA EDITAR LOS DOCUMENTOS TIPO TABLA */
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var _materialUiFlatButton = __webpack_require__(549);
+
+	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
+
+	var _materialUiRaisedButton = __webpack_require__(630);
+
+	var _materialUiRaisedButton2 = _interopRequireDefault(_materialUiRaisedButton);
+
+	var _configJsx = __webpack_require__(2);
+
+	var _materialUiTabs = __webpack_require__(603);
+
+	var _materialUiTable = __webpack_require__(612);
+
+	/*global  localStorage */
+
+	var React = __webpack_require__(241);
+
+	var Navlog = __webpack_require__(559);
+	var texttablas = {
+	    width: '100%'
+	};
+
+	var botonguardar = {
+	    margin: '3% 0 0% 3%'
+
+	};
+
+	var overflow = {
+	    overflow: 'scroll'
+	};
+
+	var EditarTab = (function (_React$Component) {
+	    _inherits(EditarTab, _React$Component);
+
+	    function EditarTab() {
+	        _classCallCheck(this, EditarTab);
+
+	        _get(Object.getPrototypeOf(EditarTab.prototype), 'constructor', this).call(this);
+	        this.state = {
+	            admin: false,
+	            numfilas: "",
+	            numcolumnas: "",
+	            matriz: [],
+	            fila: [],
+	            columna: [],
+	            datos: [],
+	            col: [],
+	            rutatemp: localStorage.getItem('ruta'),
+	            titulodocumento: localStorage.getItem('doctitulo'),
+	            iddocumento: localStorage.getItem('iddocumento'),
+	            nombreformato: localStorage.getItem('nombreformato'),
+	            titulo: "titulo"
+	        };
+	        this.guardartabla = this.guardartabla.bind(this);
+	    }
+
+	    _createClass(EditarTab, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            var padre = this;
+	            firebase.auth().onAuthStateChanged(function (user) {
+
+	                if (user) {
+
+	                    firebase.database().ref().child('usuarios/' + user.uid).on('value', function (snapshot) {
+	                        var messages = snapshot.val();
+
+	                        if (messages.admin == 'true') {
+	                            padre.setState({
+	                                admin: 'true'
+	                            });
+	                        }
+	                    });
+	                } else {
+	                    padre.props.history.push({ pathname: '/login' });
+	                }
+	            });
+
+	            var messageRef = firebase.database().ref().child('documentos/' + padre.state.iddocumento);
+	            messageRef.on('value', function (snapshot) {
+	                var filas = snapshot.val().filas;
+	                var columnas = snapshot.val().columnas;
+	                var data = snapshot.val().datos;
+	                var nuevamatriz = data.slice(1);
+	                var filatemporal = [];
+	                var columnatemporal = [];
+	                console.log(nuevamatriz);
+	                for (var i = 0; i < filas; i++) {
+	                    filatemporal.push({
+	                        id: i
+	                    });
+	                }
+
+	                for (var j = 0; j < columnas; j++) {
+	                    columnatemporal.push({
+	                        id: j
+	                    });
+	                }
+
+	                padre.setState({
+	                    numfilas: filas,
+	                    numcolumnas: columnas,
+	                    fila: filatemporal,
+	                    columna: columnatemporal,
+	                    col: data[0],
+	                    datos: nuevamatriz
+
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'guardartabla',
+	        value: function guardartabla() {
+
+	            var matriz = new Array();
+
+	            for (var j = 0; j < this.state.numcolumnas; j++) {
+	                matriz[j] = new Array();
+	                var texto = document.getElementById("titulo" + j).value;
+	                matriz[0][j] = texto;
+	            }
+
+	            for (var i = 0; i < this.state.numfilas; i++) {
+
+	                for (var j = 0; j < this.state.numcolumnas; j++) {
+
+	                    var texto = document.getElementById(i + ',' + j).value;
+	                    matriz[i + 1][j] = texto;
+	                }
+	            }
+
+	            (0, _configJsx.guardarmatrizdatos)(matriz, this.state.iddocumento);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this = this;
+
+	            return React.createElement(
+	                'div',
+	                null,
+	                React.createElement(
+	                    _materialUiStylesMuiThemeProvider2['default'],
+	                    null,
+	                    React.createElement(
+	                        'div',
+	                        null,
+	                        React.createElement(Navlog, { history: this.props.history, admin: this.state.admin }),
+	                        React.createElement(
+	                            _materialUiTabs.Tabs,
+	                            null,
+	                            React.createElement(
+	                                _materialUiTabs.Tab,
+	                                { label: 'Ver Documento' },
+	                                React.createElement(
+	                                    'div',
+	                                    { className: 'tabla' },
+	                                    React.createElement(
+	                                        _materialUiTable.Table,
+	                                        { style: overflow },
+	                                        React.createElement(
+	                                            _materialUiTable.TableHeader,
+	                                            { adjustForCheckbox: false, displaySelectAll: false },
+	                                            React.createElement(
+	                                                _materialUiTable.TableRow,
+	                                                null,
+	                                                React.createElement(
+	                                                    _materialUiTable.TableHeaderColumn,
+	                                                    { colSpan: '3', tooltip: 'Usuarios', style: { textAlign: 'center' } },
+	                                                    this.state.titulodocumento
+	                                                )
+	                                            ),
+	                                            React.createElement(
+	                                                _materialUiTable.TableRow,
+	                                                null,
+	                                                this.state.col.map(function (item, index, objeto) {
+	                                                    console.log(item);
+	                                                    return React.createElement(
+	                                                        _materialUiTable.TableHeaderColumn,
+	                                                        { key: item.id },
+	                                                        ' ',
+	                                                        item,
+	                                                        '  '
+	                                                    );
+	                                                })
+	                                            )
+	                                        ),
+	                                        React.createElement(
+	                                            _materialUiTable.TableBody,
+	                                            { displayRowCheckbox: false, stripedRows: true, showRowHover: true },
+	                                            this.state.datos.map(function (item, i, objeto) {
+	                                                console.log(item);
+	                                                return React.createElement(
+	                                                    _materialUiTable.TableRow,
+	                                                    { key: item.id },
+	                                                    item.map(function (col, j, objeto) {
+	                                                        console.log(col);
+	                                                        return React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            { key: col.id },
+	                                                            ' ',
+	                                                            col,
+	                                                            ' '
+	                                                        );
+	                                                    })
+	                                                );
+	                                            })
+	                                        )
+	                                    )
+	                                )
+	                            ),
+	                            React.createElement(
+	                                _materialUiTabs.Tab,
+	                                { label: 'Editar Documento' },
+	                                React.createElement(_materialUiRaisedButton2['default'], { label: 'Guardar', secondary: true, style: botonguardar, onClick: this.guardartabla }),
+	                                React.createElement(
+	                                    'div',
+	                                    { className: 'documentotitulo' },
+	                                    React.createElement(
+	                                        'h1',
+	                                        null,
+	                                        'Titulo: ',
+	                                        this.state.titulodocumento
+	                                    ),
+	                                    React.createElement(
+	                                        'h4',
+	                                        null,
+	                                        'Formato: ',
+	                                        this.state.nombreformato,
+	                                        ' - Tabla'
+	                                    )
+	                                ),
+	                                React.createElement(
+	                                    'div',
+	                                    { className: 'tabla' },
+	                                    React.createElement(
+	                                        _materialUiTable.Table,
+	                                        { style: overflow },
+	                                        React.createElement(
+	                                            _materialUiTable.TableHeader,
+	                                            { adjustForCheckbox: false, displaySelectAll: false },
+	                                            React.createElement(
+	                                                _materialUiTable.TableRow,
+	                                                null,
+	                                                this.state.columna.map(function (item) {
+	                                                    return React.createElement(
+	                                                        _materialUiTable.TableHeaderColumn,
+	                                                        { key: item.id },
+	                                                        ' ',
+	                                                        React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Titulo', id: "titulo" + item.id }),
+	                                                        ' '
+	                                                    );
+	                                                })
+	                                            )
+	                                        ),
+	                                        React.createElement(
+	                                            _materialUiTable.TableBody,
+	                                            { displayRowCheckbox: false },
+	                                            this.state.fila.map(function (item, index, objeto) {
+
+	                                                return React.createElement(
+	                                                    _materialUiTable.TableRow,
+	                                                    { key: item.id },
+	                                                    _this.state.columna.map(function (col) {
+	                                                        return React.createElement(
+	                                                            _materialUiTable.TableRowColumn,
+	                                                            { key: col.id },
+	                                                            ' ',
+	                                                            React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Texto', id: item.id + "," + col.id, style: texttablas }),
+	                                                            ' '
+	                                                        );
+	                                                    })
+	                                                );
+	                                            })
+	                                        )
+	                                    )
+	                                )
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return EditarTab;
+	})(React.Component);
+
+	exports['default'] = EditarTab;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "editartabla.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
+/* 639 */
+/***/ (function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	exports.__esModule = true;
 	exports.withRouter = exports.matchPath = exports.Switch = exports.StaticRouter = exports.Router = exports.Route = exports.Redirect = exports.Prompt = exports.NavLink = exports.MemoryRouter = exports.Link = exports.HashRouter = exports.BrowserRouter = undefined;
 
-	var _BrowserRouter2 = __webpack_require__(637);
+	var _BrowserRouter2 = __webpack_require__(640);
 
 	var _BrowserRouter3 = _interopRequireDefault(_BrowserRouter2);
 
-	var _HashRouter2 = __webpack_require__(648);
+	var _HashRouter2 = __webpack_require__(651);
 
 	var _HashRouter3 = _interopRequireDefault(_HashRouter2);
 
-	var _Link2 = __webpack_require__(650);
+	var _Link2 = __webpack_require__(653);
 
 	var _Link3 = _interopRequireDefault(_Link2);
 
-	var _MemoryRouter2 = __webpack_require__(651);
+	var _MemoryRouter2 = __webpack_require__(654);
 
 	var _MemoryRouter3 = _interopRequireDefault(_MemoryRouter2);
 
-	var _NavLink2 = __webpack_require__(654);
+	var _NavLink2 = __webpack_require__(657);
 
 	var _NavLink3 = _interopRequireDefault(_NavLink2);
 
-	var _Prompt2 = __webpack_require__(660);
+	var _Prompt2 = __webpack_require__(663);
 
 	var _Prompt3 = _interopRequireDefault(_Prompt2);
 
-	var _Redirect2 = __webpack_require__(662);
+	var _Redirect2 = __webpack_require__(665);
 
 	var _Redirect3 = _interopRequireDefault(_Redirect2);
 
-	var _Route2 = __webpack_require__(655);
+	var _Route2 = __webpack_require__(658);
 
 	var _Route3 = _interopRequireDefault(_Route2);
 
-	var _Router2 = __webpack_require__(646);
+	var _Router2 = __webpack_require__(649);
 
 	var _Router3 = _interopRequireDefault(_Router2);
 
-	var _StaticRouter2 = __webpack_require__(665);
+	var _StaticRouter2 = __webpack_require__(668);
 
 	var _StaticRouter3 = _interopRequireDefault(_StaticRouter2);
 
-	var _Switch2 = __webpack_require__(667);
+	var _Switch2 = __webpack_require__(670);
 
 	var _Switch3 = _interopRequireDefault(_Switch2);
 
-	var _matchPath2 = __webpack_require__(669);
+	var _matchPath2 = __webpack_require__(672);
 
 	var _matchPath3 = _interopRequireDefault(_matchPath2);
 
-	var _withRouter2 = __webpack_require__(670);
+	var _withRouter2 = __webpack_require__(673);
 
 	var _withRouter3 = _interopRequireDefault(_withRouter2);
 
@@ -78073,7 +80976,7 @@
 	exports.withRouter = _withRouter3.default;
 
 /***/ }),
-/* 637 */
+/* 640 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78092,11 +80995,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createBrowserHistory = __webpack_require__(638);
+	var _createBrowserHistory = __webpack_require__(641);
 
 	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-	var _Router = __webpack_require__(646);
+	var _Router = __webpack_require__(649);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -78147,7 +81050,7 @@
 	exports.default = BrowserRouter;
 
 /***/ }),
-/* 638 */
+/* 641 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78162,19 +81065,19 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _LocationUtils = __webpack_require__(640);
+	var _LocationUtils = __webpack_require__(643);
 
-	var _PathUtils = __webpack_require__(643);
+	var _PathUtils = __webpack_require__(646);
 
-	var _createTransitionManager = __webpack_require__(644);
+	var _createTransitionManager = __webpack_require__(647);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _DOMUtils = __webpack_require__(645);
+	var _DOMUtils = __webpack_require__(648);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -78459,7 +81362,7 @@
 	exports.default = createBrowserHistory;
 
 /***/ }),
-/* 639 */
+/* 642 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -78517,7 +81420,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 640 */
+/* 643 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78527,15 +81430,15 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _resolvePathname = __webpack_require__(641);
+	var _resolvePathname = __webpack_require__(644);
 
 	var _resolvePathname2 = _interopRequireDefault(_resolvePathname);
 
-	var _valueEqual = __webpack_require__(642);
+	var _valueEqual = __webpack_require__(645);
 
 	var _valueEqual2 = _interopRequireDefault(_valueEqual);
 
-	var _PathUtils = __webpack_require__(643);
+	var _PathUtils = __webpack_require__(646);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -78600,7 +81503,7 @@
 	};
 
 /***/ }),
-/* 641 */
+/* 644 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78679,7 +81582,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 642 */
+/* 645 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78727,7 +81630,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 643 */
+/* 646 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78793,7 +81696,7 @@
 	};
 
 /***/ }),
-/* 644 */
+/* 647 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78883,7 +81786,7 @@
 	exports.default = createTransitionManager;
 
 /***/ }),
-/* 645 */
+/* 648 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -78943,14 +81846,14 @@
 	};
 
 /***/ }),
-/* 646 */
+/* 649 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Router = __webpack_require__(647);
+	var _Router = __webpack_require__(650);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -78959,7 +81862,7 @@
 	exports.default = _Router2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 647 */
+/* 650 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -78972,7 +81875,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -79083,7 +81986,7 @@
 	exports.default = Router;
 
 /***/ }),
-/* 648 */
+/* 651 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79102,11 +82005,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createHashHistory = __webpack_require__(649);
+	var _createHashHistory = __webpack_require__(652);
 
 	var _createHashHistory2 = _interopRequireDefault(_createHashHistory);
 
-	var _Router = __webpack_require__(646);
+	var _Router = __webpack_require__(649);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -79156,7 +82059,7 @@
 	exports.default = HashRouter;
 
 /***/ }),
-/* 649 */
+/* 652 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79169,19 +82072,19 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _LocationUtils = __webpack_require__(640);
+	var _LocationUtils = __webpack_require__(643);
 
-	var _PathUtils = __webpack_require__(643);
+	var _PathUtils = __webpack_require__(646);
 
-	var _createTransitionManager = __webpack_require__(644);
+	var _createTransitionManager = __webpack_require__(647);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _DOMUtils = __webpack_require__(645);
+	var _DOMUtils = __webpack_require__(648);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -79485,7 +82388,7 @@
 	exports.default = createHashHistory;
 
 /***/ }),
-/* 650 */
+/* 653 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79502,7 +82405,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -79600,14 +82503,14 @@
 	exports.default = Link;
 
 /***/ }),
-/* 651 */
+/* 654 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _MemoryRouter = __webpack_require__(652);
+	var _MemoryRouter = __webpack_require__(655);
 
 	var _MemoryRouter2 = _interopRequireDefault(_MemoryRouter);
 
@@ -79616,7 +82519,7 @@
 	exports.default = _MemoryRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 652 */
+/* 655 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79635,11 +82538,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createMemoryHistory = __webpack_require__(653);
+	var _createMemoryHistory = __webpack_require__(656);
 
 	var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
 
-	var _Router = __webpack_require__(647);
+	var _Router = __webpack_require__(650);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -79690,7 +82593,7 @@
 	exports.default = MemoryRouter;
 
 /***/ }),
-/* 653 */
+/* 656 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79705,11 +82608,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _PathUtils = __webpack_require__(643);
+	var _PathUtils = __webpack_require__(646);
 
-	var _LocationUtils = __webpack_require__(640);
+	var _LocationUtils = __webpack_require__(643);
 
-	var _createTransitionManager = __webpack_require__(644);
+	var _createTransitionManager = __webpack_require__(647);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
@@ -79865,7 +82768,7 @@
 	exports.default = createMemoryHistory;
 
 /***/ }),
-/* 654 */
+/* 657 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79884,11 +82787,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _Route = __webpack_require__(655);
+	var _Route = __webpack_require__(658);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
-	var _Link = __webpack_require__(650);
+	var _Link = __webpack_require__(653);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
@@ -79956,14 +82859,14 @@
 	exports.default = NavLink;
 
 /***/ }),
-/* 655 */
+/* 658 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Route = __webpack_require__(656);
+	var _Route = __webpack_require__(659);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
@@ -79972,7 +82875,7 @@
 	exports.default = _Route2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 656 */
+/* 659 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -79985,7 +82888,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -79997,7 +82900,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _matchPath = __webpack_require__(657);
+	var _matchPath = __webpack_require__(660);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -80129,14 +83032,14 @@
 	exports.default = Route;
 
 /***/ }),
-/* 657 */
+/* 660 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _pathToRegexp = __webpack_require__(658);
+	var _pathToRegexp = __webpack_require__(661);
 
 	var _pathToRegexp2 = _interopRequireDefault(_pathToRegexp);
 
@@ -80211,10 +83114,10 @@
 	exports.default = matchPath;
 
 /***/ }),
-/* 658 */
+/* 661 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var isarray = __webpack_require__(659)
+	var isarray = __webpack_require__(662)
 
 	/**
 	 * Expose `pathToRegexp`.
@@ -80643,7 +83546,7 @@
 
 
 /***/ }),
-/* 659 */
+/* 662 */
 /***/ (function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -80652,14 +83555,14 @@
 
 
 /***/ }),
-/* 660 */
+/* 663 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Prompt = __webpack_require__(661);
+	var _Prompt = __webpack_require__(664);
 
 	var _Prompt2 = _interopRequireDefault(_Prompt);
 
@@ -80668,7 +83571,7 @@
 	exports.default = _Prompt2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 661 */
+/* 664 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80683,7 +83586,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -80763,14 +83666,14 @@
 	exports.default = Prompt;
 
 /***/ }),
-/* 662 */
+/* 665 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Redirect = __webpack_require__(663);
+	var _Redirect = __webpack_require__(666);
 
 	var _Redirect2 = _interopRequireDefault(_Redirect);
 
@@ -80779,7 +83682,7 @@
 	exports.default = _Redirect2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 663 */
+/* 666 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80798,11 +83701,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _history = __webpack_require__(664);
+	var _history = __webpack_require__(667);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -80892,7 +83795,7 @@
 	exports.default = Redirect;
 
 /***/ }),
-/* 664 */
+/* 667 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80900,7 +83803,7 @@
 	exports.__esModule = true;
 	exports.createPath = exports.parsePath = exports.locationsAreEqual = exports.createLocation = exports.createMemoryHistory = exports.createHashHistory = exports.createBrowserHistory = undefined;
 
-	var _LocationUtils = __webpack_require__(640);
+	var _LocationUtils = __webpack_require__(643);
 
 	Object.defineProperty(exports, 'createLocation', {
 	  enumerable: true,
@@ -80915,7 +83818,7 @@
 	  }
 	});
 
-	var _PathUtils = __webpack_require__(643);
+	var _PathUtils = __webpack_require__(646);
 
 	Object.defineProperty(exports, 'parsePath', {
 	  enumerable: true,
@@ -80930,15 +83833,15 @@
 	  }
 	});
 
-	var _createBrowserHistory2 = __webpack_require__(638);
+	var _createBrowserHistory2 = __webpack_require__(641);
 
 	var _createBrowserHistory3 = _interopRequireDefault(_createBrowserHistory2);
 
-	var _createHashHistory2 = __webpack_require__(649);
+	var _createHashHistory2 = __webpack_require__(652);
 
 	var _createHashHistory3 = _interopRequireDefault(_createHashHistory2);
 
-	var _createMemoryHistory2 = __webpack_require__(653);
+	var _createMemoryHistory2 = __webpack_require__(656);
 
 	var _createMemoryHistory3 = _interopRequireDefault(_createMemoryHistory2);
 
@@ -80949,14 +83852,14 @@
 	exports.createMemoryHistory = _createMemoryHistory3.default;
 
 /***/ }),
-/* 665 */
+/* 668 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _StaticRouter = __webpack_require__(666);
+	var _StaticRouter = __webpack_require__(669);
 
 	var _StaticRouter2 = _interopRequireDefault(_StaticRouter);
 
@@ -80965,7 +83868,7 @@
 	exports.default = _StaticRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 666 */
+/* 669 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -80978,7 +83881,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -80990,9 +83893,9 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _PathUtils = __webpack_require__(643);
+	var _PathUtils = __webpack_require__(646);
 
-	var _Router = __webpack_require__(647);
+	var _Router = __webpack_require__(650);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -81155,14 +84058,14 @@
 	exports.default = StaticRouter;
 
 /***/ }),
-/* 667 */
+/* 670 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Switch = __webpack_require__(668);
+	var _Switch = __webpack_require__(671);
 
 	var _Switch2 = _interopRequireDefault(_Switch);
 
@@ -81171,7 +84074,7 @@
 	exports.default = _Switch2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 668 */
+/* 671 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -81190,11 +84093,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(639);
+	var _invariant = __webpack_require__(642);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _matchPath = __webpack_require__(657);
+	var _matchPath = __webpack_require__(660);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -81272,14 +84175,14 @@
 	exports.default = Switch;
 
 /***/ }),
-/* 669 */
+/* 672 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _matchPath = __webpack_require__(657);
+	var _matchPath = __webpack_require__(660);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -81288,14 +84191,14 @@
 	exports.default = _matchPath2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 670 */
+/* 673 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _withRouter = __webpack_require__(671);
+	var _withRouter = __webpack_require__(674);
 
 	var _withRouter2 = _interopRequireDefault(_withRouter);
 
@@ -81304,7 +84207,7 @@
 	exports.default = _withRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 671 */
+/* 674 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -81321,11 +84224,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _hoistNonReactStatics = __webpack_require__(672);
+	var _hoistNonReactStatics = __webpack_require__(675);
 
 	var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 
-	var _Route = __webpack_require__(656);
+	var _Route = __webpack_require__(659);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
@@ -81358,7 +84261,7 @@
 	exports.default = withRouter;
 
 /***/ }),
-/* 672 */
+/* 675 */
 /***/ (function(module, exports) {
 
 	/**
@@ -81429,2164 +84332,10 @@
 
 
 /***/ }),
-/* 673 */
+/* 676 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 674 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _materialUiSvgIconsActionHelp = __webpack_require__(553);
-
-	var _materialUiSvgIconsActionHelp2 = _interopRequireDefault(_materialUiSvgIconsActionHelp);
-
-	var _materialUiSvgIconsActionHome = __webpack_require__(554);
-
-	var _materialUiSvgIconsActionHome2 = _interopRequireDefault(_materialUiSvgIconsActionHome);
-
-	var _materialUiAppBar = __webpack_require__(555);
-
-	var _materialUiAppBar2 = _interopRequireDefault(_materialUiAppBar);
-
-	var _materialUiFlatButton = __webpack_require__(549);
-
-	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
-
-	var React = __webpack_require__(241);
-
-	var itemcolor = {
-	  color: '#FFFFFF'
-	};
-	var cursor = {
-	  cursor: 'pointer'
-	};
-
-	var Nav = (function (_React$Component) {
-	  _inherits(Nav, _React$Component);
-
-	  function Nav(props) {
-	    _classCallCheck(this, Nav);
-
-	    _get(Object.getPrototypeOf(Nav.prototype), 'constructor', this).call(this, props);
-
-	    this.redirect = this.redirect.bind(this);
-	  }
-
-	  _createClass(Nav, [{
-	    key: 'redirect',
-	    value: function redirect() {
-
-	      this.props.history.push({ pathname: '/' });
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _this = this;
-
-	      return React.createElement(
-	        'section',
-	        null,
-	        React.createElement(
-	          'div',
-	          null,
-	          React.createElement(
-	            _materialUiStylesMuiThemeProvider2['default'],
-	            null,
-	            React.createElement(_materialUiAppBar2['default'], {
-	              title: React.createElement(
-	                'span',
-	                { style: cursor },
-	                'PMPROJECTS'
-	              ),
-	              showMenuIconButton: false,
-	              onTitleTouchTap: function () {
-	                return _this.redirect();
-	              },
-	              iconElementRight: React.createElement(
-	                'div',
-	                null,
-	                React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Iniciar Sesión', href: '/login' }),
-	                ' ',
-	                React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Acerca de', href: '/contacto' })
-	              )
-	            })
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Nav;
-	})(React.Component);
-
-	exports['default'] = Nav;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "nav.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 675 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _materialUiBadge = __webpack_require__(561);
-
-	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
-
-	var _materialUiIconButton = __webpack_require__(517);
-
-	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
-
-	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
-
-	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
-
-	var _materialUiSvgIconsHardwareDeveloperBoard = __webpack_require__(564);
-
-	var _materialUiSvgIconsHardwareDeveloperBoard2 = _interopRequireDefault(_materialUiSvgIconsHardwareDeveloperBoard);
-
-	var _materialUiDialog = __webpack_require__(565);
-
-	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
-
-	var _materialUiFlatButton = __webpack_require__(549);
-
-	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _configJsx = __webpack_require__(2);
-
-	var _materialUiSnackbar = __webpack_require__(544);
-
-	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	/*global localStorage*/
-
-	var React = __webpack_require__(241);
-	var iconbutton = {
-	  padding: 0
-	};
-	var styles = {
-	  mediumIcon: {
-	    width: 48,
-	    height: 48
-	  }
-	};
-
-	var Organizacion = (function (_React$Component) {
-	  _inherits(Organizacion, _React$Component);
-
-	  function Organizacion(props) {
-	    _classCallCheck(this, Organizacion);
-
-	    _get(Object.getPrototypeOf(Organizacion.prototype), 'constructor', this).call(this, props);
-
-	    this.state = {
-	      open: false,
-	      name: " ",
-	      description: '',
-	      messages: [],
-	      idactivo: localStorage.getItem('idactivo'),
-	      snack: false
-	    };
-	    this.handleChange = this.handleChange.bind(this);
-	    this.handleSubmit = this.handleSubmit.bind(this);
-	    this.handleRequestClose = this.handleRequestClose.bind(this);
-	  }
-
-	  _createClass(Organizacion, [{
-	    key: 'componentWillMount',
-	    value: function componentWillMount() {
-	      var _this = this;
-
-	      if (this.props.admin == "true") {
-
-	        var messageRef = firebase.database().ref().child('organizacion');
-	        messageRef.on('value', function (snapshot) {
-
-	          var messages = snapshot.val();
-	          var newState = [];
-	          for (var message in messages) {
-
-	            newState.push({
-	              id: message,
-	              nombre: messages[message].nombre,
-	              descripcion: messages[message].descripcion
-	            });
-	          }
-
-	          _this.setState({
-	            messages: newState
-	          });
-	        });
-	      } else {
-
-	        firebase.database().ref().child('usuarios/' + this.state.idactivo).on('value', function (snapshot) {
-	          var messages = snapshot.val();
-	          var orgid = messages.orgid;
-	          firebase.database().ref().child('organizacion/' + orgid + '/nombre').on('value', function (snapshot) {
-	            var messages = snapshot.val();
-	            var newState = [];
-
-	            newState.push({
-	              id: orgid,
-	              nombre: messages
-	            });
-
-	            _this.setState({
-	              messages: newState
-	            });
-	          }); /*    Segundo Query */
-	        }); /*  Primer Query  */
-	      } /* Else  */
-	    }
-	  }, {
-	    key: 'handleOpen',
-	    value: function handleOpen() {
-	      this.setState({ open: true });
-	    }
-	  }, {
-	    key: 'handleClose',
-	    value: function handleClose() {
-	      this.setState({ open: false });
-	    }
-	  }, {
-	    key: 'handleChange',
-	    value: function handleChange(e) {
-	      e.preventDefault();
-	      this.setState(_defineProperty({}, e.target.name, e.target.value));
-	    }
-	  }, {
-	    key: 'orgseleccionada',
-	    value: function orgseleccionada(id) {
-
-	      this.props.guardarid(id);
-	    }
-	  }, {
-	    key: 'handleRequestClose',
-	    value: function handleRequestClose() {
-
-	      this.setState({
-	        snack: false
-	      });
-	    }
-	  }, {
-	    key: 'handleSubmit',
-	    value: function handleSubmit() {
-
-	      var nametemp = this.state.name;
-	      var descriptiontemp = this.state.description;
-
-	      var object = {
-	        name: nametemp,
-	        description: descriptiontemp
-	      };
-
-	      (0, _configJsx.saveOrg)(object);
-	      this.setState({ open: false, name: '', description: '', snack: true });
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _this2 = this;
-
-	      return React.createElement(
-	        'section',
-	        null,
-	        React.createElement(
-	          'div',
-	          null,
-	          React.createElement(
-	            _materialUiStylesMuiThemeProvider2['default'],
-	            null,
-	            React.createElement(
-	              'div',
-	              null,
-	              this.state.messages.map(function (item) {
-	                return React.createElement(
-	                  'div',
-	                  { className: 'nombreicon', key: item.id },
-	                  React.createElement(
-	                    'div',
-	                    { className: 'iconwrapper' },
-	                    React.createElement(_materialUiBadge2['default'], {
-
-	                      badgeContent: React.createElement(
-	                        _materialUiIconButton2['default'],
-	                        { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
-	                            return _this2.orgseleccionada(item.id);
-	                          }, tooltip: item.nombre },
-	                        React.createElement(_materialUiSvgIconsHardwareDeveloperBoard2['default'], null)
-	                      )
-	                    })
-	                  ),
-	                  React.createElement(
-	                    'p',
-	                    null,
-	                    item.nombre
-	                  )
-	                );
-	              }),
-	              React.createElement(_materialUiBadge2['default'], {
-
-	                badgeContent: React.createElement(
-	                  _materialUiIconButton2['default'],
-	                  { style: iconbutton, onClick: function () {
-	                      return _this2.handleOpen();
-	                    }, iconStyle: styles.mediumIcon, tooltip: 'Crear Organización' },
-	                  React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
-	                )
-	              }),
-	              React.createElement(
-	                _materialUiDialog2['default'],
-	                {
-	                  title: 'Crear Organización',
-
-	                  modal: true,
-	                  open: this.state.open
-	                },
-	                React.createElement(_materialUiTextField2['default'], {
-	                  value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
-	                  floatingLabelText: 'Nombre'
-	                }),
-	                React.createElement('br', null),
-	                React.createElement(_materialUiTextField2['default'], {
-	                  value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
-	                  fullWidth: true,
-	                  floatingLabelText: 'Descripción',
-	                  multiLine: true,
-	                  rows: 3
-	                }),
-	                React.createElement('br', null),
-	                React.createElement(_materialUiFlatButton2['default'], {
-	                  label: 'Cancel',
-	                  primary: true,
-	                  onClick: function () {
-	                    return _this2.handleClose();
-	                  }
-	                }),
-	                React.createElement(_materialUiFlatButton2['default'], {
-	                  label: 'Aceptar',
-	                  primary: true,
-	                  onClick: function () {
-	                    return _this2.handleSubmit();
-	                  }
-	                })
-	              ),
-	              React.createElement(_materialUiSnackbar2['default'], {
-	                open: this.state.snack,
-	                message: 'Organización Creada',
-	                autoHideDuration: 2000,
-	                onRequestClose: this.handleRequestClose
-	              })
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Organizacion;
-	})(React.Component);
-
-	exports['default'] = Organizacion;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "organizacion.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 676 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _materialUiBadge = __webpack_require__(561);
-
-	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
-
-	var _materialUiIconButton = __webpack_require__(517);
-
-	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
-
-	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
-
-	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
-
-	var _materialUiSvgIconsFileFolder = __webpack_require__(571);
-
-	var _materialUiSvgIconsFileFolder2 = _interopRequireDefault(_materialUiSvgIconsFileFolder);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiDialog = __webpack_require__(565);
-
-	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
-
-	var _materialUiFlatButton = __webpack_require__(549);
-
-	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _configJsx = __webpack_require__(2);
-
-	var _materialUiSnackbar = __webpack_require__(544);
-
-	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
-
-	/*global localStorage*/
-
-	var React = __webpack_require__(241);
-	var iconbutton = {
-	  padding: 0
-	};
-
-	var styles = {
-	  mediumIcon: {
-	    width: 48,
-	    height: 48
-	  }
-	};
-
-	var Portafolio = (function (_React$Component) {
-	  _inherits(Portafolio, _React$Component);
-
-	  function Portafolio(props) {
-	    _classCallCheck(this, Portafolio);
-
-	    _get(Object.getPrototypeOf(Portafolio.prototype), 'constructor', this).call(this, props);
-
-	    this.state = {
-	      open: false,
-	      name: " ",
-	      description: '',
-	      messages: [],
-	      snack: false
-
-	    };
-
-	    this.handleChange = this.handleChange.bind(this);
-	    this.handleSubmit = this.handleSubmit.bind(this);
-	    this.montarportafolios = this.montarportafolios.bind(this);
-	    this.handleRequestClose = this.handleRequestClose.bind(this);
-	  }
-
-	  _createClass(Portafolio, [{
-	    key: 'componentWillMount',
-	    value: function componentWillMount() {
-
-	      this.montarportafolios(this.props.data);
-	    }
-	  }, {
-	    key: 'shouldComponentUpdate',
-	    value: function shouldComponentUpdate(nextProps, nextState) {
-
-	      this.montarportafolios(nextProps.data);
-	      return true;
-	    }
-	  }, {
-	    key: 'montarportafolios',
-	    value: function montarportafolios(idorg) {
-
-	      var messageRef = firebase.database().ref().child('organizacion/' + idorg + '/portafolio');
-	      messageRef.on('value', function (snapshot) {
-
-	        var messages = snapshot.val();
-	        var newState = [];
-	        for (var message in messages) {
-
-	          newState.push({
-	            id: message,
-	            nombre: messages[message].nombre,
-	            descripcion: messages[message].descripcion
-	          });
-	        }
-
-	        window.mensajes = newState;
-	      });
-	    }
-	  }, {
-	    key: 'handleOpen',
-	    value: function handleOpen() {
-	      this.setState({ open: true });
-	    }
-	  }, {
-	    key: 'handleClose',
-	    value: function handleClose() {
-	      this.setState({ open: false, name: '', description: '' });
-	    }
-	  }, {
-	    key: 'handleRequestClose',
-	    value: function handleRequestClose() {
-
-	      this.setState({
-	        snack: false
-	      });
-	    }
-	  }, {
-	    key: 'handleChange',
-	    value: function handleChange(e) {
-	      e.preventDefault();
-	      this.setState(_defineProperty({}, e.target.name, e.target.value));
-	    }
-	  }, {
-	    key: 'handleSubmit',
-	    value: function handleSubmit() {
-
-	      var nametemp = this.state.name;
-	      var descriptiontemp = this.state.description;
-	      var idorg = this.props.data;
-	      console.log(this.props.data);
-	      var object = {
-	        name: nametemp,
-	        description: descriptiontemp
-	      };
-
-	      (0, _configJsx.savePort)(idorg, object);
-	      this.setState({ open: false, name: '', description: '', snack: true });
-	    }
-	  }, {
-	    key: 'portseleccionada',
-	    value: function portseleccionada(id) {
-	      this.props.guardarport(id);
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _this = this;
-
-	      return React.createElement(
-	        'section',
-	        null,
-	        React.createElement(
-	          'div',
-	          null,
-	          React.createElement(
-	            _materialUiStylesMuiThemeProvider2['default'],
-	            null,
-	            React.createElement(
-	              'div',
-	              null,
-	              window.mensajes.map(function (item) {
-	                return React.createElement(
-	                  'div',
-	                  { className: 'nombreicon', key: item.id },
-	                  React.createElement(
-	                    'div',
-	                    { className: 'iconwrapper' },
-	                    React.createElement(_materialUiBadge2['default'], {
-	                      badgeContent: React.createElement(
-	                        _materialUiIconButton2['default'],
-	                        { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
-	                            return _this.portseleccionada(item.id);
-	                          }, tooltip: item.nombre },
-	                        React.createElement(_materialUiSvgIconsFileFolder2['default'], null),
-	                        ' '
-	                      )
-	                    })
-	                  ),
-	                  React.createElement(
-	                    'p',
-	                    null,
-	                    item.nombre
-	                  )
-	                );
-	              }),
-	              React.createElement(_materialUiBadge2['default'], {
-	                badgeContent: React.createElement(
-	                  _materialUiIconButton2['default'],
-	                  { style: iconbutton, onClick: function () {
-	                      return _this.handleOpen();
-	                    }, iconStyle: styles.mediumIcon, tooltip: 'Crear Portafolio' },
-	                  React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
-	                )
-	              }),
-	              React.createElement(
-	                _materialUiDialog2['default'],
-	                {
-	                  title: 'Crear Portafolio',
-
-	                  modal: true,
-	                  open: this.state.open
-	                },
-	                React.createElement(_materialUiTextField2['default'], {
-	                  value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
-	                  floatingLabelText: 'Nombre'
-	                }),
-	                React.createElement('br', null),
-	                React.createElement(_materialUiTextField2['default'], {
-	                  value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
-	                  fullWidth: true,
-	                  floatingLabelText: 'Descripción',
-	                  multiLine: true,
-	                  rows: 3
-	                }),
-	                React.createElement('br', null),
-	                React.createElement(_materialUiFlatButton2['default'], {
-	                  label: 'Cancel',
-	                  primary: true,
-	                  onClick: function () {
-	                    return _this.handleClose();
-	                  }
-	                }),
-	                React.createElement(_materialUiFlatButton2['default'], {
-	                  label: 'Aceptar',
-	                  primary: true,
-	                  onClick: function () {
-	                    return _this.handleSubmit();
-	                  }
-	                })
-	              ),
-	              React.createElement(_materialUiSnackbar2['default'], {
-	                open: this.state.snack,
-	                message: 'Portafolio Creado',
-	                autoHideDuration: 2000,
-	                onRequestClose: this.handleRequestClose
-	              })
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Portafolio;
-	})(React.Component);
-
-	exports['default'] = Portafolio;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "portafolio.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 677 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _materialUiBadge = __webpack_require__(561);
-
-	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
-
-	var _materialUiIconButton = __webpack_require__(517);
-
-	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
-
-	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
-
-	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
-
-	var _materialUiSvgIconsActionWork = __webpack_require__(573);
-
-	var _materialUiSvgIconsActionWork2 = _interopRequireDefault(_materialUiSvgIconsActionWork);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiDialog = __webpack_require__(565);
-
-	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
-
-	var _materialUiFlatButton = __webpack_require__(549);
-
-	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _configJsx = __webpack_require__(2);
-
-	var _materialUiSnackbar = __webpack_require__(544);
-
-	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
-
-	/*global localStorage*/
-
-	var React = __webpack_require__(241);
-	var styles = {
-	  mediumIcon: {
-	    width: 48,
-	    height: 48
-	  }
-	};
-
-	var iconbutton = {
-	  padding: 0
-	};
-
-	var Proyecto = (function (_React$Component) {
-	  _inherits(Proyecto, _React$Component);
-
-	  function Proyecto(props) {
-	    _classCallCheck(this, Proyecto);
-
-	    _get(Object.getPrototypeOf(Proyecto.prototype), 'constructor', this).call(this, props);
-
-	    this.state = {
-	      open: false,
-	      name: " ",
-	      description: '',
-	      messages: [],
-	      snack: false
-
-	    };
-	    this.handleChange = this.handleChange.bind(this);
-	    this.handleSubmit = this.handleSubmit.bind(this);
-	    this.montarproyecto = this.montarproyecto.bind(this);
-	    this.handleRequestClose = this.handleRequestClose.bind(this);
-	  }
-
-	  _createClass(Proyecto, [{
-	    key: 'componentWillMount',
-	    value: function componentWillMount() {
-
-	      this.montarproyecto(this.props.data, this.props.dataport);
-	    }
-	  }, {
-	    key: 'shouldComponentUpdate',
-	    value: function shouldComponentUpdate(nextProps, nextState) {
-
-	      this.montarproyecto(nextProps.data, nextProps.dataport);
-	      return true;
-	    }
-	  }, {
-	    key: 'montarproyecto',
-	    value: function montarproyecto(idorg, idport) {
-
-	      var messageRef = firebase.database().ref().child('organizacion/' + idorg + '/portafolio/' + idport + '/proyecto');
-	      messageRef.on('value', function (snapshot) {
-
-	        var messages = snapshot.val();
-	        var newState = [];
-	        for (var message in messages) {
-
-	          newState.push({
-	            id: message,
-	            nombre: messages[message].nombre,
-	            descripcion: messages[message].descripcion
-	          });
-	        }
-
-	        window.proyectos = newState;
-	      });
-	    }
-	  }, {
-	    key: 'handleOpen',
-	    value: function handleOpen() {
-	      this.setState({ open: true });
-	    }
-	  }, {
-	    key: 'handleClose',
-	    value: function handleClose() {
-	      this.setState({ open: false, name: '', description: '' });
-	    }
-	  }, {
-	    key: 'handleRequestClose',
-	    value: function handleRequestClose() {
-
-	      this.setState({
-	        snack: false
-	      });
-	    }
-	  }, {
-	    key: 'handleChange',
-	    value: function handleChange(e) {
-	      e.preventDefault();
-	      this.setState(_defineProperty({}, e.target.name, e.target.value));
-	    }
-	  }, {
-	    key: 'handleSubmit',
-	    value: function handleSubmit() {
-
-	      var nametemp = this.state.name;
-	      var descriptiontemp = this.state.description;
-	      var idorg = this.props.data;
-	      var idport = this.props.dataport;
-	      var object = {
-	        name: nametemp,
-	        description: descriptiontemp
-	      };
-
-	      (0, _configJsx.saveProy)(idorg, idport, object);
-	      this.setState({ open: false, name: '', description: '', snack: true });
-	    }
-	  }, {
-	    key: 'proyseleccionada',
-	    value: function proyseleccionada(id) {
-	      this.props.guardarproy(id);
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _this = this;
-
-	      return React.createElement(
-	        'section',
-	        null,
-	        React.createElement(
-	          'div',
-	          null,
-	          React.createElement(
-	            _materialUiStylesMuiThemeProvider2['default'],
-	            null,
-	            React.createElement(
-	              'div',
-	              null,
-	              window.proyectos.map(function (item) {
-	                return React.createElement(
-	                  'div',
-	                  { className: 'nombreicon', key: item.id },
-	                  React.createElement(
-	                    'div',
-	                    { className: 'iconwrapper' },
-	                    React.createElement(_materialUiBadge2['default'], {
-	                      badgeContent: React.createElement(
-	                        _materialUiIconButton2['default'],
-	                        { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
-	                            return _this.proyseleccionada(item.id);
-	                          }, tooltip: item.nombre },
-	                        React.createElement(_materialUiSvgIconsActionWork2['default'], null),
-	                        ' '
-	                      )
-	                    })
-	                  ),
-	                  React.createElement(
-	                    'p',
-	                    null,
-	                    item.nombre
-	                  )
-	                );
-	              }),
-	              React.createElement(_materialUiBadge2['default'], {
-	                badgeContent: React.createElement(
-	                  _materialUiIconButton2['default'],
-	                  { style: iconbutton, onClick: function () {
-	                      return _this.handleOpen();
-	                    }, iconStyle: styles.mediumIcon, tooltip: 'Crear Proyecto' },
-	                  React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
-	                )
-	              }),
-	              React.createElement(
-	                _materialUiDialog2['default'],
-	                {
-	                  title: 'Crear Proyecto',
-
-	                  modal: true,
-	                  open: this.state.open
-	                },
-	                React.createElement(_materialUiTextField2['default'], {
-	                  value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
-	                  floatingLabelText: 'Nombre'
-	                }),
-	                React.createElement('br', null),
-	                React.createElement(_materialUiTextField2['default'], {
-	                  value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
-	                  fullWidth: true,
-	                  floatingLabelText: 'Descripción',
-	                  multiLine: true,
-	                  rows: 3
-	                }),
-	                React.createElement('br', null),
-	                React.createElement(_materialUiFlatButton2['default'], {
-	                  label: 'Cancel',
-	                  primary: true,
-	                  onClick: function () {
-	                    return _this.handleClose();
-	                  }
-	                }),
-	                React.createElement(_materialUiFlatButton2['default'], {
-	                  label: 'Aceptar',
-	                  primary: true,
-	                  onClick: function () {
-	                    return _this.handleSubmit();
-	                  }
-	                })
-	              ),
-	              React.createElement(_materialUiSnackbar2['default'], {
-	                open: this.state.snack,
-	                message: 'Proyecto Creado',
-	                autoHideDuration: 2000,
-	                onRequestClose: this.handleRequestClose
-	              })
-	            )
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Proyecto;
-	})(React.Component);
-
-	exports['default'] = Proyecto;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "proyecto.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 678 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _materialUiBadge = __webpack_require__(561);
-
-	var _materialUiBadge2 = _interopRequireDefault(_materialUiBadge);
-
-	var _materialUiIconButton = __webpack_require__(517);
-
-	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
-
-	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
-
-	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
-
-	var _materialUiSvgIconsActionDescription = __webpack_require__(575);
-
-	var _materialUiSvgIconsActionDescription2 = _interopRequireDefault(_materialUiSvgIconsActionDescription);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiDialog = __webpack_require__(565);
-
-	var _materialUiDialog2 = _interopRequireDefault(_materialUiDialog);
-
-	var _materialUiFlatButton = __webpack_require__(549);
-
-	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _configJsx = __webpack_require__(2);
-
-	var _materialUiSnackbar = __webpack_require__(544);
-
-	var _materialUiSnackbar2 = _interopRequireDefault(_materialUiSnackbar);
-
-	/*global localStorage*/
-
-	var React = __webpack_require__(241);
-	var styles = {
-	    mediumIcon: {
-	        width: 48,
-	        height: 48
-	    }
-	};
-
-	var iconbutton = {
-	    padding: 0
-	};
-
-	var Documento = (function (_React$Component) {
-	    _inherits(Documento, _React$Component);
-
-	    function Documento(props) {
-	        _classCallCheck(this, Documento);
-
-	        _get(Object.getPrototypeOf(Documento.prototype), 'constructor', this).call(this, props);
-
-	        this.state = {
-	            open: false,
-	            name: " ",
-	            description: '',
-	            messages: [],
-	            snack: false
-
-	        };
-	        this.handleChange = this.handleChange.bind(this);
-	        this.handleSubmit = this.handleSubmit.bind(this);
-	        this.montardocumento = this.montardocumento.bind(this);
-	        this.handleRequestClose = this.handleRequestClose.bind(this);
-	    }
-
-	    _createClass(Documento, [{
-	        key: 'componentWillMount',
-	        value: function componentWillMount() {
-
-	            this.montardocumento(this.props.data, this.props.dataport, this.props.dataproy);
-	        }
-	    }, {
-	        key: 'shouldComponentUpdate',
-	        value: function shouldComponentUpdate(nextProps, nextState) {
-
-	            this.montardocumento(nextProps.data, nextProps.dataport, nextProps.dataproy);
-	            return true;
-	        }
-	    }, {
-	        key: 'montardocumento',
-	        value: function montardocumento(idorg, idport, idproy) {
-
-	            var messageRef = firebase.database().ref().child('organizacion/' + idorg + '/portafolio/' + idport + '/proyecto/' + idproy + '/documentos');
-	            messageRef.on('value', function (snapshot) {
-
-	                var messages = snapshot.val();
-	                var newState = [];
-	                for (var message in messages) {
-
-	                    newState.push({
-	                        id: message,
-	                        nombre: messages[message].nombre,
-	                        descripcion: messages[message].descripcion
-	                    });
-	                }
-
-	                window.documentos = newState;
-	            });
-	        }
-	    }, {
-	        key: 'handleOpen',
-	        value: function handleOpen() {
-	            this.setState({ open: true });
-	        }
-	    }, {
-	        key: 'handleClose',
-	        value: function handleClose() {
-	            this.setState({ open: false, name: '', description: '' });
-	        }
-	    }, {
-	        key: 'handleRequestClose',
-	        value: function handleRequestClose() {
-
-	            this.setState({
-	                snack: false
-	            });
-	        }
-	    }, {
-	        key: 'handleChange',
-	        value: function handleChange(e) {
-	            e.preventDefault();
-	            this.setState(_defineProperty({}, e.target.name, e.target.value));
-	        }
-	    }, {
-	        key: 'handleSubmit',
-	        value: function handleSubmit() {
-
-	            var nametemp = this.state.name;
-	            var descriptiontemp = this.state.description;
-	            var idorg = this.props.data;
-	            var idport = this.props.dataport;
-	            var idproy = this.props.dataproy;
-	            var object = {
-	                name: nametemp,
-	                description: descriptiontemp
-	            };
-
-	            (0, _configJsx.saveDoc)(idorg, idport, idproy, object);
-	            this.setState({ open: false, name: '', description: '', snack: true });
-	        }
-	    }, {
-	        key: 'modificardocumento',
-	        value: function modificardocumento(id, nombre) {
-	            localStorage.setItem('iddocumento', id);
-	            var ruta = {
-	                orgname: this.props.data,
-	                portname: this.props.dataport,
-	                proyname: this.props.dataproy,
-	                docname: nombre,
-	                docid: id
-	            };
-
-	            localStorage.setItem('ruta', JSON.stringify(ruta));
-
-	            this.props.history.push({ pathname: '/editardocumento' });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this = this;
-
-	            return React.createElement(
-	                'section',
-	                null,
-	                React.createElement(
-	                    'div',
-	                    null,
-	                    React.createElement(
-	                        _materialUiStylesMuiThemeProvider2['default'],
-	                        null,
-	                        React.createElement(
-	                            'div',
-	                            null,
-	                            window.documentos.map(function (item) {
-	                                return React.createElement(
-	                                    'div',
-	                                    { className: 'nombreicon', key: item.id },
-	                                    React.createElement(
-	                                        'div',
-	                                        { className: 'iconwrapper' },
-	                                        React.createElement(_materialUiBadge2['default'], {
-	                                            badgeContent: React.createElement(
-	                                                _materialUiIconButton2['default'],
-	                                                { style: iconbutton, iconStyle: styles.mediumIcon, onClick: function () {
-	                                                        return _this.modificardocumento(item.id, item.nombre);
-	                                                    }, tooltip: item.nombre },
-	                                                React.createElement(_materialUiSvgIconsActionDescription2['default'], null),
-	                                                ' '
-	                                            )
-	                                        })
-	                                    ),
-	                                    React.createElement(
-	                                        'p',
-	                                        null,
-	                                        item.nombre
-	                                    )
-	                                );
-	                            }),
-	                            React.createElement(_materialUiBadge2['default'], {
-	                                badgeContent: React.createElement(
-	                                    _materialUiIconButton2['default'],
-	                                    { style: iconbutton, onClick: function () {
-	                                            return _this.handleOpen();
-	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Crear Portafolio' },
-	                                    React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
-	                                )
-	                            }),
-	                            React.createElement(
-	                                _materialUiDialog2['default'],
-	                                {
-	                                    title: 'Crear Documento',
-
-	                                    modal: true,
-	                                    open: this.state.open
-	                                },
-	                                React.createElement(_materialUiTextField2['default'], {
-	                                    value: this.state.name, onChange: this.handleChange, name: 'name', type: 'text',
-	                                    floatingLabelText: 'Nombre'
-	                                }),
-	                                React.createElement('br', null),
-	                                React.createElement(_materialUiTextField2['default'], {
-	                                    value: this.state.description, onChange: this.handleChange, name: 'description', type: 'text',
-	                                    fullWidth: true,
-	                                    floatingLabelText: 'Descripción',
-	                                    multiLine: true,
-	                                    rows: 3
-	                                }),
-	                                React.createElement('br', null),
-	                                React.createElement(_materialUiFlatButton2['default'], {
-	                                    label: 'Cancel',
-	                                    primary: true,
-	                                    onClick: function () {
-	                                        return _this.handleClose();
-	                                    }
-	                                }),
-	                                React.createElement(_materialUiFlatButton2['default'], {
-	                                    label: 'Aceptar',
-	                                    primary: true,
-	                                    onClick: function () {
-	                                        return _this.handleSubmit();
-	                                    }
-	                                })
-	                            ),
-	                            React.createElement(_materialUiSnackbar2['default'], {
-	                                open: this.state.snack,
-	                                message: 'Documento Creado',
-	                                autoHideDuration: 2000,
-	                                onRequestClose: this.handleRequestClose
-	                            })
-	                        )
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-
-	    return Documento;
-	})(React.Component);
-
-	exports['default'] = Documento;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "documento.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 679 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _materialUiSvgIconsActionHelp = __webpack_require__(553);
-
-	var _materialUiSvgIconsActionHelp2 = _interopRequireDefault(_materialUiSvgIconsActionHelp);
-
-	var _materialUiSvgIconsActionHome = __webpack_require__(554);
-
-	var _materialUiSvgIconsActionHome2 = _interopRequireDefault(_materialUiSvgIconsActionHome);
-
-	var _materialUiAppBar = __webpack_require__(555);
-
-	var _materialUiAppBar2 = _interopRequireDefault(_materialUiAppBar);
-
-	var _materialUiFlatButton = __webpack_require__(549);
-
-	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
-
-	var _configJsx = __webpack_require__(2);
-
-	var React = __webpack_require__(241);
-
-	/*global localStorage*/
-
-	var itemcolor = {
-	  color: '#FFFFFF'
-	};
-	var cursor = {
-	  cursor: 'pointer'
-	};
-
-	var Navlog = (function (_React$Component) {
-	  _inherits(Navlog, _React$Component);
-
-	  function Navlog(props) {
-	    _classCallCheck(this, Navlog);
-
-	    _get(Object.getPrototypeOf(Navlog.prototype), 'constructor', this).call(this, props);
-
-	    this.lout = this.lout.bind(this);
-	    this.redirect = this.redirect.bind(this);
-	  }
-
-	  _createClass(Navlog, [{
-	    key: 'redirect',
-	    value: function redirect() {
-
-	      this.props.history.push({ pathname: '/' });
-	    }
-	  }, {
-	    key: 'shouldComponentUpdate',
-	    value: function shouldComponentUpdate(nextProps, nextState) {
-
-	      return true;
-	    }
-	  }, {
-	    key: 'guardarid',
-	    value: function guardarid() {
-	      var token = (0, _configJsx.getToken)();
-	      var id = token.uid;
-	      localStorage.setItem('iduser', id);
-	    }
-	  }, {
-	    key: 'lout',
-	    value: function lout() {
-
-	      (0, _configJsx.logout)();
-	      localStorage.clear();
-	      this.props.history.push({ pathname: '/' });
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _this = this;
-
-	      return React.createElement(
-	        'header',
-	        null,
-	        React.createElement(
-	          _materialUiStylesMuiThemeProvider2['default'],
-	          null,
-	          React.createElement(_materialUiAppBar2['default'], {
-	            title: React.createElement(
-	              'span',
-	              { style: cursor },
-	              'PMPROJECTS'
-	            ),
-	            showMenuIconButton: false,
-	            onTitleTouchTap: function () {
-	              return _this.redirect();
-	            },
-	            iconElementRight: React.createElement(
-	              'div',
-	              null,
-	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Inicio', href: '/' }),
-	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Mi Perfil', href: '/perfil', onClick: function () {
-	                  return _this.guardarid();
-	                } }),
-	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Usuarios', href: '/usuarios' }),
-	              this.props.admin == 'true' ? React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Formatos', href: '/formatos' }) : null,
-	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Acerca de', href: '/contacto' }),
-	              React.createElement(_materialUiFlatButton2['default'], { style: itemcolor, label: 'Logout', onClick: function () {
-	                  return _this.lout();
-	                } })
-	            )
-	          })
-	        )
-	      );
-	    }
-	  }]);
-
-	  return Navlog;
-	})(React.Component);
-
-	exports['default'] = Navlog;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "navlog.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 680 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _materialUiDivider = __webpack_require__(627);
-
-	var _materialUiDivider2 = _interopRequireDefault(_materialUiDivider);
-
-	var _materialUiPaper = __webpack_require__(503);
-
-	var _materialUiPaper2 = _interopRequireDefault(_materialUiPaper);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _materialUiFlatButton = __webpack_require__(549);
-
-	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
-
-	var _configJsx = __webpack_require__(2);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiIconButton = __webpack_require__(517);
-
-	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
-
-	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
-
-	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
-
-	var _materialUiSvgIconsContentDeleteSweep = __webpack_require__(629);
-
-	var _materialUiSvgIconsContentDeleteSweep2 = _interopRequireDefault(_materialUiSvgIconsContentDeleteSweep);
-
-	var _materialUiRaisedButton = __webpack_require__(630);
-
-	var _materialUiRaisedButton2 = _interopRequireDefault(_materialUiRaisedButton);
-
-	var React = __webpack_require__(241);
-
-	var Nodos = __webpack_require__(681);
-
-	var paper = {
-	    width: "100%"
-	};
-	var iconbutton = {
-	    padding: 0
-	};
-	var botones = {
-	    margin: '0% 0% 0% 5%',
-	    height: '15%'
-	};
-
-	var styles = {
-	    mediumIcon: {
-	        width: 36,
-	        height: 36
-	    }
-	};
-
-	var ArrayDocument = (function (_React$Component) {
-	    _inherits(ArrayDocument, _React$Component);
-
-	    function ArrayDocument(props) {
-	        _classCallCheck(this, ArrayDocument);
-
-	        _get(Object.getPrototypeOf(ArrayDocument.prototype), 'constructor', this).call(this, props);
-	        this.state = {
-	            componente: [],
-	            numero: 0
-
-	        };
-	        this.agregarcomponente = this.agregarcomponente.bind(this);
-	        this.handleChange = this.handleChange.bind(this);
-	        this.borrarcomp = this.borrarcomp.bind(this);
-	        this.crearnodo = this.crearnodo.bind(this);
-	    }
-
-	    _createClass(ArrayDocument, [{
-	        key: 'componentWillMount',
-	        value: function componentWillMount() {
-	            var _this = this;
-
-	            var messageRef = firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente');
-	            messageRef.on('value', function (snapshot) {
-
-	                var messages = snapshot.val();
-
-	                var newState = [];
-	                for (var message in messages) {
-
-	                    newState.push({
-	                        id: message
-	                    });
-	                }
-
-	                _this.setState({
-	                    componente: newState
-	                });
-	            });
-	        }
-	    }, {
-	        key: 'borrarcomp',
-	        value: function borrarcomp(id) {
-	            firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente/' + id).remove();
-	        }
-	    }, {
-	        key: 'crearnodo',
-	        value: function crearnodo(id) {
-
-	            (0, _configJsx.agregarnodo)(this.props.nombreformato, id);
-	        }
-	    }, {
-	        key: 'agregarcomponente',
-	        value: function agregarcomponente() {
-
-	            (0, _configJsx.CompAdd)(this.props.nombreformato);
-	        }
-	    }, {
-	        key: 'handleChange',
-	        value: function handleChange(e) {
-
-	            this.setState(_defineProperty({}, e.target.name, e.target.value));
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this2 = this;
-
-	            return React.createElement(
-	                _materialUiStylesMuiThemeProvider2['default'],
-	                null,
-	                React.createElement(
-	                    'div',
-	                    null,
-	                    React.createElement(
-	                        'div',
-	                        { className: 'paper' },
-	                        React.createElement(
-	                            _materialUiPaper2['default'],
-	                            { zDepth: 2, style: paper },
-	                            React.createElement(
-	                                'h4',
-	                                null,
-	                                'Título del Documento'
-	                            ),
-	                            React.createElement(_materialUiTextField2['default'], { fullWidth: true, disabled: true }),
-	                            React.createElement(_materialUiDivider2['default'], null)
-	                        ),
-	                        React.createElement(_materialUiRaisedButton2['default'], { label: 'Agregar Seccion', primary: true, onClick: function () {
-	                                return _this2.agregarcomponente();
-	                            }, style: botones })
-	                    ),
-	                    this.state.componente.map(function (item) {
-	                        return React.createElement(
-	                            'div',
-	                            { className: 'paper', key: item.id },
-	                            React.createElement(
-	                                _materialUiPaper2['default'],
-	                                { zDepth: 2, style: paper },
-	                                React.createElement(
-	                                    _materialUiIconButton2['default'],
-	                                    { style: iconbutton, onClick: function () {
-	                                            return _this2.borrarcomp(item.id);
-	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Borrar Seccion' },
-	                                    React.createElement(_materialUiSvgIconsContentDeleteSweep2['default'], null)
-	                                ),
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, disabled: true }),
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, disabled: true }),
-	                                React.createElement(Nodos, { idcomponente: item.id, nombreformato: _this2.props.nombreformato }),
-	                                React.createElement(
-	                                    _materialUiIconButton2['default'],
-	                                    { style: iconbutton, onClick: function () {
-	                                            return _this2.crearnodo(item.id);
-	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Crear Campo' },
-	                                    React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
-	                                ),
-	                                React.createElement(_materialUiDivider2['default'], null)
-	                            )
-	                        );
-	                    })
-	                )
-	            );
-	        }
-	    }]);
-
-	    return ArrayDocument;
-	})(React.Component);
-
-	exports['default'] = ArrayDocument;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "arraydocument.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 681 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _materialUiSvgIconsActionDelete = __webpack_require__(633);
-
-	var _materialUiSvgIconsActionDelete2 = _interopRequireDefault(_materialUiSvgIconsActionDelete);
-
-	var _materialUiIconButton = __webpack_require__(517);
-
-	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
-
-	var React = __webpack_require__(241);
-
-	var iconbutton = {
-	    padding: 0
-	};
-	var styles = {
-	    mediumIcon: {
-	        width: 36,
-	        height: 36
-	    }
-	};
-
-	var nodos = {
-	    width: '80%'
-	};
-
-	var Nodos = (function (_React$Component) {
-	    _inherits(Nodos, _React$Component);
-
-	    function Nodos(props) {
-	        _classCallCheck(this, Nodos);
-
-	        _get(Object.getPrototypeOf(Nodos.prototype), 'constructor', this).call(this, props);
-
-	        this.state = {
-	            nodos: []
-	        };
-	        this.borrarnodo = this.borrarnodo.bind(this);
-	    }
-
-	    _createClass(Nodos, [{
-	        key: 'componentWillMount',
-	        value: function componentWillMount() {
-	            var _this = this;
-
-	            var messageRef = firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente/' + this.props.idcomponente + '/nodo');
-	            messageRef.on('value', function (snapshot) {
-
-	                var messages = snapshot.val();
-
-	                var newState = [];
-	                for (var message in messages) {
-
-	                    newState.push({
-	                        id: message
-	                    });
-	                }
-
-	                _this.setState({
-	                    nodos: newState
-	                });
-	            });
-	        }
-	    }, {
-	        key: 'borrarnodo',
-	        value: function borrarnodo(id) {
-	            firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente/' + this.props.idcomponente + '/nodo/' + id).remove();
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this2 = this;
-
-	            return React.createElement(
-	                'div',
-	                null,
-	                React.createElement(
-	                    _materialUiStylesMuiThemeProvider2['default'],
-	                    null,
-	                    React.createElement(
-	                        'div',
-	                        null,
-	                        this.state.nodos.map(function (item) {
-	                            return React.createElement(
-	                                'div',
-	                                { key: item.id, className: 'nodos' },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, disabled: true }),
-	                                React.createElement(
-	                                    _materialUiIconButton2['default'],
-	                                    { style: iconbutton, onClick: function () {
-	                                            return _this2.borrarnodo(item.id);
-	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Borrar Campo' },
-	                                    React.createElement(_materialUiSvgIconsActionDelete2['default'], null)
-	                                )
-	                            );
-	                        })
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-
-	    return Nodos;
-	})(React.Component);
-
-	exports['default'] = Nodos;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "nodos.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 682 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-									value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var React = __webpack_require__(241);
-
-	var Tabla = (function (_React$Component) {
-									_inherits(Tabla, _React$Component);
-
-									function Tabla(props) {
-																	_classCallCheck(this, Tabla);
-
-																	_get(Object.getPrototypeOf(Tabla.prototype), 'constructor', this).call(this, props);
-									}
-
-									_createClass(Tabla, [{
-																	key: 'render',
-																	value: function render() {
-
-																									return React.createElement(
-																																	'div',
-																																	null,
-																																	React.createElement(
-																																									_materialUiStylesMuiThemeProvider2['default'],
-																																									null,
-																																									React.createElement(
-																																																	'div',
-																																																	null,
-																																																	React.createElement(
-																																																									'h1',
-																																																									null,
-																																																									'Tabla'
-																																																	)
-																																									)
-																																	)
-																									);
-																	}
-									}]);
-
-									return Tabla;
-	})(React.Component);
-
-	exports['default'] = Tabla;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "tablaformato.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 683 */,
-/* 684 */,
-/* 685 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _configJsx = __webpack_require__(2);
-
-	var React = __webpack_require__(241);
-
-	var iconbutton = {
-	    padding: 0
-	};
-	var styles = {
-	    mediumIcon: {
-	        width: 36,
-	        height: 36
-	    }
-	};
-
-	var nodos = {
-	    width: '80%'
-	};
-
-	var MostrarNodos = (function (_React$Component) {
-	    _inherits(MostrarNodos, _React$Component);
-
-	    function MostrarNodos(props) {
-	        _classCallCheck(this, MostrarNodos);
-
-	        _get(Object.getPrototypeOf(MostrarNodos.prototype), 'constructor', this).call(this, props);
-
-	        this.state = {
-	            nodos: []
-	        };
-	    }
-
-	    _createClass(MostrarNodos, [{
-	        key: 'componentWillMount',
-	        value: function componentWillMount() {
-	            var _this = this;
-
-	            var messageRef = firebase.database().ref().child('formatos/documentos/' + this.props.nombreformato + '/componente/' + this.props.idcomponente + '/nodo');
-	            messageRef.on('value', function (snapshot) {
-
-	                var messages = snapshot.val();
-
-	                var newState = [];
-	                for (var message in messages) {
-
-	                    newState.push({
-	                        id: message
-	                    });
-	                }
-
-	                _this.setState({
-	                    nodos: newState
-	                });
-	            });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-
-	            return React.createElement(
-	                'div',
-	                null,
-	                React.createElement(
-	                    _materialUiStylesMuiThemeProvider2['default'],
-	                    null,
-	                    React.createElement(
-	                        'div',
-	                        null,
-	                        this.state.nodos.map(function (item) {
-	                            return React.createElement(
-	                                'div',
-	                                { className: 'nodos', key: item.id },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true })
-	                            );
-	                        })
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-
-	    return MostrarNodos;
-	})(React.Component);
-
-	exports['default'] = MostrarNodos;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "mostrarnodos.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ }),
-/* 686 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var _materialUiSvgIconsActionDelete = __webpack_require__(633);
-
-	var _materialUiSvgIconsActionDelete2 = _interopRequireDefault(_materialUiSvgIconsActionDelete);
-
-	var _materialUiIconButton = __webpack_require__(517);
-
-	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
-
-	var React = __webpack_require__(241);
-
-	var iconbutton = {
-	    padding: 0
-	};
-	var styles = {
-	    mediumIcon: {
-	        width: 36,
-	        height: 36
-	    }
-	};
-
-	var nodos = {
-	    width: '80%'
-	};
-
-	var MostrarExtras = (function (_React$Component) {
-	    _inherits(MostrarExtras, _React$Component);
-
-	    function MostrarExtras(props) {
-	        _classCallCheck(this, MostrarExtras);
-
-	        _get(Object.getPrototypeOf(MostrarExtras.prototype), 'constructor', this).call(this, props);
-
-	        this.state = {
-	            nodos: []
-	        };
-	        this.borrarnodo = this.borrarnodo.bind(this);
-	    }
-
-	    _createClass(MostrarExtras, [{
-	        key: 'componentWillMount',
-	        value: function componentWillMount() {
-	            var _this = this;
-
-	            var messageRef = firebase.database().ref().child('organizacion/' + this.props.ruta.orgname + '/portafolio/' + this.props.ruta.portname + '/proyecto/' + this.props.ruta.proyname + '/documentos/' + this.props.ruta.docid + "/extras/" + this.props.idcomponente);
-
-	            messageRef.on('value', function (snapshot) {
-
-	                var messages = snapshot.val();
-
-	                var newState = [];
-	                for (var message in messages) {
-
-	                    newState.push({
-	                        id: message
-	                    });
-	                }
-
-	                _this.setState({
-	                    nodos: newState
-	                });
-	            });
-	        }
-	    }, {
-	        key: 'borrarnodo',
-	        value: function borrarnodo(id) {
-
-	            firebase.database().ref().child('organizacion/' + this.props.ruta.orgname + '/portafolio/' + this.props.ruta.portname + '/proyecto/' + this.props.ruta.proyname + '/documentos/' + this.props.ruta.docid + "/extras/" + this.props.idcomponente + "/" + id).remove();
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            var _this2 = this;
-
-	            return React.createElement(
-	                'div',
-	                null,
-	                React.createElement(
-	                    _materialUiStylesMuiThemeProvider2['default'],
-	                    null,
-	                    React.createElement(
-	                        'div',
-	                        null,
-	                        this.state.nodos.map(function (item) {
-	                            return React.createElement(
-	                                'div',
-	                                { key: item.id, className: 'nodos' },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true }),
-	                                React.createElement(
-	                                    _materialUiIconButton2['default'],
-	                                    { style: iconbutton, onClick: function () {
-	                                            return _this2.borrarnodo(item.id);
-	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Borrar Campo' },
-	                                    React.createElement(_materialUiSvgIconsActionDelete2['default'], null)
-	                                )
-	                            );
-	                        })
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-
-	    return MostrarExtras;
-	})(React.Component);
-
-	exports['default'] = MostrarExtras;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "mostrarextras.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ })
 /******/ ]);

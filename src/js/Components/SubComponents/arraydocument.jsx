@@ -1,3 +1,4 @@
+/*Componente para crear formatos documentos */
 const React = require('react');
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Divider from 'material-ui/Divider';
