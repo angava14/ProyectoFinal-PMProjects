@@ -15,6 +15,7 @@ import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
 import TextField from 'material-ui/TextField';
 import {guardarmatriz} from './../config.jsx';
+import {guardardatoscomponente} from './../config.jsx';
 import {nodospropios} from './../config.jsx';
 import {
   Table,
@@ -26,6 +27,7 @@ import {
 } from 'material-ui/Table';
 
 /*global localStorage */
+/*global location*/
 
 
 const paper={
@@ -51,19 +53,21 @@ class EditarDoc extends React.Component {
         constructor () {
         super(); 
         
-       
+       window.nodoschild = [] ;
+       window.extraschild = [] ;
         this.state = { 
           admin: false ,
           titulodocumento: localStorage.getItem('doctitulo'),
           ruta: [],
           nombreformato: localStorage.getItem('nombreformato'),
-          titulo: "titulo",
           componente: [] ,
+          dato: [],
           iddocumento: localStorage.getItem('iddocumento'),
         }
             this.handleChange = this.handleChange.bind(this);
             this.crearextra = this.crearextra.bind(this);
-        
+            this.guardardatos = this.guardardatos.bind(this);
+            this.cambiarvalor = this.cambiarvalor.bind(this);
     }
 
 
@@ -103,6 +107,8 @@ firebase.auth().onAuthStateChanged(function(user) {
             for (let message in messages){
             newState.push({
             id: message,
+            dato: messages[message].dato ,
+            dato1 : messages[message].dato1 ,
             });  
             }
             
@@ -129,6 +135,30 @@ firebase.auth().onAuthStateChanged(function(user) {
         }
         
     
+    guardardatos(){
+        
+        
+        for( let i = 0 ; i < this.state.componente.length ; i++){
+            const texto = document.getElementById('editartitulo'+this.state.componente[i].id).value;
+            const text = document.getElementById('editar'+this.state.componente[i].id).value;
+            guardardatoscomponente( this.state.iddocumento , this.state.componente[i].id , texto , text);
+           
+            
+        }
+         location.reload();
+    }
+    
+    
+    cambiarvalor (event, index){ 
+
+
+        var textfield =  document.getElementById(event.target.id);
+        console.log(textfield);
+        document.textfield.value = index;
+       
+       
+        
+    }
 
 	render() {
 	   
@@ -163,25 +193,35 @@ firebase.auth().onAuthStateChanged(function(user) {
 
  <Tab label="Editar Documento"  >
       <div>
- <RaisedButton label="Guardar" secondary={true} style={botonguardar}  />
+ <RaisedButton label="Guardar" secondary={true} style={botonguardar} onClick={ ()=>{
+ this.guardardatos(); 
+  { for (let i = 0 ; i< this.state.componente.length ; i++){
+ window.nodoschild[i].guardardatos(); 
+ window.extraschild[i].guardardatos();
+}}
+   } } 
+ />
    <div className="documentotitulo">
     <h1 >Titulo: {this.state.titulodocumento}</h1>
     <h4>Formato: {this.state.nombreformato} - Documento</h4>
   </div>
-   {this.state.componente.map(item=>{
+  
+   {this.state.componente.map( (item,index,array)=>{
+                
     	         return(
     	         
     	         <div className="papereditar" key={item.id}>
                 <Paper zDepth={2} style={paper}  >
-                <TextField hintText="Titulo" fullWidth={true} multiLine={true}  id={item.id}/>
-                <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={this.state.titulo + item.id } />
-                <MostrarNodos idcomponente={item.id} docid={this.state.iddocumento} />
-                <MostrarExtras idcomponente={item.id} docid={this.state.iddocumento} />
+                <TextField hintText="Titulo" fullWidth={true} multiLine={true} inputStyle={{ textAlign: 'center' }}  id={'editartitulo'+item.id} value={item.dato}/>
+                <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id } value={item.dato1}  onChange={this.cambiarvalor}/>
+                <MostrarNodos idcomponente={item.id} docid={this.state.iddocumento}  ref={instance => { window.nodoschild[index] = instance; }}  />
+                <MostrarExtras idcomponente={item.id} docid={this.state.iddocumento} ref={instance => { window.extraschild[index] = instance; }} />
                  <IconButton style={iconbutton} onClick={ () => this.crearextra(item.id)} iconStyle={styles.mediumIcon}  tooltip="Agregar Campo"><Addicon /></IconButton>  
                 <Divider />
                 </Paper>
                 </div >
              	         );
+             	         
     	        })
     	      }
       </div>

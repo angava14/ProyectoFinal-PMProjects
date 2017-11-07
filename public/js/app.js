@@ -336,6 +336,9 @@
 	exports.CrearDocumentoConFormato = CrearDocumentoConFormato;
 	exports.CrearTablaConFormato = CrearTablaConFormato;
 	exports.guardarmatrizdatos = guardarmatrizdatos;
+	exports.guardardatoscomponente = guardardatoscomponente;
+	exports.guardardatosnodos = guardardatosnodos;
+	exports.guardardatosextras = guardardatosextras;
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
@@ -569,6 +572,36 @@
 
 	function guardarmatrizdatos(objeto, id) {
 	  var messagesRef = firebase.database().ref().child("documentos/" + id + '/datos');
+	  messagesRef.update(objeto);
+	}
+
+	function guardardatoscomponente(documento, componente, titulo, texto) {
+	  var messagesRef = firebase.database().ref().child("documentos/" + documento + '/componente/' + componente);
+	  var objeto = {
+	    dato: titulo,
+	    dato1: texto
+	  };
+	  messagesRef.update(objeto);
+	}
+
+	function guardardatosnodos(documento, componente, nodo, texto) {
+	  console.log(documento);
+	  console.log(componente);
+	  console.log(nodo);
+	  console.log(texto);
+	  var messagesRef = firebase.database().ref().child("documentos/" + documento + '/componente/' + componente + '/nodo/' + nodo);
+	  var objeto = {
+	    dato: texto
+	  };
+	  messagesRef.update(objeto);
+	}
+
+	function guardardatosextras(documento, componente, extra, texto) {
+
+	  var messagesRef = firebase.database().ref().child("documentos/" + documento + '/componente/' + componente + '/extras/' + extra);
+	  var objeto = {
+	    dato: texto
+	  };
 	  messagesRef.update(objeto);
 	}
 
@@ -80110,6 +80143,7 @@
 	var _materialUiTable = __webpack_require__(612);
 
 	/*global localStorage */
+	/*global location*/
 
 	var React = __webpack_require__(241);
 
@@ -80144,17 +80178,21 @@
 
 	        _get(Object.getPrototypeOf(EditarDoc.prototype), 'constructor', this).call(this);
 
+	        window.nodoschild = [];
+	        window.extraschild = [];
 	        this.state = {
 	            admin: false,
 	            titulodocumento: localStorage.getItem('doctitulo'),
 	            ruta: [],
 	            nombreformato: localStorage.getItem('nombreformato'),
-	            titulo: "titulo",
 	            componente: [],
+	            dato: [],
 	            iddocumento: localStorage.getItem('iddocumento')
 	        };
 	        this.handleChange = this.handleChange.bind(this);
 	        this.crearextra = this.crearextra.bind(this);
+	        this.guardardatos = this.guardardatos.bind(this);
+	        this.cambiarvalor = this.cambiarvalor.bind(this);
 	    }
 
 	    _createClass(EditarDoc, [{
@@ -80188,7 +80226,9 @@
 	                var newState = [];
 	                for (var message in messages) {
 	                    newState.push({
-	                        id: message
+	                        id: message,
+	                        dato: messages[message].dato,
+	                        dato1: messages[message].dato1
 	                    });
 	                }
 
@@ -80208,6 +80248,25 @@
 	        value: function handleChange(e) {
 
 	            this.setState(_defineProperty({}, e.target.name, e.target.value));
+	        }
+	    }, {
+	        key: 'guardardatos',
+	        value: function guardardatos() {
+
+	            for (var i = 0; i < this.state.componente.length; i++) {
+	                var texto = document.getElementById('editartitulo' + this.state.componente[i].id).value;
+	                var text = document.getElementById('editar' + this.state.componente[i].id).value;
+	                (0, _configJsx.guardardatoscomponente)(this.state.iddocumento, this.state.componente[i].id, texto, text);
+	            }
+	            location.reload();
+	        }
+	    }, {
+	        key: 'cambiarvalor',
+	        value: function cambiarvalor(event, index) {
+
+	            var textfield = document.getElementById(event.target.id);
+	            console.log(textfield);
+	            document.textfield.value = index;
 	        }
 	    }, {
 	        key: 'render',
@@ -80259,7 +80318,16 @@
 	                                React.createElement(
 	                                    'div',
 	                                    null,
-	                                    React.createElement(_materialUiRaisedButton2['default'], { label: 'Guardar', secondary: true, style: botonguardar }),
+	                                    React.createElement(_materialUiRaisedButton2['default'], { label: 'Guardar', secondary: true, style: botonguardar, onClick: function () {
+	                                            _this.guardardatos();
+	                                            {
+	                                                for (var i = 0; i < _this.state.componente.length; i++) {
+	                                                    window.nodoschild[i].guardardatos();
+	                                                    window.extraschild[i].guardardatos();
+	                                                }
+	                                            }
+	                                        }
+	                                    }),
 	                                    React.createElement(
 	                                        'div',
 	                                        { className: 'documentotitulo' },
@@ -80277,17 +80345,22 @@
 	                                            ' - Documento'
 	                                        )
 	                                    ),
-	                                    this.state.componente.map(function (item) {
+	                                    this.state.componente.map(function (item, index, array) {
+
 	                                        return React.createElement(
 	                                            'div',
 	                                            { className: 'papereditar', key: item.id },
 	                                            React.createElement(
 	                                                _materialUiPaper2['default'],
 	                                                { zDepth: 2, style: paper },
-	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, id: item.id }),
-	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: _this.state.titulo + item.id }),
-	                                                React.createElement(MostrarNodos, { idcomponente: item.id, docid: _this.state.iddocumento }),
-	                                                React.createElement(MostrarExtras, { idcomponente: item.id, docid: _this.state.iddocumento }),
+	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, inputStyle: { textAlign: 'center' }, id: 'editartitulo' + item.id, value: item.dato }),
+	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id, value: item.dato1, onChange: _this.cambiarvalor }),
+	                                                React.createElement(MostrarNodos, { idcomponente: item.id, docid: _this.state.iddocumento, ref: function (instance) {
+	                                                        window.nodoschild[index] = instance;
+	                                                    } }),
+	                                                React.createElement(MostrarExtras, { idcomponente: item.id, docid: _this.state.iddocumento, ref: function (instance) {
+	                                                        window.extraschild[index] = instance;
+	                                                    } }),
 	                                                React.createElement(
 	                                                    _materialUiIconButton2['default'],
 	                                                    { style: iconbutton, onClick: function () {
@@ -80357,6 +80430,7 @@
 
 	var React = __webpack_require__(241);
 
+	/*global location*/
 	var iconbutton = {
 	    padding: 0
 	};
@@ -80382,6 +80456,7 @@
 	        this.state = {
 	            nodos: []
 	        };
+	        this.guardardatos = this.guardardatos.bind(this);
 	    }
 
 	    _createClass(MostrarNodos, [{
@@ -80408,6 +80483,15 @@
 	            });
 	        }
 	    }, {
+	        key: 'guardardatos',
+	        value: function guardardatos() {
+
+	            for (var i = 0; i < this.state.nodos.length; i++) {
+	                var text = document.getElementById('editar' + this.state.nodos[i].id).value;
+	                (0, _configJsx.guardardatosnodos)(this.props.docid, this.props.idcomponente, this.state.nodos[i].id, text);
+	            }
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 
@@ -80424,7 +80508,7 @@
 	                            return React.createElement(
 	                                'div',
 	                                { className: 'nodos', key: item.id },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true })
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id })
 	                            );
 	                        })
 	                    )
@@ -80487,6 +80571,8 @@
 
 	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
 
+	var _configJsx = __webpack_require__(2);
+
 	var React = __webpack_require__(241);
 
 	var iconbutton = {
@@ -80515,6 +80601,7 @@
 	            nodos: []
 	        };
 	        this.borrarnodo = this.borrarnodo.bind(this);
+	        this.guardardatos = this.guardardatos.bind(this);
 	    }
 
 	    _createClass(MostrarExtras, [{
@@ -80548,6 +80635,15 @@
 	            firebase.database().ref().child('documentos/' + this.props.docid + "/componente/" + this.props.idcomponente + "/extras/" + id).remove();
 	        }
 	    }, {
+	        key: 'guardardatos',
+	        value: function guardardatos() {
+
+	            for (var i = 0; i < this.state.nodos.length; i++) {
+	                var text = document.getElementById('editar' + this.state.nodos[i].id).value;
+	                (0, _configJsx.guardardatosextras)(this.props.docid, this.props.idcomponente, this.state.nodos[i].id, text);
+	            }
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this2 = this;
@@ -80565,7 +80661,7 @@
 	                            return React.createElement(
 	                                'div',
 	                                { key: item.id, className: 'nodos' },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true }),
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id }),
 	                                React.createElement(
 	                                    _materialUiIconButton2['default'],
 	                                    { style: iconbutton, onClick: function () {
@@ -84501,13 +84597,6 @@
 	          _loop(message);
 	        }
 	      });
-	    }
-	  }, {
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      console.log(this.state.listacomponentes);
-	      console.log(this.state.listanodos);
-	      console.log(this.state.listaextras);
 	    }
 	  }, {
 	    key: 'render',

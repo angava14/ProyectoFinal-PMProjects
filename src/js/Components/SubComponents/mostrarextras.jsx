@@ -6,7 +6,7 @@ import * as  firebase from 'firebase'
 import TextField from 'material-ui/TextField';
 import Delicon from 'material-ui/svg-icons/action/delete';
 import IconButton from 'material-ui/IconButton';
-
+import {guardardatosextras} from './../../config.jsx';
 const iconbutton ={
     padding: 0 
 }
@@ -29,6 +29,7 @@ class MostrarExtras extends React.Component {
         nodos: []
   }
             this.borrarnodo = this.borrarnodo.bind(this); 
+             this.guardardatos = this.guardardatos.bind(this);
     }
 
 componentWillMount(){
@@ -63,6 +64,15 @@ borrarnodo(id){
     firebase.database().ref().child('documentos/' + this.props.docid + "/componente/" + this.props.idcomponente + "/extras/"+ id).remove();
 }
 
+guardardatos(){
+    
+            for( let i = 0 ; i < this.state.nodos.length ; i++){
+            const text = document.getElementById('editar'+this.state.nodos[i].id).value;
+            guardardatosextras(this.props.docid , this.props.idcomponente , this.state.nodos[i].id , text); 
+            }
+    
+}
+
 
 	render() {
 	    
@@ -73,7 +83,7 @@ borrarnodo(id){
 {this.state.nodos.map(item=>{
     return(
 <div key={item.id} className='nodos'>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true}  />    
+ <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} />    
   <IconButton style={iconbutton} onClick={ () => this.borrarnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Campo"><Delicon /></IconButton>  
  </div> )
 })}

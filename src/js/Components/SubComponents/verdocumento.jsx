@@ -85,13 +85,7 @@ class VerDocumento extends React.Component {
           });
         
     }
-    
-    
-    componentDidMount(){
-            console.log(this.state.listacomponentes);
-            console.log(this.state.listanodos); 
-            console.log(this.state.listaextras); 
-    }
+
 
 	render() {
 	    

@@ -260,3 +260,33 @@ export function CrearTablaConFormato (key , format,  objeto , tipo) {
       messagesRef.update(objeto);
 }
 
+export function guardardatoscomponente (documento,componente, titulo , texto){
+      const messagesRef =firebase.database().ref().child("documentos/"+ documento+ '/componente/'+componente);
+      const objeto = {
+        dato: titulo,
+        dato1: texto ,
+      }
+      messagesRef.update(objeto);
+}
+
+
+export function guardardatosnodos (documento,componente , nodo , texto){
+  console.log(documento) ;
+    console.log(componente) ;  
+    console.log(nodo);
+    console.log(texto);
+      const messagesRef =firebase.database().ref().child("documentos/"+ documento+ '/componente/'+componente+'/nodo/'+nodo);
+      const objeto = {
+        dato: texto
+      }
+      messagesRef.update(objeto);
+}
+
+export function guardardatosextras (documento,componente , extra , texto){
+
+      const messagesRef =firebase.database().ref().child("documentos/"+ documento+ '/componente/'+componente+'/extras/'+extra);
+      const objeto = {
+        dato: texto
+      }
+      messagesRef.update(objeto);
+}

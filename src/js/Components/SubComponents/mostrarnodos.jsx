@@ -4,7 +4,8 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import * as  firebase from 'firebase'
 import TextField from 'material-ui/TextField';
 import {agregarnodo} from './../../config.jsx';
-
+import {guardardatosnodos} from './../../config.jsx';
+/*global location*/
 const iconbutton ={
     padding: 0 
 }
@@ -26,7 +27,7 @@ class MostrarNodos extends React.Component {
         this.state = {
         nodos: []
   }
-            
+             this.guardardatos = this.guardardatos.bind(this);
     }
 
 componentWillMount(){
@@ -56,6 +57,15 @@ componentWillMount(){
 }
 
 
+guardardatos(){
+    
+            
+            for( let i = 0 ; i < this.state.nodos.length ; i++){
+            const text = document.getElementById('editar'+this.state.nodos[i].id).value;
+            guardardatosnodos(this.props.docid , this.props.idcomponente , this.state.nodos[i].id , text); 
+            }
+}
+
 
 	render() {
 	    
@@ -67,7 +77,7 @@ componentWillMount(){
     return(
 
   <div  className='nodos' key={item.id}>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true}  />    
+ <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} />    
  </div>
 )
 })}
