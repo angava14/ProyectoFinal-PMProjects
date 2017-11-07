@@ -80115,6 +80115,7 @@
 
 	var Navlog = __webpack_require__(559);
 	var MostrarNodos = __webpack_require__(636);
+	var VerDocumento = __webpack_require__(677);
 	var MostrarExtras = __webpack_require__(637);
 	var paper = {
 	    width: "100%"
@@ -80229,7 +80230,28 @@
 	                            React.createElement(
 	                                _materialUiTabs.Tab,
 	                                { label: 'Ver Documento' },
-	                                React.createElement('div', null)
+	                                React.createElement(
+	                                    'div',
+	                                    { className: 'documentotitulover' },
+	                                    React.createElement(
+	                                        'h1',
+	                                        null,
+	                                        'Titulo: ',
+	                                        this.state.titulodocumento
+	                                    ),
+	                                    React.createElement(
+	                                        'h4',
+	                                        null,
+	                                        'Formato: ',
+	                                        this.state.nombreformato,
+	                                        ' - Documento'
+	                                    )
+	                                ),
+	                                React.createElement(
+	                                    'div',
+	                                    null,
+	                                    React.createElement(VerDocumento, { iddocumento: this.state.iddocumento })
+	                                )
 	                            ),
 	                            React.createElement(
 	                                _materialUiTabs.Tab,
@@ -80759,6 +80781,23 @@
 	                            React.createElement(
 	                                _materialUiTabs.Tab,
 	                                { label: 'Ver Documento' },
+	                                React.createElement(
+	                                    'div',
+	                                    { className: 'documentotitulover' },
+	                                    React.createElement(
+	                                        'h1',
+	                                        null,
+	                                        'Titulo: ',
+	                                        this.state.titulodocumento
+	                                    ),
+	                                    React.createElement(
+	                                        'h4',
+	                                        null,
+	                                        'Formato: ',
+	                                        this.state.nombreformato,
+	                                        ' - Tabla'
+	                                    )
+	                                ),
 	                                React.createElement(
 	                                    'div',
 	                                    { className: 'tabla' },
@@ -84336,6 +84375,204 @@
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 677 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Componente para ver documento  seleccionado tipo documento*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiDivider = __webpack_require__(627);
+
+	var _materialUiDivider2 = _interopRequireDefault(_materialUiDivider);
+
+	var _materialUiPaper = __webpack_require__(503);
+
+	var _materialUiPaper2 = _interopRequireDefault(_materialUiPaper);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var React = __webpack_require__(241);
+
+	var paper = {
+	  width: "100%"
+	};
+
+	var iconbutton = {
+	  padding: 0
+	};
+
+	var styles = {
+	  mediumIcon: {
+	    width: 36,
+	    height: 36
+	  }
+	};
+
+	var VerDocumento = (function (_React$Component) {
+	  _inherits(VerDocumento, _React$Component);
+
+	  function VerDocumento(props) {
+	    _classCallCheck(this, VerDocumento);
+
+	    _get(Object.getPrototypeOf(VerDocumento.prototype), 'constructor', this).call(this, props);
+	    this.state = {
+	      listanodos: [],
+	      listacomponentes: [],
+	      listaextras: []
+	    };
+	  }
+
+	  _createClass(VerDocumento, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      var _this = this;
+
+	      var padre = this;
+	      var messageRef = firebase.database().ref().child('documentos/' + this.props.iddocumento + '/componente');
+	      messageRef.on('value', function (snapshot) {
+	        var messages = snapshot.val();
+
+	        var _loop = function (message) {
+
+	          padre.state.listacomponentes.push({
+	            id: message,
+	            dato: messages[message].dato,
+	            dato1: messages[message].dato1
+	          });
+	          var pad = padre;
+	          var ref = firebase.database().ref().child('documentos/' + _this.props.iddocumento + '/componente/' + message + '/nodo/');
+	          ref.on('value', function (snapshot) {
+	            var nodos = snapshot.val();
+	            for (var cadanodo in nodos) {
+
+	              pad.state.listanodos.push({
+	                componente: message,
+	                id: cadanodo,
+	                dato: nodos[cadanodo].dato
+	              });
+	            }
+	          });
+
+	          var ref2 = firebase.database().ref().child('documentos/' + _this.props.iddocumento + '/componente/' + message + '/extras/');
+	          ref2.on('value', function (snapshot) {
+	            var extras = snapshot.val();
+	            for (var cadaextra in extras) {
+
+	              pad.state.listaextras.push({
+	                componente: message,
+	                id: cadaextra,
+	                dato: extras[cadaextra].dato
+	              });
+	            }
+	          });
+	        };
+
+	        for (var message in messages) {
+	          _loop(message);
+	        }
+	      });
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      console.log(this.state.listacomponentes);
+	      console.log(this.state.listanodos);
+	      console.log(this.state.listaextras);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      return React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          _materialUiStylesMuiThemeProvider2['default'],
+	          null,
+	          React.createElement(
+	            'div',
+	            null,
+	            this.state.listacomponentes.map(function (item) {
+	              return React.createElement(
+	                'div',
+	                { className: 'papereditar', key: item.id },
+	                React.createElement(
+	                  _materialUiPaper2['default'],
+	                  { zDepth: 2, style: paper },
+	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato, inputStyle: { textAlign: 'center' }, id: 'titulo' + item.id }),
+	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato1, id: item.id }),
+	                  _this2.state.listanodos.map(function (nodos) {
+
+	                    {
+	                      if (item.id == nodos.componente) {
+	                        return React.createElement(
+	                          'div',
+	                          { key: nodos.id },
+	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: nodos.dato, id: nodos.id })
+	                        );
+	                      }
+	                    }
+	                  }),
+	                  _this2.state.listaextras.map(function (extras) {
+
+	                    {
+	                      if (item.id == extras.componente) {
+	                        return React.createElement(
+	                          'div',
+	                          { key: extras.id },
+	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: extras.dato, id: extras.id })
+	                        );
+	                      }
+	                    }
+	                  }),
+	                  React.createElement(_materialUiDivider2['default'], null)
+	                )
+	              );
+	            })
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return VerDocumento;
+	})(React.Component);
+
+	exports['default'] = VerDocumento;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "verdocumento.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ })
 /******/ ]);

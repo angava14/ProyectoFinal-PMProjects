@@ -151,7 +151,10 @@ guardartabla(){
     
     <Tab label="Ver Documento"  >
 
-
+   <div className="documentotitulover">
+    <h1 >Titulo: {this.state.titulodocumento}</h1>
+    <h4>Formato: {this.state.nombreformato} - Tabla</h4>
+  </div>
 
 <div className="tabla">
 <Table style={overflow} >

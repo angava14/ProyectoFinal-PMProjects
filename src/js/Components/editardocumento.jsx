@@ -5,6 +5,7 @@ import * as  firebase from 'firebase';
 import {GuardarDocumentoComponentes} from './../config.jsx';
 const Navlog = require('./SubComponents/navlog.jsx');
 const MostrarNodos = require('./SubComponents/mostrarnodos.jsx');
+const VerDocumento = require('./SubComponents/verdocumento.jsx');
 const MostrarExtras = require('./SubComponents/mostrarextras.jsx');
 import RaisedButton from 'material-ui/RaisedButton';
 import {Tabs, Tab} from 'material-ui/Tabs';
@@ -126,7 +127,7 @@ firebase.auth().onAuthStateChanged(function(user) {
             [e.target.name]: e.target.value
         });
         }
-    
+        
     
 
 	render() {
@@ -136,24 +137,33 @@ firebase.auth().onAuthStateChanged(function(user) {
 <MuiThemeProvider>
  <div>
  <Navlog history={this.props.history} admin={this.state.admin} />
+           
                  
      <Tabs>
- 
     <Tab label="Ver Documento"  >
+       <div className="documentotitulover">
+    <h1 >Titulo: {this.state.titulodocumento}</h1>
+    <h4>Formato: {this.state.nombreformato} - Documento</h4>
+  </div>
       <div>
-
-
-
-
+      <VerDocumento iddocumento={this.state.iddocumento} />
       </div>
     </Tab>
 
+
+
+
+
+
+
+
+
+
+
+
  <Tab label="Editar Documento"  >
       <div>
-
-
  <RaisedButton label="Guardar" secondary={true} style={botonguardar}  />
-
    <div className="documentotitulo">
     <h1 >Titulo: {this.state.titulodocumento}</h1>
     <h4>Formato: {this.state.nombreformato} - Documento</h4>
@@ -171,26 +181,27 @@ firebase.auth().onAuthStateChanged(function(user) {
                 <Divider />
                 </Paper>
                 </div >
-    	         
-    	         
              	         );
     	        })
     	      }
-    	      
-
       </div>
     </Tab>
-
-
   </Tabs> 	      
+    	  
+    	  
+    	  
+    	  
+    	  
+    	  
+    	  
+    	  
+    	  
     	      
 </div>
 </MuiThemeProvider>  
 </div>
-
-				);
-				
-
+);
+	    
 	}
 	
 	
