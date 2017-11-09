@@ -55,6 +55,7 @@ class EditarDoc extends React.Component {
         
        window.nodoschild = [] ;
        window.extraschild = [] ;
+       
         this.state = { 
           admin: false ,
           titulodocumento: localStorage.getItem('doctitulo'),
@@ -150,13 +151,23 @@ firebase.auth().onAuthStateChanged(function(user) {
     
     
     cambiarvalor (event, index){ 
-
-
-        var textfield =  document.getElementById(event.target.id);
-        console.log(textfield);
-        document.textfield.value = index;
        
        
+       for( let i = 0 ; i < this.state.componente.length ; i++){
+           const titulo = "editartitulo"+this.state.componente[i].id ;
+           const texto = "editar"+this.state.componente[i].id ;
+           
+           if( titulo == event.target.id ){
+                   this.state.componente[i].dato = index ;
+                   this.forceUpdate();
+          }
+           
+           if( texto == event.target.id ){
+               this.state.componente[i].dato1 = index ;
+               this.forceUpdate();
+           }
+           
+       }
         
     }
 
@@ -212,7 +223,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     	         
     	         <div className="papereditar" key={item.id}>
                 <Paper zDepth={2} style={paper}  >
-                <TextField hintText="Titulo" fullWidth={true} multiLine={true} inputStyle={{ textAlign: 'center' }}  id={'editartitulo'+item.id} value={item.dato}/>
+                <TextField hintText="Titulo" fullWidth={true} multiLine={true} inputStyle={{ textAlign: 'center' }}  id={'editartitulo'+item.id} value={item.dato} onChange={this.cambiarvalor} />
                 <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id } value={item.dato1}  onChange={this.cambiarvalor}/>
                 <MostrarNodos idcomponente={item.id} docid={this.state.iddocumento}  ref={instance => { window.nodoschild[index] = instance; }}  />
                 <MostrarExtras idcomponente={item.id} docid={this.state.iddocumento} ref={instance => { window.extraschild[index] = instance; }} />

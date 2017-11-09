@@ -30,6 +30,7 @@ class MostrarExtras extends React.Component {
   }
             this.borrarnodo = this.borrarnodo.bind(this); 
              this.guardardatos = this.guardardatos.bind(this);
+             this.cambiarvalor = this.cambiarvalor.bind(this);
     }
 
 componentWillMount(){
@@ -45,6 +46,7 @@ componentWillMount(){
 
       newState.push({
                      id: message,
+                     dato: messages[message].dato ,
             });  
 
                  
@@ -73,6 +75,22 @@ guardardatos(){
     
 }
 
+    cambiarvalor (event, index){ 
+       
+       
+       for( let i = 0 ; i < this.state.nodos.length ; i++){
+           
+           const texto = "editar"+this.state.nodos[i].id ;
+           
+           
+           if( texto == event.target.id ){
+               this.state.nodos[i].dato = index ;
+               this.forceUpdate();
+           }
+           
+       }
+        
+    }
 
 	render() {
 	    
@@ -83,7 +101,7 @@ guardardatos(){
 {this.state.nodos.map(item=>{
     return(
 <div key={item.id} className='nodos'>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} />    
+ <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} value={item.dato} onChange={this.cambiarvalor}/>    
   <IconButton style={iconbutton} onClick={ () => this.borrarnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Campo"><Delicon /></IconButton>  
  </div> )
 })}

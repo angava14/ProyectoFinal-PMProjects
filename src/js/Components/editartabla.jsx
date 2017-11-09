@@ -51,6 +51,8 @@ class EditarTab extends React.Component {
                     titulo: "titulo",
                 }
         this.guardartabla = this.guardartabla.bind(this);
+        this.cambiarvalortitulo = this.cambiarvalortitulo.bind(this);
+        this.cambiarvalorfilas = this.cambiarvalorfilas.bind(this);
     }
 
 componentWillMount(){
@@ -86,7 +88,7 @@ componentWillMount(){
                let nuevamatriz = data.slice(1) ;
                const filatemporal= [] ;
                const columnatemporal = [] ;
-               console.log(nuevamatriz);
+               
                     for ( let i = 0 ; i < filas ; i++){
                     filatemporal.push({
                        id: i , 
@@ -136,7 +138,52 @@ guardartabla(){
     }
   
  guardarmatrizdatos(matriz , this.state.iddocumento);
+ location.reload();
 }
+
+
+    cambiarvalortitulo(event, index){ 
+       
+       console.log(event.target.id);
+      
+      
+      for( let  i = 0 ; i< this.state.col.length ; i++){
+          
+          if( 'titulo'+i == event.target.id)
+          {
+                this.state.col[i] = index ; 
+                this.forceUpdate();
+          }
+          
+      }
+        
+    }
+
+    cambiarvalorfilas(event, index){ 
+       
+       console.log(event.target.id)
+       
+      for( let  i = 0 ; i < this.state.numfilas ; i++){
+     
+          for( let  j = 0 ; j < this.state.numcolumnas ; j++){
+           const apuntador = ""+i+","+j ;
+           
+          if( apuntador == event.target.id){
+            
+              this.state.datos[i][j] = index
+              this.forceUpdate();
+          }
+          
+      }
+          
+      }
+      
+      
+      
+        
+    }
+
+
 
 	render() {
 	    
@@ -160,14 +207,14 @@ guardartabla(){
 <Table style={overflow} >
 <TableHeader  adjustForCheckbox={false}  displaySelectAll={false}    >
             <TableRow>
-              <TableHeaderColumn colSpan="3" tooltip="Usuarios" style={{textAlign: 'center'}}>
+              <TableHeaderColumn colSpan="3" tooltip={"Titulo "+ this.state.titulodocumento} style={{textAlign: 'center'}}>
                 {this.state.titulodocumento}
               </TableHeaderColumn>
             </TableRow>
             
 <TableRow>
     	    {this.state.col.map((item , index , objeto ) =>{
-    	    console.log(item);
+    	    
     	         return(
                    <TableHeaderColumn key={ item.id}> {item}  </TableHeaderColumn>
     	         );
@@ -179,12 +226,12 @@ guardartabla(){
 <TableBody  displayRowCheckbox={false} stripedRows={true} showRowHover={true} >
 
              {this.state.datos.map((item , i , objeto )=>{
-             console.log(item);
+             
     	         return(
     	       
     	       <TableRow key={item.id}> 
     	     {item.map((col , j , objeto )=>{
-console.log(col);
+
     	         return(
     	       <TableRowColumn key={col.id}> {col} </TableRowColumn>
     	           	         );
@@ -217,10 +264,11 @@ console.log(col);
 <TableHeader  adjustForCheckbox={false}  displaySelectAll={false}    >
 <TableRow>
        
-    	    {this.state.columna.map(item=>{
+    	    {this.state.columna.map((item,index,objeto)=>{
+       
     	         return(
     	        
-                   <TableHeaderColumn key={ item.id}> <TextField underlineShow={false} hintText="Titulo"  id={"titulo"+item.id}/> </TableHeaderColumn>
+                   <TableHeaderColumn key={ item.id}> <TextField underlineShow={false} hintText="Titulo"  id={"titulo"+item.id} value={this.state.col[index]} onChange={this.cambiarvalortitulo} /> </TableHeaderColumn>
                 
     	         );
     	        })
@@ -232,13 +280,14 @@ console.log(col);
 <TableBody  displayRowCheckbox={false} >
 
              {this.state.fila.map((item , index , objeto )=>{
-             
+
     	         return(
     	       
     	       <TableRow key={item.id}> 
-    	     {this.state.columna.map(col=>{
+    	     {this.state.columna.map((col , columna , obj)=>{
+
     	         return(
-    	       <TableRowColumn key={col.id}> <TextField underlineShow={false} hintText="Texto" id={item.id +","+ col.id } style={texttablas} /> </TableRowColumn>
+    	       <TableRowColumn key={col.id}> <TextField underlineShow={false} hintText="Texto" id={item.id +","+ col.id } style={texttablas} value={this.state.datos[index][columna]} onChange={this.cambiarvalorfilas}  /> </TableRowColumn>
     	           	         );
     	        })
     	      } 

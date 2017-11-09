@@ -28,6 +28,7 @@ class MostrarNodos extends React.Component {
         nodos: []
   }
              this.guardardatos = this.guardardatos.bind(this);
+             this.cambiarvalor = this.cambiarvalor.bind(this);
     }
 
 componentWillMount(){
@@ -42,6 +43,7 @@ componentWillMount(){
 
       newState.push({
                      id: message,
+                     dato: messages[message].dato ,
             });  
 
                  
@@ -67,6 +69,23 @@ guardardatos(){
 }
 
 
+    cambiarvalor (event, index){ 
+       
+       
+       for( let i = 0 ; i < this.state.nodos.length ; i++){
+           
+           const texto = "editar"+this.state.nodos[i].id ;
+           
+           
+           if( texto == event.target.id ){
+               this.state.nodos[i].dato = index ;
+               this.forceUpdate();
+           }
+           
+       }
+        
+    }
+
 	render() {
 	    
 		return (
@@ -77,7 +96,7 @@ guardardatos(){
     return(
 
   <div  className='nodos' key={item.id}>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} />    
+ <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} value={item.dato} onChange={ this.cambiarvalor } />    
  </div>
 )
 })}

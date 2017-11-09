@@ -79,7 +79,7 @@
 
 	var _ComponentsEditardocumentoJsx2 = _interopRequireDefault(_ComponentsEditardocumentoJsx);
 
-	var _ComponentsEditartablaJsx = __webpack_require__(638);
+	var _ComponentsEditartablaJsx = __webpack_require__(639);
 
 	var _ComponentsEditartablaJsx2 = _interopRequireDefault(_ComponentsEditartablaJsx);
 
@@ -91,9 +91,9 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _reactRouterDom = __webpack_require__(639);
+	var _reactRouterDom = __webpack_require__(640);
 
-	var Style = __webpack_require__(676);
+	var Style = __webpack_require__(677);
 
 	_reactDom2['default'].render(_react2['default'].createElement(
 	  _reactRouterDom.BrowserRouter,
@@ -80149,8 +80149,8 @@
 
 	var Navlog = __webpack_require__(559);
 	var MostrarNodos = __webpack_require__(636);
-	var VerDocumento = __webpack_require__(677);
-	var MostrarExtras = __webpack_require__(637);
+	var VerDocumento = __webpack_require__(637);
+	var MostrarExtras = __webpack_require__(638);
 	var paper = {
 	    width: "100%"
 	};
@@ -80180,6 +80180,7 @@
 
 	        window.nodoschild = [];
 	        window.extraschild = [];
+
 	        this.state = {
 	            admin: false,
 	            titulodocumento: localStorage.getItem('doctitulo'),
@@ -80264,9 +80265,20 @@
 	        key: 'cambiarvalor',
 	        value: function cambiarvalor(event, index) {
 
-	            var textfield = document.getElementById(event.target.id);
-	            console.log(textfield);
-	            document.textfield.value = index;
+	            for (var i = 0; i < this.state.componente.length; i++) {
+	                var titulo = "editartitulo" + this.state.componente[i].id;
+	                var texto = "editar" + this.state.componente[i].id;
+
+	                if (titulo == event.target.id) {
+	                    this.state.componente[i].dato = index;
+	                    this.forceUpdate();
+	                }
+
+	                if (texto == event.target.id) {
+	                    this.state.componente[i].dato1 = index;
+	                    this.forceUpdate();
+	                }
+	            }
 	        }
 	    }, {
 	        key: 'render',
@@ -80353,7 +80365,7 @@
 	                                            React.createElement(
 	                                                _materialUiPaper2['default'],
 	                                                { zDepth: 2, style: paper },
-	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, inputStyle: { textAlign: 'center' }, id: 'editartitulo' + item.id, value: item.dato }),
+	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, inputStyle: { textAlign: 'center' }, id: 'editartitulo' + item.id, value: item.dato, onChange: _this.cambiarvalor }),
 	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id, value: item.dato1, onChange: _this.cambiarvalor }),
 	                                                React.createElement(MostrarNodos, { idcomponente: item.id, docid: _this.state.iddocumento, ref: function (instance) {
 	                                                        window.nodoschild[index] = instance;
@@ -80457,6 +80469,7 @@
 	            nodos: []
 	        };
 	        this.guardardatos = this.guardardatos.bind(this);
+	        this.cambiarvalor = this.cambiarvalor.bind(this);
 	    }
 
 	    _createClass(MostrarNodos, [{
@@ -80473,7 +80486,8 @@
 	                for (var message in messages) {
 
 	                    newState.push({
-	                        id: message
+	                        id: message,
+	                        dato: messages[message].dato
 	                    });
 	                }
 
@@ -80492,8 +80506,23 @@
 	            }
 	        }
 	    }, {
+	        key: 'cambiarvalor',
+	        value: function cambiarvalor(event, index) {
+
+	            for (var i = 0; i < this.state.nodos.length; i++) {
+
+	                var texto = "editar" + this.state.nodos[i].id;
+
+	                if (texto == event.target.id) {
+	                    this.state.nodos[i].dato = index;
+	                    this.forceUpdate();
+	                }
+	            }
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this2 = this;
 
 	            return React.createElement(
 	                'div',
@@ -80508,7 +80537,7 @@
 	                            return React.createElement(
 	                                'div',
 	                                { className: 'nodos', key: item.id },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id })
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id, value: item.dato, onChange: _this2.cambiarvalor })
 	                            );
 	                        })
 	                    )
@@ -80527,6 +80556,197 @@
 
 /***/ }),
 /* 637 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	/*Componente para ver documento  seleccionado tipo documento*/
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
+
+	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
+
+	var _firebase = __webpack_require__(3);
+
+	var firebase = _interopRequireWildcard(_firebase);
+
+	var _materialUiDivider = __webpack_require__(627);
+
+	var _materialUiDivider2 = _interopRequireDefault(_materialUiDivider);
+
+	var _materialUiPaper = __webpack_require__(503);
+
+	var _materialUiPaper2 = _interopRequireDefault(_materialUiPaper);
+
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
+	var React = __webpack_require__(241);
+
+	var paper = {
+	  width: "100%"
+	};
+
+	var iconbutton = {
+	  padding: 0
+	};
+
+	var styles = {
+	  mediumIcon: {
+	    width: 36,
+	    height: 36
+	  }
+	};
+
+	var VerDocumento = (function (_React$Component) {
+	  _inherits(VerDocumento, _React$Component);
+
+	  function VerDocumento(props) {
+	    _classCallCheck(this, VerDocumento);
+
+	    _get(Object.getPrototypeOf(VerDocumento.prototype), 'constructor', this).call(this, props);
+	    this.state = {
+	      listanodos: [],
+	      listacomponentes: [],
+	      listaextras: []
+	    };
+	  }
+
+	  _createClass(VerDocumento, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      var _this = this;
+
+	      var padre = this;
+	      var messageRef = firebase.database().ref().child('documentos/' + this.props.iddocumento + '/componente');
+	      messageRef.on('value', function (snapshot) {
+	        var messages = snapshot.val();
+
+	        var _loop = function (message) {
+
+	          padre.state.listacomponentes.push({
+	            id: message,
+	            dato: messages[message].dato,
+	            dato1: messages[message].dato1
+	          });
+	          var pad = padre;
+	          var ref = firebase.database().ref().child('documentos/' + _this.props.iddocumento + '/componente/' + message + '/nodo/');
+	          ref.on('value', function (snapshot) {
+	            var nodos = snapshot.val();
+	            for (var cadanodo in nodos) {
+
+	              pad.state.listanodos.push({
+	                componente: message,
+	                id: cadanodo,
+	                dato: nodos[cadanodo].dato
+	              });
+	            }
+	          });
+
+	          var ref2 = firebase.database().ref().child('documentos/' + _this.props.iddocumento + '/componente/' + message + '/extras/');
+	          ref2.on('value', function (snapshot) {
+	            var extras = snapshot.val();
+	            for (var cadaextra in extras) {
+
+	              pad.state.listaextras.push({
+	                componente: message,
+	                id: cadaextra,
+	                dato: extras[cadaextra].dato
+	              });
+	            }
+	          });
+	        };
+
+	        for (var message in messages) {
+	          _loop(message);
+	        }
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      return React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          _materialUiStylesMuiThemeProvider2['default'],
+	          null,
+	          React.createElement(
+	            'div',
+	            null,
+	            this.state.listacomponentes.map(function (item) {
+	              return React.createElement(
+	                'div',
+	                { className: 'papereditar', key: item.id },
+	                React.createElement(
+	                  _materialUiPaper2['default'],
+	                  { zDepth: 2, style: paper },
+	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato, inputStyle: { textAlign: 'center' }, id: 'titulo' + item.id }),
+	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato1, id: item.id }),
+	                  _this2.state.listanodos.map(function (nodos) {
+
+	                    {
+	                      if (item.id == nodos.componente) {
+	                        return React.createElement(
+	                          'div',
+	                          { key: nodos.id },
+	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: nodos.dato, id: nodos.id })
+	                        );
+	                      }
+	                    }
+	                  }),
+	                  _this2.state.listaextras.map(function (extras) {
+
+	                    {
+	                      if (item.id == extras.componente) {
+	                        return React.createElement(
+	                          'div',
+	                          { key: extras.id },
+	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: extras.dato, id: extras.id })
+	                        );
+	                      }
+	                    }
+	                  }),
+	                  React.createElement(_materialUiDivider2['default'], null)
+	                )
+	              );
+	            })
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return VerDocumento;
+	})(React.Component);
+
+	exports['default'] = VerDocumento;
+	module.exports = exports['default'];
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "verdocumento.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ }),
+/* 638 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80602,6 +80822,7 @@
 	        };
 	        this.borrarnodo = this.borrarnodo.bind(this);
 	        this.guardardatos = this.guardardatos.bind(this);
+	        this.cambiarvalor = this.cambiarvalor.bind(this);
 	    }
 
 	    _createClass(MostrarExtras, [{
@@ -80619,7 +80840,8 @@
 	                for (var message in messages) {
 
 	                    newState.push({
-	                        id: message
+	                        id: message,
+	                        dato: messages[message].dato
 	                    });
 	                }
 
@@ -80644,6 +80866,20 @@
 	            }
 	        }
 	    }, {
+	        key: 'cambiarvalor',
+	        value: function cambiarvalor(event, index) {
+
+	            for (var i = 0; i < this.state.nodos.length; i++) {
+
+	                var texto = "editar" + this.state.nodos[i].id;
+
+	                if (texto == event.target.id) {
+	                    this.state.nodos[i].dato = index;
+	                    this.forceUpdate();
+	                }
+	            }
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this2 = this;
@@ -80661,7 +80897,7 @@
 	                            return React.createElement(
 	                                'div',
 	                                { key: item.id, className: 'nodos' },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id }),
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id, value: item.dato, onChange: _this2.cambiarvalor }),
 	                                React.createElement(
 	                                    _materialUiIconButton2['default'],
 	                                    { style: iconbutton, onClick: function () {
@@ -80686,7 +80922,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "mostrarextras.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }),
-/* 638 */
+/* 639 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -80777,6 +81013,8 @@
 	            titulo: "titulo"
 	        };
 	        this.guardartabla = this.guardartabla.bind(this);
+	        this.cambiarvalortitulo = this.cambiarvalortitulo.bind(this);
+	        this.cambiarvalorfilas = this.cambiarvalorfilas.bind(this);
 	    }
 
 	    _createClass(EditarTab, [{
@@ -80809,7 +81047,7 @@
 	                var nuevamatriz = data.slice(1);
 	                var filatemporal = [];
 	                var columnatemporal = [];
-	                console.log(nuevamatriz);
+
 	                for (var i = 0; i < filas; i++) {
 	                    filatemporal.push({
 	                        id: i
@@ -80855,6 +81093,40 @@
 	            }
 
 	            (0, _configJsx.guardarmatrizdatos)(matriz, this.state.iddocumento);
+	            location.reload();
+	        }
+	    }, {
+	        key: 'cambiarvalortitulo',
+	        value: function cambiarvalortitulo(event, index) {
+
+	            console.log(event.target.id);
+
+	            for (var i = 0; i < this.state.col.length; i++) {
+
+	                if ('titulo' + i == event.target.id) {
+	                    this.state.col[i] = index;
+	                    this.forceUpdate();
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'cambiarvalorfilas',
+	        value: function cambiarvalorfilas(event, index) {
+
+	            console.log(event.target.id);
+
+	            for (var i = 0; i < this.state.numfilas; i++) {
+
+	                for (var j = 0; j < this.state.numcolumnas; j++) {
+	                    var apuntador = "" + i + "," + j;
+
+	                    if (apuntador == event.target.id) {
+
+	                        this.state.datos[i][j] = index;
+	                        this.forceUpdate();
+	                    }
+	                }
+	            }
 	        }
 	    }, {
 	        key: 'render',
@@ -80908,7 +81180,7 @@
 	                                                null,
 	                                                React.createElement(
 	                                                    _materialUiTable.TableHeaderColumn,
-	                                                    { colSpan: '3', tooltip: 'Usuarios', style: { textAlign: 'center' } },
+	                                                    { colSpan: '3', tooltip: "Titulo " + this.state.titulodocumento, style: { textAlign: 'center' } },
 	                                                    this.state.titulodocumento
 	                                                )
 	                                            ),
@@ -80916,7 +81188,7 @@
 	                                                _materialUiTable.TableRow,
 	                                                null,
 	                                                this.state.col.map(function (item, index, objeto) {
-	                                                    console.log(item);
+
 	                                                    return React.createElement(
 	                                                        _materialUiTable.TableHeaderColumn,
 	                                                        { key: item.id },
@@ -80931,12 +81203,12 @@
 	                                            _materialUiTable.TableBody,
 	                                            { displayRowCheckbox: false, stripedRows: true, showRowHover: true },
 	                                            this.state.datos.map(function (item, i, objeto) {
-	                                                console.log(item);
+
 	                                                return React.createElement(
 	                                                    _materialUiTable.TableRow,
 	                                                    { key: item.id },
 	                                                    item.map(function (col, j, objeto) {
-	                                                        console.log(col);
+
 	                                                        return React.createElement(
 	                                                            _materialUiTable.TableRowColumn,
 	                                                            { key: col.id },
@@ -80984,12 +81256,13 @@
 	                                            React.createElement(
 	                                                _materialUiTable.TableRow,
 	                                                null,
-	                                                this.state.columna.map(function (item) {
+	                                                this.state.columna.map(function (item, index, objeto) {
+
 	                                                    return React.createElement(
 	                                                        _materialUiTable.TableHeaderColumn,
 	                                                        { key: item.id },
 	                                                        ' ',
-	                                                        React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Titulo', id: "titulo" + item.id }),
+	                                                        React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Titulo', id: "titulo" + item.id, value: _this.state.col[index], onChange: _this.cambiarvalortitulo }),
 	                                                        ' '
 	                                                    );
 	                                                })
@@ -81003,12 +81276,13 @@
 	                                                return React.createElement(
 	                                                    _materialUiTable.TableRow,
 	                                                    { key: item.id },
-	                                                    _this.state.columna.map(function (col) {
+	                                                    _this.state.columna.map(function (col, columna, obj) {
+
 	                                                        return React.createElement(
 	                                                            _materialUiTable.TableRowColumn,
 	                                                            { key: col.id },
 	                                                            ' ',
-	                                                            React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Texto', id: item.id + "," + col.id, style: texttablas }),
+	                                                            React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Texto', id: item.id + "," + col.id, style: texttablas, value: _this.state.datos[index][columna], onChange: _this.cambiarvalorfilas }),
 	                                                            ' '
 	                                                        );
 	                                                    })
@@ -81034,7 +81308,7 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "editartabla.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ }),
-/* 639 */
+/* 640 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -81042,55 +81316,55 @@
 	exports.__esModule = true;
 	exports.withRouter = exports.matchPath = exports.Switch = exports.StaticRouter = exports.Router = exports.Route = exports.Redirect = exports.Prompt = exports.NavLink = exports.MemoryRouter = exports.Link = exports.HashRouter = exports.BrowserRouter = undefined;
 
-	var _BrowserRouter2 = __webpack_require__(640);
+	var _BrowserRouter2 = __webpack_require__(641);
 
 	var _BrowserRouter3 = _interopRequireDefault(_BrowserRouter2);
 
-	var _HashRouter2 = __webpack_require__(651);
+	var _HashRouter2 = __webpack_require__(652);
 
 	var _HashRouter3 = _interopRequireDefault(_HashRouter2);
 
-	var _Link2 = __webpack_require__(653);
+	var _Link2 = __webpack_require__(654);
 
 	var _Link3 = _interopRequireDefault(_Link2);
 
-	var _MemoryRouter2 = __webpack_require__(654);
+	var _MemoryRouter2 = __webpack_require__(655);
 
 	var _MemoryRouter3 = _interopRequireDefault(_MemoryRouter2);
 
-	var _NavLink2 = __webpack_require__(657);
+	var _NavLink2 = __webpack_require__(658);
 
 	var _NavLink3 = _interopRequireDefault(_NavLink2);
 
-	var _Prompt2 = __webpack_require__(663);
+	var _Prompt2 = __webpack_require__(664);
 
 	var _Prompt3 = _interopRequireDefault(_Prompt2);
 
-	var _Redirect2 = __webpack_require__(665);
+	var _Redirect2 = __webpack_require__(666);
 
 	var _Redirect3 = _interopRequireDefault(_Redirect2);
 
-	var _Route2 = __webpack_require__(658);
+	var _Route2 = __webpack_require__(659);
 
 	var _Route3 = _interopRequireDefault(_Route2);
 
-	var _Router2 = __webpack_require__(649);
+	var _Router2 = __webpack_require__(650);
 
 	var _Router3 = _interopRequireDefault(_Router2);
 
-	var _StaticRouter2 = __webpack_require__(668);
+	var _StaticRouter2 = __webpack_require__(669);
 
 	var _StaticRouter3 = _interopRequireDefault(_StaticRouter2);
 
-	var _Switch2 = __webpack_require__(670);
+	var _Switch2 = __webpack_require__(671);
 
 	var _Switch3 = _interopRequireDefault(_Switch2);
 
-	var _matchPath2 = __webpack_require__(672);
+	var _matchPath2 = __webpack_require__(673);
 
 	var _matchPath3 = _interopRequireDefault(_matchPath2);
 
-	var _withRouter2 = __webpack_require__(673);
+	var _withRouter2 = __webpack_require__(674);
 
 	var _withRouter3 = _interopRequireDefault(_withRouter2);
 
@@ -81111,7 +81385,7 @@
 	exports.withRouter = _withRouter3.default;
 
 /***/ }),
-/* 640 */
+/* 641 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -81130,11 +81404,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createBrowserHistory = __webpack_require__(641);
+	var _createBrowserHistory = __webpack_require__(642);
 
 	var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-	var _Router = __webpack_require__(649);
+	var _Router = __webpack_require__(650);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -81185,7 +81459,7 @@
 	exports.default = BrowserRouter;
 
 /***/ }),
-/* 641 */
+/* 642 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -81200,19 +81474,19 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _LocationUtils = __webpack_require__(643);
+	var _LocationUtils = __webpack_require__(644);
 
-	var _PathUtils = __webpack_require__(646);
+	var _PathUtils = __webpack_require__(647);
 
-	var _createTransitionManager = __webpack_require__(647);
+	var _createTransitionManager = __webpack_require__(648);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _DOMUtils = __webpack_require__(648);
+	var _DOMUtils = __webpack_require__(649);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -81497,7 +81771,7 @@
 	exports.default = createBrowserHistory;
 
 /***/ }),
-/* 642 */
+/* 643 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -81555,7 +81829,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 643 */
+/* 644 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -81565,15 +81839,15 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _resolvePathname = __webpack_require__(644);
+	var _resolvePathname = __webpack_require__(645);
 
 	var _resolvePathname2 = _interopRequireDefault(_resolvePathname);
 
-	var _valueEqual = __webpack_require__(645);
+	var _valueEqual = __webpack_require__(646);
 
 	var _valueEqual2 = _interopRequireDefault(_valueEqual);
 
-	var _PathUtils = __webpack_require__(646);
+	var _PathUtils = __webpack_require__(647);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -81638,7 +81912,7 @@
 	};
 
 /***/ }),
-/* 644 */
+/* 645 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -81717,7 +81991,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 645 */
+/* 646 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -81765,7 +82039,7 @@
 	module.exports = exports['default'];
 
 /***/ }),
-/* 646 */
+/* 647 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -81831,7 +82105,7 @@
 	};
 
 /***/ }),
-/* 647 */
+/* 648 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -81921,7 +82195,7 @@
 	exports.default = createTransitionManager;
 
 /***/ }),
-/* 648 */
+/* 649 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -81981,14 +82255,14 @@
 	};
 
 /***/ }),
-/* 649 */
+/* 650 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Router = __webpack_require__(650);
+	var _Router = __webpack_require__(651);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -81997,7 +82271,7 @@
 	exports.default = _Router2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 650 */
+/* 651 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -82010,7 +82284,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -82121,7 +82395,7 @@
 	exports.default = Router;
 
 /***/ }),
-/* 651 */
+/* 652 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -82140,11 +82414,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createHashHistory = __webpack_require__(652);
+	var _createHashHistory = __webpack_require__(653);
 
 	var _createHashHistory2 = _interopRequireDefault(_createHashHistory);
 
-	var _Router = __webpack_require__(649);
+	var _Router = __webpack_require__(650);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -82194,7 +82468,7 @@
 	exports.default = HashRouter;
 
 /***/ }),
-/* 652 */
+/* 653 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -82207,19 +82481,19 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _LocationUtils = __webpack_require__(643);
+	var _LocationUtils = __webpack_require__(644);
 
-	var _PathUtils = __webpack_require__(646);
+	var _PathUtils = __webpack_require__(647);
 
-	var _createTransitionManager = __webpack_require__(647);
+	var _createTransitionManager = __webpack_require__(648);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
-	var _DOMUtils = __webpack_require__(648);
+	var _DOMUtils = __webpack_require__(649);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -82523,7 +82797,7 @@
 	exports.default = createHashHistory;
 
 /***/ }),
-/* 653 */
+/* 654 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -82540,7 +82814,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -82638,14 +82912,14 @@
 	exports.default = Link;
 
 /***/ }),
-/* 654 */
+/* 655 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _MemoryRouter = __webpack_require__(655);
+	var _MemoryRouter = __webpack_require__(656);
 
 	var _MemoryRouter2 = _interopRequireDefault(_MemoryRouter);
 
@@ -82654,7 +82928,7 @@
 	exports.default = _MemoryRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 655 */
+/* 656 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -82673,11 +82947,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _createMemoryHistory = __webpack_require__(656);
+	var _createMemoryHistory = __webpack_require__(657);
 
 	var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
 
-	var _Router = __webpack_require__(650);
+	var _Router = __webpack_require__(651);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -82728,7 +83002,7 @@
 	exports.default = MemoryRouter;
 
 /***/ }),
-/* 656 */
+/* 657 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -82743,11 +83017,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _PathUtils = __webpack_require__(646);
+	var _PathUtils = __webpack_require__(647);
 
-	var _LocationUtils = __webpack_require__(643);
+	var _LocationUtils = __webpack_require__(644);
 
-	var _createTransitionManager = __webpack_require__(647);
+	var _createTransitionManager = __webpack_require__(648);
 
 	var _createTransitionManager2 = _interopRequireDefault(_createTransitionManager);
 
@@ -82903,7 +83177,7 @@
 	exports.default = createMemoryHistory;
 
 /***/ }),
-/* 657 */
+/* 658 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -82922,11 +83196,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _Route = __webpack_require__(658);
+	var _Route = __webpack_require__(659);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
-	var _Link = __webpack_require__(653);
+	var _Link = __webpack_require__(654);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
@@ -82994,14 +83268,14 @@
 	exports.default = NavLink;
 
 /***/ }),
-/* 658 */
+/* 659 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Route = __webpack_require__(659);
+	var _Route = __webpack_require__(660);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
@@ -83010,7 +83284,7 @@
 	exports.default = _Route2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 659 */
+/* 660 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -83023,7 +83297,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -83035,7 +83309,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _matchPath = __webpack_require__(660);
+	var _matchPath = __webpack_require__(661);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -83167,14 +83441,14 @@
 	exports.default = Route;
 
 /***/ }),
-/* 660 */
+/* 661 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _pathToRegexp = __webpack_require__(661);
+	var _pathToRegexp = __webpack_require__(662);
 
 	var _pathToRegexp2 = _interopRequireDefault(_pathToRegexp);
 
@@ -83249,10 +83523,10 @@
 	exports.default = matchPath;
 
 /***/ }),
-/* 661 */
+/* 662 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var isarray = __webpack_require__(662)
+	var isarray = __webpack_require__(663)
 
 	/**
 	 * Expose `pathToRegexp`.
@@ -83681,7 +83955,7 @@
 
 
 /***/ }),
-/* 662 */
+/* 663 */
 /***/ (function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -83690,14 +83964,14 @@
 
 
 /***/ }),
-/* 663 */
+/* 664 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Prompt = __webpack_require__(664);
+	var _Prompt = __webpack_require__(665);
 
 	var _Prompt2 = _interopRequireDefault(_Prompt);
 
@@ -83706,7 +83980,7 @@
 	exports.default = _Prompt2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 664 */
+/* 665 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -83721,7 +83995,7 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -83801,14 +84075,14 @@
 	exports.default = Prompt;
 
 /***/ }),
-/* 665 */
+/* 666 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Redirect = __webpack_require__(666);
+	var _Redirect = __webpack_require__(667);
 
 	var _Redirect2 = _interopRequireDefault(_Redirect);
 
@@ -83817,7 +84091,7 @@
 	exports.default = _Redirect2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 666 */
+/* 667 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -83836,11 +84110,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _history = __webpack_require__(667);
+	var _history = __webpack_require__(668);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -83930,7 +84204,7 @@
 	exports.default = Redirect;
 
 /***/ }),
-/* 667 */
+/* 668 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -83938,7 +84212,7 @@
 	exports.__esModule = true;
 	exports.createPath = exports.parsePath = exports.locationsAreEqual = exports.createLocation = exports.createMemoryHistory = exports.createHashHistory = exports.createBrowserHistory = undefined;
 
-	var _LocationUtils = __webpack_require__(643);
+	var _LocationUtils = __webpack_require__(644);
 
 	Object.defineProperty(exports, 'createLocation', {
 	  enumerable: true,
@@ -83953,7 +84227,7 @@
 	  }
 	});
 
-	var _PathUtils = __webpack_require__(646);
+	var _PathUtils = __webpack_require__(647);
 
 	Object.defineProperty(exports, 'parsePath', {
 	  enumerable: true,
@@ -83968,15 +84242,15 @@
 	  }
 	});
 
-	var _createBrowserHistory2 = __webpack_require__(641);
+	var _createBrowserHistory2 = __webpack_require__(642);
 
 	var _createBrowserHistory3 = _interopRequireDefault(_createBrowserHistory2);
 
-	var _createHashHistory2 = __webpack_require__(652);
+	var _createHashHistory2 = __webpack_require__(653);
 
 	var _createHashHistory3 = _interopRequireDefault(_createHashHistory2);
 
-	var _createMemoryHistory2 = __webpack_require__(656);
+	var _createMemoryHistory2 = __webpack_require__(657);
 
 	var _createMemoryHistory3 = _interopRequireDefault(_createMemoryHistory2);
 
@@ -83987,14 +84261,14 @@
 	exports.createMemoryHistory = _createMemoryHistory3.default;
 
 /***/ }),
-/* 668 */
+/* 669 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _StaticRouter = __webpack_require__(669);
+	var _StaticRouter = __webpack_require__(670);
 
 	var _StaticRouter2 = _interopRequireDefault(_StaticRouter);
 
@@ -84003,7 +84277,7 @@
 	exports.default = _StaticRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 669 */
+/* 670 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -84016,7 +84290,7 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
@@ -84028,9 +84302,9 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _PathUtils = __webpack_require__(646);
+	var _PathUtils = __webpack_require__(647);
 
-	var _Router = __webpack_require__(650);
+	var _Router = __webpack_require__(651);
 
 	var _Router2 = _interopRequireDefault(_Router);
 
@@ -84193,14 +84467,14 @@
 	exports.default = StaticRouter;
 
 /***/ }),
-/* 670 */
+/* 671 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _Switch = __webpack_require__(671);
+	var _Switch = __webpack_require__(672);
 
 	var _Switch2 = _interopRequireDefault(_Switch);
 
@@ -84209,7 +84483,7 @@
 	exports.default = _Switch2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 671 */
+/* 672 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -84228,11 +84502,11 @@
 
 	var _warning2 = _interopRequireDefault(_warning);
 
-	var _invariant = __webpack_require__(642);
+	var _invariant = __webpack_require__(643);
 
 	var _invariant2 = _interopRequireDefault(_invariant);
 
-	var _matchPath = __webpack_require__(660);
+	var _matchPath = __webpack_require__(661);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -84310,14 +84584,14 @@
 	exports.default = Switch;
 
 /***/ }),
-/* 672 */
+/* 673 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _matchPath = __webpack_require__(660);
+	var _matchPath = __webpack_require__(661);
 
 	var _matchPath2 = _interopRequireDefault(_matchPath);
 
@@ -84326,14 +84600,14 @@
 	exports.default = _matchPath2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 673 */
+/* 674 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _withRouter = __webpack_require__(674);
+	var _withRouter = __webpack_require__(675);
 
 	var _withRouter2 = _interopRequireDefault(_withRouter);
 
@@ -84342,7 +84616,7 @@
 	exports.default = _withRouter2.default; // Written in this round about way for babel-transform-imports
 
 /***/ }),
-/* 674 */
+/* 675 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -84359,11 +84633,11 @@
 
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 
-	var _hoistNonReactStatics = __webpack_require__(675);
+	var _hoistNonReactStatics = __webpack_require__(676);
 
 	var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 
-	var _Route = __webpack_require__(659);
+	var _Route = __webpack_require__(660);
 
 	var _Route2 = _interopRequireDefault(_Route);
 
@@ -84396,7 +84670,7 @@
 	exports.default = withRouter;
 
 /***/ }),
-/* 675 */
+/* 676 */
 /***/ (function(module, exports) {
 
 	/**
@@ -84467,201 +84741,10 @@
 
 
 /***/ }),
-/* 676 */
+/* 677 */
 /***/ (function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 677 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/home/ubuntu/workspace/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/home/ubuntu/workspace/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	/*Componente para ver documento  seleccionado tipo documento*/
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _materialUiStylesMuiThemeProvider = __webpack_require__(155);
-
-	var _materialUiStylesMuiThemeProvider2 = _interopRequireDefault(_materialUiStylesMuiThemeProvider);
-
-	var _firebase = __webpack_require__(3);
-
-	var firebase = _interopRequireWildcard(_firebase);
-
-	var _materialUiDivider = __webpack_require__(627);
-
-	var _materialUiDivider2 = _interopRequireDefault(_materialUiDivider);
-
-	var _materialUiPaper = __webpack_require__(503);
-
-	var _materialUiPaper2 = _interopRequireDefault(_materialUiPaper);
-
-	var _materialUiTextField = __webpack_require__(336);
-
-	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
-
-	var React = __webpack_require__(241);
-
-	var paper = {
-	  width: "100%"
-	};
-
-	var iconbutton = {
-	  padding: 0
-	};
-
-	var styles = {
-	  mediumIcon: {
-	    width: 36,
-	    height: 36
-	  }
-	};
-
-	var VerDocumento = (function (_React$Component) {
-	  _inherits(VerDocumento, _React$Component);
-
-	  function VerDocumento(props) {
-	    _classCallCheck(this, VerDocumento);
-
-	    _get(Object.getPrototypeOf(VerDocumento.prototype), 'constructor', this).call(this, props);
-	    this.state = {
-	      listanodos: [],
-	      listacomponentes: [],
-	      listaextras: []
-	    };
-	  }
-
-	  _createClass(VerDocumento, [{
-	    key: 'componentWillMount',
-	    value: function componentWillMount() {
-	      var _this = this;
-
-	      var padre = this;
-	      var messageRef = firebase.database().ref().child('documentos/' + this.props.iddocumento + '/componente');
-	      messageRef.on('value', function (snapshot) {
-	        var messages = snapshot.val();
-
-	        var _loop = function (message) {
-
-	          padre.state.listacomponentes.push({
-	            id: message,
-	            dato: messages[message].dato,
-	            dato1: messages[message].dato1
-	          });
-	          var pad = padre;
-	          var ref = firebase.database().ref().child('documentos/' + _this.props.iddocumento + '/componente/' + message + '/nodo/');
-	          ref.on('value', function (snapshot) {
-	            var nodos = snapshot.val();
-	            for (var cadanodo in nodos) {
-
-	              pad.state.listanodos.push({
-	                componente: message,
-	                id: cadanodo,
-	                dato: nodos[cadanodo].dato
-	              });
-	            }
-	          });
-
-	          var ref2 = firebase.database().ref().child('documentos/' + _this.props.iddocumento + '/componente/' + message + '/extras/');
-	          ref2.on('value', function (snapshot) {
-	            var extras = snapshot.val();
-	            for (var cadaextra in extras) {
-
-	              pad.state.listaextras.push({
-	                componente: message,
-	                id: cadaextra,
-	                dato: extras[cadaextra].dato
-	              });
-	            }
-	          });
-	        };
-
-	        for (var message in messages) {
-	          _loop(message);
-	        }
-	      });
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var _this2 = this;
-
-	      return React.createElement(
-	        'div',
-	        null,
-	        React.createElement(
-	          _materialUiStylesMuiThemeProvider2['default'],
-	          null,
-	          React.createElement(
-	            'div',
-	            null,
-	            this.state.listacomponentes.map(function (item) {
-	              return React.createElement(
-	                'div',
-	                { className: 'papereditar', key: item.id },
-	                React.createElement(
-	                  _materialUiPaper2['default'],
-	                  { zDepth: 2, style: paper },
-	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato, inputStyle: { textAlign: 'center' }, id: 'titulo' + item.id }),
-	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato1, id: item.id }),
-	                  _this2.state.listanodos.map(function (nodos) {
-
-	                    {
-	                      if (item.id == nodos.componente) {
-	                        return React.createElement(
-	                          'div',
-	                          { key: nodos.id },
-	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: nodos.dato, id: nodos.id })
-	                        );
-	                      }
-	                    }
-	                  }),
-	                  _this2.state.listaextras.map(function (extras) {
-
-	                    {
-	                      if (item.id == extras.componente) {
-	                        return React.createElement(
-	                          'div',
-	                          { key: extras.id },
-	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: extras.dato, id: extras.id })
-	                        );
-	                      }
-	                    }
-	                  }),
-	                  React.createElement(_materialUiDivider2['default'], null)
-	                )
-	              );
-	            })
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return VerDocumento;
-	})(React.Component);
-
-	exports['default'] = VerDocumento;
-	module.exports = exports['default'];
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("/home/ubuntu/workspace/node_modules/react-hot-loader/makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "verdocumento.jsx" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ })
 /******/ ]);
