@@ -80701,8 +80701,8 @@
 	                React.createElement(
 	                  _materialUiPaper2['default'],
 	                  { zDepth: 2, style: paper },
-	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato, inputStyle: { textAlign: 'center' }, id: 'titulo' + item.id }),
-	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: item.dato1, id: item.id }),
+	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, inputStyle: { textAlign: 'center', fontSize: '25px', fontWeight: 'bold' }, underlineStyle: { display: 'none' }, value: item.dato, id: 'titulo' + item.id }),
+	                  React.createElement(_materialUiTextField2['default'], { fullWidth: true, multiLine: true, underlineStyle: { display: 'none' }, value: item.dato1, id: item.id }),
 	                  _this2.state.listanodos.map(function (nodos) {
 
 	                    {
@@ -80710,7 +80710,7 @@
 	                        return React.createElement(
 	                          'div',
 	                          { key: nodos.id },
-	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: nodos.dato, id: nodos.id })
+	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, multiLine: true, underlineStyle: { display: 'none' }, value: nodos.dato, id: nodos.id })
 	                        );
 	                      }
 	                    }
@@ -80722,11 +80722,12 @@
 	                        return React.createElement(
 	                          'div',
 	                          { key: extras.id },
-	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, value: extras.dato, id: extras.id })
+	                          React.createElement(_materialUiTextField2['default'], { fullWidth: true, multiLine: true, underlineStyle: { display: 'none' }, value: extras.dato, id: extras.id })
 	                        );
 	                      }
 	                    }
 	                  }),
+	                  React.createElement(_materialUiDivider2['default'], null),
 	                  React.createElement(_materialUiDivider2['default'], null)
 	                )
 	              );

@@ -99,15 +99,15 @@ class VerDocumento extends React.Component {
     	         
     	         <div className="papereditar" key={item.id}>
                 <Paper zDepth={2} style={paper}   >
-                <TextField  fullWidth={true}     value={item.dato} inputStyle={{ textAlign: 'center' }}  id={'titulo'+item.id}/>
-                <TextField    fullWidth={true}    value={item.dato1} id={item.id} />
+                <TextField  fullWidth={true}   inputStyle={{ textAlign: 'center' , fontSize: '25px', fontWeight: 'bold'}} underlineStyle={{display: 'none'}}  value={item.dato} id={'titulo'+item.id}/>
+                <TextField    fullWidth={true}  multiLine={true}   underlineStyle={{display: 'none'}}  value={item.dato1} id={item.id} />
                 
                    {this.state.listanodos.map(nodos=>{
                    
                    { if (item.id == nodos.componente ){
     	         return(
                 <div key={nodos.id} >
-                <TextField  fullWidth={true}  value={nodos.dato} id={nodos.id} />
+                <TextField  fullWidth={true}  multiLine={true}  underlineStyle={{display: 'none'}}  value={nodos.dato} id={nodos.id} />
                 </div>
              	         );
                    }}
@@ -119,7 +119,7 @@ class VerDocumento extends React.Component {
                    { if (item.id == extras.componente ){
     	         return(
                 <div key={extras.id} >
-                <TextField  fullWidth={true}  value={extras.dato} id={extras.id} />
+                <TextField  fullWidth={true} multiLine={true}  underlineStyle={{display: 'none'}}  value={extras.dato} id={extras.id} />
                 </div>
              	         );
                    }}
@@ -129,6 +129,7 @@ class VerDocumento extends React.Component {
     	      
                 
                 
+                <Divider />
                 <Divider />
                 </Paper>
                 </div >
