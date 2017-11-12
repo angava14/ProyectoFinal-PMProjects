@@ -39,7 +39,7 @@ export function saveUser (user) {
        uid: user.uid,
       correo: user.email,
       nombre: user.name,
-      organizacion: user.org ,
+      organizacion: user.orgname ,
       admin: user.admin,
       password: user.password,
       orgid: user.org

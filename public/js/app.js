@@ -383,7 +383,7 @@
 	    uid: user.uid,
 	    correo: user.email,
 	    nombre: user.name,
-	    organizacion: user.org,
+	    organizacion: user.orgname,
 	    admin: user.admin,
 	    password: user.password,
 	    orgid: user.org
@@ -65467,7 +65467,7 @@
 	                  )
 	                );
 	              }),
-	              React.createElement(_materialUiBadge2['default'], {
+	              this.props.admin == 'true' ? React.createElement(_materialUiBadge2['default'], {
 
 	                badgeContent: React.createElement(
 	                  _materialUiIconButton2['default'],
@@ -65476,7 +65476,7 @@
 	                    }, iconStyle: styles.mediumIcon, tooltip: 'Crear Organización' },
 	                  React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
 	                )
-	              }),
+	              }) : null,
 	              React.createElement(
 	                _materialUiDialog2['default'],
 	                {
@@ -68123,6 +68123,7 @@
 
 	        };
 	        this.handleChange = this.handleChange.bind(this);
+
 	        this.handleSubmit = this.handleSubmit.bind(this);
 	        this.handleRequestClose = this.handleRequestClose.bind(this);
 	    }
@@ -68195,6 +68196,14 @@
 	            var admin = this.state.acctype;
 	            var organizacion = this.state.orgselected;
 
+	            for (var i = 0; i < this.state.orglist.length; i++) {
+
+	                if (organizacion == this.state.orglist[i].id) {
+
+	                    window.nombreorganizacion = this.state.orglist[i].nombre;
+	                }
+	            }
+
 	            (0, _configJsx.auth)(emailtemp, passwordtemp).then(function (userRecord) {
 	                var objeto = {
 	                    uid: userRecord.uid,
@@ -68203,6 +68212,7 @@
 	                    password: passwordtemp,
 	                    admin: admin,
 	                    org: organizacion,
+	                    orgname: window.nombreorganizacion,
 	                    link: 'https://firebasestorage.googleapis.com/v0/b/proyectofinal-a3139.appspot.com/o/fotodefault%2Fphoto.jpg?alt=media&token=1a60d501-a316-403f-80e5-28f9c9cd9358'
 	                };
 	                (0, _configJsx.saveUser)(objeto);

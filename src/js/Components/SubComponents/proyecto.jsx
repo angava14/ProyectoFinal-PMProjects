@@ -146,7 +146,8 @@ this.montarproyecto(nextProps.data , nextProps.dataport);
     	           )
     	        })
     	      }
-    	      
+    	
+ 	      
     <Badge
       badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Proyecto"><Addicon /></IconButton>}
     >

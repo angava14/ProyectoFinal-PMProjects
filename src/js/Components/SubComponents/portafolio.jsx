@@ -158,12 +158,13 @@ this.montarportafolios(nextProps.data);
     	           )
     	        })
     	      }
-    	      
+    	
+   	      
     <Badge
       badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Portafolio"><Addicon /></IconButton>}
     >
    </Badge>
-  
+ 
              <Dialog
           title="Crear Portafolio"
           

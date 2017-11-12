@@ -169,12 +169,14 @@ class Organizacion extends React.Component {
     	        })
     	      } 
 
+
+{ this.props.admin == 'true' ?
    <Badge
       
       badgeContent={<IconButton style={iconbutton} onClick={ () => this.handleOpen()} iconStyle={styles.mediumIcon}  tooltip="Crear Organización"><Addicon /></IconButton>}
     >
    </Badge>
-   
+: null }
            <Dialog
           title="Crear Organización"
           

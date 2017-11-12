@@ -42,9 +42,11 @@ class Registro extends React.Component {
             snackuso: false ,
             snackinvalido: false ,
             snackdebil: false ,
+            
           
         }
             this.handleChange = this.handleChange.bind(this);
+            
             this.handleSubmit = this.handleSubmit.bind(this);
             this.handleRequestClose = this.handleRequestClose.bind(this);
           
@@ -110,12 +112,13 @@ padre.setState({ auth: false});
 	
 	
 	handleChange(e){
-        
+       
         this.setState({
-            [e.target.name]: e.target.value
-            
+            [e.target.name]: e.target.value 
         });
     }
+    
+
 	
 	handleSubmit(e) {
         e.preventDefault();
@@ -128,6 +131,14 @@ padre.setState({ auth: false});
 		const admin = this.state.acctype ;
 		const organizacion = this.state.orgselected;
 		
+		for(let i = 0 ; i< this.state.orglist.length ; i++){
+		 
+		   if ( organizacion == this.state.orglist[i].id){
+		      
+		       window.nombreorganizacion = this.state.orglist[i].nombre;
+		   } 
+		}
+
 		auth(emailtemp, passwordtemp)
 		.then((userRecord) => {
               var	objeto = {
@@ -137,6 +148,7 @@ padre.setState({ auth: false});
 					password: passwordtemp,
 					admin: admin ,
 					org: organizacion,
+					orgname: window.nombreorganizacion ,
 					link: 'https://firebasestorage.googleapis.com/v0/b/proyectofinal-a3139.appspot.com/o/fotodefault%2Fphoto.jpg?alt=media&token=1a60d501-a316-403f-80e5-28f9c9cd9358'
 				}
 				saveUser(objeto);
@@ -152,11 +164,6 @@ padre.setState({ auth: false});
          logout();
          location.reload();
         
-        
-      
-      
-      
-      
       
     })
     .catch(function(error) {
@@ -188,7 +195,6 @@ padre.setState({ auth: false});
        
         });  
 
- 
 
 	}
 	
@@ -235,10 +241,10 @@ padre.setState({ auth: false});
   <option value={true}>Administrador</option>
 </select>
 
-<select  className="selectfield"  value={this.state.orgselected} onChange={this.handleChange} name="orgselected" >
+<select  className="selectfield"  value={this.state.orgselected} onChange={this.handleChange} name="orgselected"  >
 <option   value="" >Organizacion</option>
                  	 {this.state.orglist.map(item=>{
-    	         return <option key={item.id}  value={item.id}>{item.nombre}</option> 
+    	         return <option key={item.id}  value={item.id} >{item.nombre}</option> 
     	        })
     	      }
  </select>
