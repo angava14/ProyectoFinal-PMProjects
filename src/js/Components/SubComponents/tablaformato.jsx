@@ -39,10 +39,9 @@ class Tabla extends React.Component {
         	    constructor(props) {
         super(props);
         this.state = {
-        	numfil: 0 ,
-        	numcol: 2 , 
         	filas: [],
         	columnas: [],
+        	
         }
             this.agregarcolumna = this.agregarcolumna.bind(this);
              this.agregarfila = this.agregarfila.bind(this);
@@ -52,7 +51,33 @@ class Tabla extends React.Component {
 
 componentWillMount(){
         
-    
+        const padre = this ;
+          this.setState({columnas: [] , filas: []});  
+        const messageRef = firebase.database().ref().child('formatos/tablas/'+this.props.nombreformato);
+        messageRef.on('value',(snapshot) =>{
+            let messages = snapshot.val();
+            const row= messages.filas;
+            const column = messages.columnas ;
+            const columnastemporal= []
+            const filastemporal = []
+            for( let i=0 ; i < column ; i++){
+                        columnastemporal.push({
+	 	                id: columnastemporal.length
+	                    });
+            } 
+            
+            for( let j=0 ; j < row ; j++){
+                        filastemporal.push({
+	 	                id: filastemporal.length
+	                    });
+	                    
+            } 
+            
+        padre.setState({  
+            columnas : columnastemporal ,
+            filas:  filastemporal ,
+        });
+                                        });
 }
 
 agregarcolumna(){
@@ -61,26 +86,21 @@ agregarcolumna(){
 	 	id: this.state.columnas.length
 	 });
 	
-	this.setState({
-            numcol: this.state.numcol + 1 ,
-        }, () => {
-            formatotabla( this.state.numcol , this.state.numfil	, this.props.nombreformato);
-        });
+
+     formatotabla( this.state.columnas.length , this.state.filas.length	, this.props.nombreformato);
+         this.forceUpdate() 
 }
 
 agregarfila(){
- 
+
+   
 		 this.state.filas.push({
 	 	id: this.state.filas.length
-	 });
+	     });
 	
-	this.setState({
-            numfil: this.state.numfil + 1 ,
-        }, () => {
-            formatotabla( this.state.numcol , this.state.numfil	, this.props.nombreformato);
-        });
-	
-   
+            formatotabla( this.state.columnas.length , this.state.filas.length , this.props.nombreformato);
+            this.forceUpdate()
+        
 }
 
 	render() {
@@ -96,8 +116,7 @@ agregarfila(){
 <TableHeader  adjustForCheckbox={false}  displaySelectAll={false}    >
 
 <TableRow    >
-        <TableHeaderColumn>Columna</TableHeaderColumn>
-        <TableHeaderColumn>Columna</TableHeaderColumn>
+        
                          	 {this.state.columnas.map(item=>{
     	         return(
     	       

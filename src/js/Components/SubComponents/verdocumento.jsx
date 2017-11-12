@@ -37,15 +37,13 @@ class VerDocumento extends React.Component {
 
     componentWillMount(){
 
-               const padre = this ;
+              const padre = this ;
               const messageRef = firebase.database().ref().child('documentos/'+ this.props.iddocumento +'/componente');
               messageRef.on('value',(snapshot) =>{
               let messages = snapshot.val();
                
                      
                 for (let message in messages){
-                    
-                 
                     
                padre.state.listacomponentes.push({
                   id: message ,
@@ -125,10 +123,7 @@ class VerDocumento extends React.Component {
                    }}
     	        })
     	      }
-    	      
-    	      
-                
-                
+
                 <Divider />
                 <Divider />
                 </Paper>

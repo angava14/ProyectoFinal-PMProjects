@@ -8,6 +8,7 @@ import Info from 'material-ui/svg-icons/communication/contact-mail';
 import Changepass from 'material-ui/svg-icons/content/create';
 import {uploadImage} from './../config.jsx';
 import {getToken} from './../config.jsx';
+import {updatepass} from './../config.jsx';
 import {logout} from './../config.jsx';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton' ;
@@ -175,7 +176,7 @@ shouldComponentUpdate(nextProps, nextState){
       const confpass = this.state.confirmpassword ;
       const token  = getToken();
       const padre = this ;
-      
+      const id = getToken().uid;
       var credential = firebase.auth.EmailAuthProvider.credential(
         token.email,
       oldpass
@@ -190,7 +191,7 @@ token.reauthenticateWithCredential(credential).then(function() {
                  
                  token.updatePassword(newpass).then(function() {
                   
-                   
+                   updatepass(id, newpass);
                    padre.setState({ snack: true}) ;
                    logout();
                    localStorage.clear();

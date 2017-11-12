@@ -146,15 +146,14 @@ export function  uploadImage(file,fileName , iduser){
     }
 
                                         
-export function updatepass (id,pass) {             /* NO ES UTILIZADA */
+export function updatepass (id,pass) {          
   
 firebase.database().ref("usuarios/"+id).update({ password: pass });
 }
 
 export function formatotabla (columna,fila,nombre) {           
-  
-  let data = new Array;
-  for ( let i = 0 ; i <= fila ; i++ ){
+   let data = new Array;
+  for ( let i = 0 ; i < fila ; i++ ){
     data[i] = new Array;
       for ( let j = 0 ; j < columna ; j++ ){
     data[i][j] = "" ;
@@ -206,6 +205,8 @@ export function saveTabla (object) {
         const messagesRef =firebase.database().ref().child('formatos/tablas/'+object);
         const newformat = {
         nombre: object,
+        filas: 0,
+        columnas: 2
         }
         
         messagesRef.set(newformat);
@@ -271,10 +272,7 @@ export function guardardatoscomponente (documento,componente, titulo , texto){
 
 
 export function guardardatosnodos (documento,componente , nodo , texto){
-  console.log(documento) ;
-    console.log(componente) ;  
-    console.log(nodo);
-    console.log(texto);
+
       const messagesRef =firebase.database().ref().child("documentos/"+ documento+ '/componente/'+componente+'/nodo/'+nodo);
       const objeto = {
         dato: texto

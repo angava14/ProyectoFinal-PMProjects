@@ -476,15 +476,13 @@
 	}
 
 	function updatepass(id, pass) {
-	  /* NO ES UTILIZADA */
 
 	  firebase.database().ref("usuarios/" + id).update({ password: pass });
 	}
 
 	function formatotabla(columna, fila, nombre) {
-
 	  var data = new Array();
-	  for (var i = 0; i <= fila; i++) {
+	  for (var i = 0; i < fila; i++) {
 	    data[i] = new Array();
 	    for (var j = 0; j < columna; j++) {
 	      data[i][j] = "";
@@ -525,7 +523,9 @@
 	function saveTabla(object) {
 	  var messagesRef = firebase.database().ref().child('formatos/tablas/' + object);
 	  var newformat = {
-	    nombre: object
+	    nombre: object,
+	    filas: 0,
+	    columnas: 2
 	  };
 
 	  messagesRef.set(newformat);
@@ -585,10 +585,7 @@
 	}
 
 	function guardardatosnodos(documento, componente, nodo, texto) {
-	  console.log(documento);
-	  console.log(componente);
-	  console.log(nodo);
-	  console.log(texto);
+
 	  var messagesRef = firebase.database().ref().child("documentos/" + documento + '/componente/' + componente + '/nodo/' + nodo);
 	  var objeto = {
 	    dato: texto
@@ -73477,7 +73474,7 @@
 	      var confpass = this.state.confirmpassword;
 	      var token = (0, _configJsx.getToken)();
 	      var padre = this;
-
+	      var id = (0, _configJsx.getToken)().uid;
 	      var credential = firebase.auth.EmailAuthProvider.credential(token.email, oldpass);
 
 	      token.reauthenticateWithCredential(credential).then(function () {
@@ -73486,6 +73483,7 @@
 
 	          token.updatePassword(newpass).then(function () {
 
+	            (0, _configJsx.updatepass)(id, newpass);
 	            padre.setState({ snack: true });
 	            (0, _configJsx.logout)();
 	            localStorage.clear();
@@ -79942,10 +79940,9 @@
 
 	        _get(Object.getPrototypeOf(Tabla.prototype), 'constructor', this).call(this, props);
 	        this.state = {
-	            numfil: 0,
-	            numcol: 2,
 	            filas: [],
 	            columnas: []
+
 	        };
 	        this.agregarcolumna = this.agregarcolumna.bind(this);
 	        this.agregarfila = this.agregarfila.bind(this);
@@ -79953,36 +79950,56 @@
 
 	    _createClass(Tabla, [{
 	        key: 'componentWillMount',
-	        value: function componentWillMount() {}
+	        value: function componentWillMount() {
+
+	            var padre = this;
+	            this.setState({ columnas: [], filas: [] });
+	            var messageRef = firebase.database().ref().child('formatos/tablas/' + this.props.nombreformato);
+	            messageRef.on('value', function (snapshot) {
+	                var messages = snapshot.val();
+	                var row = messages.filas;
+	                var column = messages.columnas;
+	                var columnastemporal = [];
+	                var filastemporal = [];
+	                for (var i = 0; i < column; i++) {
+	                    columnastemporal.push({
+	                        id: columnastemporal.length
+	                    });
+	                }
+
+	                for (var j = 0; j < row; j++) {
+	                    filastemporal.push({
+	                        id: filastemporal.length
+	                    });
+	                }
+
+	                padre.setState({
+	                    columnas: columnastemporal,
+	                    filas: filastemporal
+	                });
+	            });
+	        }
 	    }, {
 	        key: 'agregarcolumna',
 	        value: function agregarcolumna() {
-	            var _this = this;
 
 	            this.state.columnas.push({
 	                id: this.state.columnas.length
 	            });
 
-	            this.setState({
-	                numcol: this.state.numcol + 1
-	            }, function () {
-	                (0, _configJsx.formatotabla)(_this.state.numcol, _this.state.numfil, _this.props.nombreformato);
-	            });
+	            (0, _configJsx.formatotabla)(this.state.columnas.length, this.state.filas.length, this.props.nombreformato);
+	            this.forceUpdate();
 	        }
 	    }, {
 	        key: 'agregarfila',
 	        value: function agregarfila() {
-	            var _this2 = this;
 
 	            this.state.filas.push({
 	                id: this.state.filas.length
 	            });
 
-	            this.setState({
-	                numfil: this.state.numfil + 1
-	            }, function () {
-	                (0, _configJsx.formatotabla)(_this2.state.numcol, _this2.state.numfil, _this2.props.nombreformato);
-	            });
+	            (0, _configJsx.formatotabla)(this.state.columnas.length, this.state.filas.length, this.props.nombreformato);
+	            this.forceUpdate();
 	        }
 	    }, {
 	        key: 'render',
@@ -80014,16 +80031,6 @@
 	                                    React.createElement(
 	                                        _materialUiTable.TableRow,
 	                                        null,
-	                                        React.createElement(
-	                                            _materialUiTable.TableHeaderColumn,
-	                                            null,
-	                                            'Columna'
-	                                        ),
-	                                        React.createElement(
-	                                            _materialUiTable.TableHeaderColumn,
-	                                            null,
-	                                            'Columna'
-	                                        ),
 	                                        this.state.columnas.map(function (item) {
 	                                            return React.createElement(
 	                                                _materialUiTable.TableHeaderColumn,
