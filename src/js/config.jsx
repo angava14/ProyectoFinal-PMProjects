@@ -159,11 +159,23 @@ export function formatotabla (columna,fila,nombre) {
     data[i][j] = "" ;
   }
   }
-  
+
+ 
 firebase.database().ref("formatos/tablas/"+nombre).update({ columnas: columna , filas: fila, datos: data });
 
 }
 
+export function agregarfilatabla (columna,fila,iddocumento , objeto) { 
+  
+
+  for ( let i = 1 ; i <= fila ; i++ ){
+    objeto[i] = new Array;
+      for ( let j = 0 ; j < columna ; j++ ){
+    objeto[i][j] = "" ;
+  }
+  }
+   firebase.database().ref("documentos/"+iddocumento).update({ columnas: columna , filas: fila, datos: objeto }); 
+}
 
 
 
@@ -287,4 +299,19 @@ export function guardardatosextras (documento,componente , extra , texto){
         dato: texto
       }
       messagesRef.update(objeto);
+}
+
+export function guardardatosiniciales (componente , texto , titulo , nombreformato) {
+        const messagesRef =firebase.database().ref().child('formatos/documentos/'+nombreformato+"/componente/"+componente);
+        const objeto = {
+          dato: titulo ,
+          dato1:texto
+        }
+        messagesRef.update(objeto);
+}
+
+export function guardardatosinicialtabla (objeto , formatonombre) {
+  console.log(objeto);
+        const messagesRef =firebase.database().ref().child('formatos/tablas/'+formatonombre+"/datos/0/");
+        messagesRef.update(objeto);
 }

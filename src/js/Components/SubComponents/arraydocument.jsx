@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
 import {CompAdd} from './../../config.jsx';
 import {agregarnodo} from './../../config.jsx';
+import {guardardatosiniciales} from './../../config.jsx';
 import * as  firebase from 'firebase'
 import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
@@ -45,6 +46,7 @@ class ArrayDocument extends React.Component {
             this.handleChange = this.handleChange.bind(this);
              this.borrarcomp = this.borrarcomp.bind(this); 
              this.crearnodo = this.crearnodo.bind(this);
+              this.cambiarinfo = this.cambiarinfo.bind(this);
     }
 
 
@@ -59,6 +61,8 @@ componentWillMount(){
 
       newState.push({
                      id: message,
+                     dato: messages[message].dato ,
+                     dato1: messages[message].dato1
             });  
 
                  
@@ -86,6 +90,17 @@ agregarcomponente(){
 CompAdd(this.props.nombreformato);
 }
 
+guardardatos(){
+    
+    for ( let i=0 ; i < this.state.componente.length ; i++){
+        const titulo = document.getElementById('titulo'+this.state.componente[i].id).value;
+        const texto = document.getElementById('texto'+this.state.componente[i].id).value;
+        guardardatosiniciales( this.state.componente[i].id , texto , titulo , this.props.nombreformato);
+        
+    }
+    
+}
+
 	handleChange(e){
         
         this.setState({
@@ -93,6 +108,27 @@ CompAdd(this.props.nombreformato);
             
         });
     }
+    
+    
+    cambiarinfo(event , index){
+   const  padre = this ;
+
+       for( let i = 0 ; i < this.state.componente.length ; i++){
+           const titulo = "titulo"+this.state.componente[i].id ;
+           const texto = "texto"+this.state.componente[i].id ;
+           
+           if( titulo == event.target.id ){
+                   this.state.componente[i].dato = index ;
+                   padre.setState({componente : this.state.componente})
+          }
+           
+           if( texto == event.target.id ){
+               this.state.componente[i].dato1 = index ;
+               padre.setState({componente : this.state.componente})
+           }
+           
+       }
+}
     
 	render() {
 	    
@@ -119,8 +155,8 @@ return(
 
   <Paper zDepth={2} style={paper}  >
   <IconButton style={iconbutton} onClick={ () => this.borrarcomp(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Seccion"><Delicon /></IconButton>
-    <TextField hintText="Titulo" fullWidth={true} multiLine={true} disabled={true}/>
-    <TextField   hintText="Texto" fullWidth={true} multiLine={true}  disabled={true} />
+    <TextField   hintText="Titulo" fullWidth={true} multiLine={true} id={'titulo'+item.id} value={item.dato} onChange={this.cambiarinfo} />
+    <TextField   hintText="Texto" fullWidth={true} multiLine={true} rowsMax={5} id={'texto'+item.id} value={item.dato1} onChange={this.cambiarinfo}  />
     <Nodos idcomponente={item.id} nombreformato={this.props.nombreformato} />
     <IconButton style={iconbutton} onClick={ () => this.crearnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Crear Campo"><Addicon /></IconButton>
     <Divider />

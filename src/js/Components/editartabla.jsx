@@ -4,9 +4,12 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 const Navlog = require('./SubComponents/navlog.jsx');
 import * as  firebase from 'firebase';
 import TextField from 'material-ui/TextField';
+import IconButton from 'material-ui/IconButton';
+import Addicon from 'material-ui/svg-icons/content/add';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import {guardarmatrizdatos} from './../config.jsx';
+import {agregarfilatabla} from './../config.jsx';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import {
   Table,
@@ -19,7 +22,7 @@ import {
 /*global  localStorage */
 
 const texttablas ={
-    width: '100%', 
+    width: '80px', 
 }
 
 const botonguardar={
@@ -31,6 +34,16 @@ const overflow={
     overflow: 'scroll',
 }
 
+const iconbutton ={
+    padding: 0 
+}
+
+ var styles={
+  smallIcon: {
+    width: 36,
+    height: 36,
+  }
+}
 
 class EditarTab extends React.Component {
         	    constructor() {
@@ -53,9 +66,11 @@ class EditarTab extends React.Component {
         this.guardartabla = this.guardartabla.bind(this);
         this.cambiarvalortitulo = this.cambiarvalortitulo.bind(this);
         this.cambiarvalorfilas = this.cambiarvalorfilas.bind(this);
+        this.agregarfila = this.agregarfila.bind(this);
     }
 
 componentWillMount(){
+    this.setState({datos: []})
            var padre = this;
            firebase.auth().onAuthStateChanged(function(user) {
    
@@ -88,7 +103,7 @@ componentWillMount(){
                let nuevamatriz = data.slice(1) ;
                const filatemporal= [] ;
                const columnatemporal = [] ;
-               
+
                     for ( let i = 0 ; i < filas ; i++){
                     filatemporal.push({
                        id: i , 
@@ -118,25 +133,26 @@ componentWillMount(){
 
 
 guardartabla(){
-    
+
     const matriz = new Array();
-    
-            for ( let j = 0 ; j < this.state.numcolumnas ; j++ ) {
-                matriz[j]= new Array();
+    matriz[0]= new Array();
+
+            for ( let j = 0 ; j < this.state.col.length ; j++ ) {
+                
               var texto =  document.getElementById("titulo"+j).value;
               matriz[0][j] = texto ;
               
              }    
-    
-    for ( let i = 0 ; i < this.state.numfilas ; i++ ) {
-        
-            for ( let j = 0 ; j < this.state.numcolumnas ; j++ ) {
-                
+
+    for ( let i = 0 ; i < this.state.datos.length ; i++ ) {
+             matriz[i+1]= new Array();
+            for ( let j = 0 ; j < this.state.col.length ; j++ ) {
               var texto =  document.getElementById(i+','+j).value;
               matriz[i+1][j] = texto ;
+              
              }
     }
-  
+ console.log(matriz);
  guardarmatrizdatos(matriz , this.state.iddocumento);
  location.reload();
 }
@@ -144,7 +160,7 @@ guardartabla(){
 
     cambiarvalortitulo(event, index){ 
        
-       console.log(event.target.id);
+       
       
       
       for( let  i = 0 ; i< this.state.col.length ; i++){
@@ -161,7 +177,7 @@ guardartabla(){
 
     cambiarvalorfilas(event, index){ 
        
-       console.log(event.target.id)
+       
        
       for( let  i = 0 ; i < this.state.numfilas ; i++){
      
@@ -178,12 +194,20 @@ guardartabla(){
           
       }
       
-      
-      
-        
     }
 
+agregarfila(){
 
+     const datostitulo = new Array()
+     datostitulo[0] = new Array()
+     for( let i = 0 ; i< this.state.col.length ; i++){
+         datostitulo[0][i] = document.getElementById('titulo'+i).value ;
+     }
+     
+    agregarfilatabla( this.state.col.length , this.state.numfilas+1 , this.state.iddocumento, datostitulo);
+    this.forceUpdate()  
+    
+}
 
 	render() {
 	    
@@ -203,20 +227,15 @@ guardartabla(){
     <h4>Formato: {this.state.nombreformato} - Tabla</h4>
   </div>
 
-<div className="tabla">
-<Table style={overflow} >
-<TableHeader  adjustForCheckbox={false}  displaySelectAll={false}    >
-            <TableRow>
-              <TableHeaderColumn colSpan="3" tooltip={"Titulo "+ this.state.titulodocumento} style={{textAlign: 'center'}}>
-                {this.state.titulodocumento}
-              </TableHeaderColumn>
-            </TableRow>
+<div >
+<Table style={overflow}  >
+<TableHeader  adjustForCheckbox={false}  displaySelectAll={false}     >
             
-<TableRow>
+<TableRow displayBorder={true}  >
     	    {this.state.col.map((item , index , objeto ) =>{
     	    
     	         return(
-                   <TableHeaderColumn key={ item.id}> {item}  </TableHeaderColumn>
+                   <TableHeaderColumn   colSpan="3" key={ item.id} style={{textAlign: 'center'}} > {item}  </TableHeaderColumn>
     	         );
     	        })
     	      }
@@ -229,7 +248,7 @@ guardartabla(){
              
     	         return(
     	       
-    	       <TableRow key={item.id}> 
+    	       <TableRow key={item.id} > 
     	     {item.map((col , j , objeto )=>{
 
     	         return(
@@ -251,6 +270,7 @@ guardartabla(){
 
     </Tab>
 
+
     <Tab label="Editar Documento"  >
 
 <RaisedButton label="Guardar" secondary={true} style={botonguardar} onClick={ this.guardartabla}  />
@@ -259,16 +279,16 @@ guardartabla(){
     <h4>Formato: {this.state.nombreformato} - Tabla</h4>
   </div>
 
-<div className="tabla">
+<div >
 <Table style={overflow} >
 <TableHeader  adjustForCheckbox={false}  displaySelectAll={false}    >
 <TableRow>
        
-    	    {this.state.columna.map((item,index,objeto)=>{
-       
+    	    {this.state.col.map((item,index,objeto)=>{
+         
     	         return(
     	        
-                   <TableHeaderColumn key={ item.id}> <TextField underlineShow={false} hintText="Titulo"  id={"titulo"+item.id} value={this.state.col[index]} onChange={this.cambiarvalortitulo} /> </TableHeaderColumn>
+                   <TableHeaderColumn key={ item.id}> <TextField underlineShow={false} hintText="Titulo"  id={"titulo"+index} value={this.state.col[index]}  style={texttablas}  inputStyle={{fontSize: '13px'}} onChange={this.cambiarvalortitulo} /> </TableHeaderColumn>
                 
     	         );
     	        })
@@ -279,15 +299,16 @@ guardartabla(){
 </TableHeader>
 <TableBody  displayRowCheckbox={false} >
 
-             {this.state.fila.map((item , index , objeto )=>{
-
+             {this.state.datos.map((item , i , objeto )=>{
+  
     	         return(
     	       
     	       <TableRow key={item.id}> 
-    	     {this.state.columna.map((col , columna , obj)=>{
+    	     {this.state.col.map((col , j , obj)=>{
+
 
     	         return(
-    	       <TableRowColumn key={col.id}> <TextField underlineShow={false} hintText="Texto" id={item.id +","+ col.id } style={texttablas} value={this.state.datos[index][columna]} onChange={this.cambiarvalorfilas}  /> </TableRowColumn>
+    	       <TableRowColumn key={col.id}> <TextField underlineShow={false} hintText="Texto" id={i +","+ j } style={texttablas} value={this.state.datos[i][j]} inputStyle={{fontSize: '13px'}} onChange={this.cambiarvalorfilas}  /> </TableRowColumn>
     	           	         );
     	        })
     	      } 
@@ -300,7 +321,7 @@ guardartabla(){
 </TableBody>
 </Table>
 </div>
-
+        <IconButton style={iconbutton} iconStyle={styles.smallIcon} onClick={this.agregarfila} ><Addicon /></IconButton> 
     </Tab>
 
 

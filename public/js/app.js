@@ -326,6 +326,7 @@
 	exports.uploadImage = uploadImage;
 	exports.updatepass = updatepass;
 	exports.formatotabla = formatotabla;
+	exports.agregarfilatabla = agregarfilatabla;
 	exports.getToken = getToken;
 	exports.saveFormato = saveFormato;
 	exports.CompAdd = CompAdd;
@@ -339,6 +340,8 @@
 	exports.guardardatoscomponente = guardardatoscomponente;
 	exports.guardardatosnodos = guardardatosnodos;
 	exports.guardardatosextras = guardardatosextras;
+	exports.guardardatosiniciales = guardardatosiniciales;
+	exports.guardardatosinicialtabla = guardardatosinicialtabla;
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj["default"] = obj; return newObj; } }
 
@@ -492,6 +495,17 @@
 	  firebase.database().ref("formatos/tablas/" + nombre).update({ columnas: columna, filas: fila, datos: data });
 	}
 
+	function agregarfilatabla(columna, fila, iddocumento, objeto) {
+
+	  for (var i = 1; i <= fila; i++) {
+	    objeto[i] = new Array();
+	    for (var j = 0; j < columna; j++) {
+	      objeto[i][j] = "";
+	    }
+	  }
+	  firebase.database().ref("documentos/" + iddocumento).update({ columnas: columna, filas: fila, datos: objeto });
+	}
+
 	function getToken() {
 	  var user = firebase.auth().currentUser;
 	  return user;
@@ -599,6 +613,21 @@
 	  var objeto = {
 	    dato: texto
 	  };
+	  messagesRef.update(objeto);
+	}
+
+	function guardardatosiniciales(componente, texto, titulo, nombreformato) {
+	  var messagesRef = firebase.database().ref().child('formatos/documentos/' + nombreformato + "/componente/" + componente);
+	  var objeto = {
+	    dato: titulo,
+	    dato1: texto
+	  };
+	  messagesRef.update(objeto);
+	}
+
+	function guardardatosinicialtabla(objeto, formatonombre) {
+	  console.log(objeto);
+	  var messagesRef = firebase.database().ref().child('formatos/tablas/' + formatonombre + "/datos/0/");
 	  messagesRef.update(objeto);
 	}
 
@@ -78725,7 +78754,19 @@
 	                                        return _this.handleOpenSalir();
 	                                    }, style: botones }),
 	                                this.state.showboton == true ? React.createElement(_materialUiRaisedButton2['default'], { label: 'Guardar', primary: true, onClick: function () {
-	                                        return location.reload();
+	                                        {
+	                                            if (_this.state.showdoc == true) {
+	                                                window.arraydocument.guardardatos();
+	                                                location.reload();
+	                                            }
+	                                        }
+
+	                                        {
+	                                            if (_this.state.showtable == true) {
+	                                                window.tablaformato.guardardatos();
+	                                                location.reload();
+	                                            }
+	                                        }
 	                                    }, style: botones }) : null
 	                            ),
 	                            React.createElement(
@@ -78801,9 +78842,13 @@
 	                            this.state.showdoc == true ? React.createElement(
 	                                'div',
 	                                null,
-	                                React.createElement(_SubComponentsArraydocumentJsx2['default'], { nombreformato: this.state.name })
+	                                React.createElement(_SubComponentsArraydocumentJsx2['default'], { nombreformato: this.state.name, ref: function (instance) {
+	                                        window.arraydocument = instance;
+	                                    } })
 	                            ) : null,
-	                            this.state.showtable == true ? React.createElement(_SubComponentsTablaformatoJsx2['default'], { nombreformato: this.state.name }) : null
+	                            this.state.showtable == true ? React.createElement(_SubComponentsTablaformatoJsx2['default'], { nombreformato: this.state.name, ref: function (instance) {
+	                                    window.tablaformato = instance;
+	                                } }) : null
 	                        )
 	                    )
 	                );
@@ -78929,6 +78974,7 @@
 	        this.handleChange = this.handleChange.bind(this);
 	        this.borrarcomp = this.borrarcomp.bind(this);
 	        this.crearnodo = this.crearnodo.bind(this);
+	        this.cambiarinfo = this.cambiarinfo.bind(this);
 	    }
 
 	    _createClass(ArrayDocument, [{
@@ -78945,7 +78991,9 @@
 	                for (var message in messages) {
 
 	                    newState.push({
-	                        id: message
+	                        id: message,
+	                        dato: messages[message].dato,
+	                        dato1: messages[message].dato1
 	                    });
 	                }
 
@@ -78972,10 +79020,40 @@
 	            (0, _configJsx.CompAdd)(this.props.nombreformato);
 	        }
 	    }, {
+	        key: 'guardardatos',
+	        value: function guardardatos() {
+
+	            for (var i = 0; i < this.state.componente.length; i++) {
+	                var titulo = document.getElementById('titulo' + this.state.componente[i].id).value;
+	                var texto = document.getElementById('texto' + this.state.componente[i].id).value;
+	                (0, _configJsx.guardardatosiniciales)(this.state.componente[i].id, texto, titulo, this.props.nombreformato);
+	            }
+	        }
+	    }, {
 	        key: 'handleChange',
 	        value: function handleChange(e) {
 
 	            this.setState(_defineProperty({}, e.target.name, e.target.value));
+	        }
+	    }, {
+	        key: 'cambiarinfo',
+	        value: function cambiarinfo(event, index) {
+	            var padre = this;
+
+	            for (var i = 0; i < this.state.componente.length; i++) {
+	                var titulo = "titulo" + this.state.componente[i].id;
+	                var texto = "texto" + this.state.componente[i].id;
+
+	                if (titulo == event.target.id) {
+	                    this.state.componente[i].dato = index;
+	                    padre.setState({ componente: this.state.componente });
+	                }
+
+	                if (texto == event.target.id) {
+	                    this.state.componente[i].dato1 = index;
+	                    padre.setState({ componente: this.state.componente });
+	                }
+	            }
 	        }
 	    }, {
 	        key: 'render',
@@ -79020,8 +79098,8 @@
 	                                        }, iconStyle: styles.mediumIcon, tooltip: 'Borrar Seccion' },
 	                                    React.createElement(_materialUiSvgIconsContentDeleteSweep2['default'], null)
 	                                ),
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, disabled: true }),
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, disabled: true }),
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, id: 'titulo' + item.id, value: item.dato, onChange: _this2.cambiarinfo }),
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, rowsMax: 5, id: 'texto' + item.id, value: item.dato1, onChange: _this2.cambiarinfo }),
 	                                React.createElement(Nodos, { idcomponente: item.id, nombreformato: _this2.props.nombreformato }),
 	                                React.createElement(
 	                                    _materialUiIconButton2['default'],
@@ -79813,7 +79891,7 @@
 	                            return React.createElement(
 	                                'div',
 	                                { key: item.id, className: 'nodos' },
-	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, disabled: true }),
+	                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: item.id }),
 	                                React.createElement(
 	                                    _materialUiIconButton2['default'],
 	                                    { style: iconbutton, onClick: function () {
@@ -79923,6 +80001,10 @@
 
 	var firebase = _interopRequireWildcard(_firebase);
 
+	var _materialUiTextField = __webpack_require__(336);
+
+	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
+
 	var _materialUiTable = __webpack_require__(612);
 
 	var React = __webpack_require__(241);
@@ -79956,6 +80038,7 @@
 	        };
 	        this.agregarcolumna = this.agregarcolumna.bind(this);
 	        this.agregarfila = this.agregarfila.bind(this);
+	        this.cambiarinfo = this.cambiarinfo.bind(this);
 	    }
 
 	    _createClass(Tabla, [{
@@ -79969,12 +80052,23 @@
 	                var messages = snapshot.val();
 	                var row = messages.filas;
 	                var column = messages.columnas;
+	                var dat = messages.datos;
 	                var columnastemporal = [];
 	                var filastemporal = [];
+
 	                for (var i = 0; i < column; i++) {
-	                    columnastemporal.push({
-	                        id: columnastemporal.length
-	                    });
+	                    if (dat !== undefined) {
+
+	                        columnastemporal.push({
+	                            id: columnastemporal.length,
+	                            dato: messages.datos[0][i]
+	                        });
+	                    } else {
+	                        columnastemporal.push({
+	                            id: columnastemporal.length
+
+	                        });
+	                    }
 	                }
 
 	                for (var j = 0; j < row; j++) {
@@ -80012,8 +80106,32 @@
 	            this.forceUpdate();
 	        }
 	    }, {
+	        key: 'guardardatos',
+	        value: function guardardatos() {
+	            var objeto = [];
+	            for (var i = 0; i < this.state.columnas.length; i++) {
+	                objeto[i] = document.getElementById('titulo' + this.state.columnas[i].id).value;
+	            }
+	            (0, _configJsx.guardardatosinicialtabla)(objeto, this.props.nombreformato);
+	        }
+	    }, {
+	        key: 'cambiarinfo',
+	        value: function cambiarinfo(event, index) {
+	            var padre = this;
+	            for (var i = 0; i < padre.state.columnas.length; i++) {
+	                var titulo = "titulo" + padre.state.columnas[i].id;
+
+	                if (titulo == event.target.id) {
+	                    padre.state.columnas[i].dato = index;
+
+	                    padre.setState({ columnas: this.state.columnas });
+	                }
+	            }
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this = this;
 
 	            return React.createElement(
 	                'div',
@@ -80031,7 +80149,7 @@
 	                        ),
 	                        React.createElement(
 	                            'div',
-	                            { className: 'tabla' },
+	                            null,
 	                            React.createElement(
 	                                _materialUiTable.Table,
 	                                { style: overflow },
@@ -80045,7 +80163,8 @@
 	                                            return React.createElement(
 	                                                _materialUiTable.TableHeaderColumn,
 	                                                { key: item.id },
-	                                                'Columna'
+	                                                ' ',
+	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', underlineShow: false, inputStyle: { fontSize: '13px', width: '100px' }, id: "titulo" + item.id, value: item.dato, onChange: _this.cambiarinfo })
 	                                            );
 	                                        }),
 	                                        React.createElement(
@@ -80382,7 +80501,7 @@
 	                                            React.createElement(
 	                                                _materialUiPaper2['default'],
 	                                                { zDepth: 2, style: paper },
-	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, inputStyle: { textAlign: 'center' }, id: 'editartitulo' + item.id, value: item.dato, onChange: _this.cambiarvalor }),
+	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Titulo', fullWidth: true, multiLine: true, inputStyle: { textAlign: 'center' }, id: 'editartitulo' + item.id, value: item.dato, onChange: _this.cambiarvalor, disabled: true }),
 	                                                React.createElement(_materialUiTextField2['default'], { hintText: 'Texto', fullWidth: true, multiLine: true, id: 'editar' + item.id, value: item.dato1, onChange: _this.cambiarvalor }),
 	                                                React.createElement(MostrarNodos, { idcomponente: item.id, docid: _this.state.iddocumento, ref: function (instance) {
 	                                                        window.nodoschild[index] = instance;
@@ -80976,6 +81095,14 @@
 
 	var _materialUiTextField2 = _interopRequireDefault(_materialUiTextField);
 
+	var _materialUiIconButton = __webpack_require__(517);
+
+	var _materialUiIconButton2 = _interopRequireDefault(_materialUiIconButton);
+
+	var _materialUiSvgIconsContentAdd = __webpack_require__(563);
+
+	var _materialUiSvgIconsContentAdd2 = _interopRequireDefault(_materialUiSvgIconsContentAdd);
+
 	var _materialUiFlatButton = __webpack_require__(549);
 
 	var _materialUiFlatButton2 = _interopRequireDefault(_materialUiFlatButton);
@@ -80996,7 +81123,7 @@
 
 	var Navlog = __webpack_require__(559);
 	var texttablas = {
-	    width: '100%'
+	    width: '80px'
 	};
 
 	var botonguardar = {
@@ -81006,6 +81133,17 @@
 
 	var overflow = {
 	    overflow: 'scroll'
+	};
+
+	var iconbutton = {
+	    padding: 0
+	};
+
+	var styles = {
+	    smallIcon: {
+	        width: 36,
+	        height: 36
+	    }
 	};
 
 	var EditarTab = (function (_React$Component) {
@@ -81033,11 +81171,13 @@
 	        this.guardartabla = this.guardartabla.bind(this);
 	        this.cambiarvalortitulo = this.cambiarvalortitulo.bind(this);
 	        this.cambiarvalorfilas = this.cambiarvalorfilas.bind(this);
+	        this.agregarfila = this.agregarfila.bind(this);
 	    }
 
 	    _createClass(EditarTab, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
+	            this.setState({ datos: [] });
 	            var padre = this;
 	            firebase.auth().onAuthStateChanged(function (user) {
 
@@ -81094,30 +81234,28 @@
 	        value: function guardartabla() {
 
 	            var matriz = new Array();
+	            matriz[0] = new Array();
 
-	            for (var j = 0; j < this.state.numcolumnas; j++) {
-	                matriz[j] = new Array();
+	            for (var j = 0; j < this.state.col.length; j++) {
+
 	                var texto = document.getElementById("titulo" + j).value;
 	                matriz[0][j] = texto;
 	            }
 
-	            for (var i = 0; i < this.state.numfilas; i++) {
-
-	                for (var j = 0; j < this.state.numcolumnas; j++) {
-
+	            for (var i = 0; i < this.state.datos.length; i++) {
+	                matriz[i + 1] = new Array();
+	                for (var j = 0; j < this.state.col.length; j++) {
 	                    var texto = document.getElementById(i + ',' + j).value;
 	                    matriz[i + 1][j] = texto;
 	                }
 	            }
-
+	            console.log(matriz);
 	            (0, _configJsx.guardarmatrizdatos)(matriz, this.state.iddocumento);
 	            location.reload();
 	        }
 	    }, {
 	        key: 'cambiarvalortitulo',
 	        value: function cambiarvalortitulo(event, index) {
-
-	            console.log(event.target.id);
 
 	            for (var i = 0; i < this.state.col.length; i++) {
 
@@ -81131,8 +81269,6 @@
 	        key: 'cambiarvalorfilas',
 	        value: function cambiarvalorfilas(event, index) {
 
-	            console.log(event.target.id);
-
 	            for (var i = 0; i < this.state.numfilas; i++) {
 
 	                for (var j = 0; j < this.state.numcolumnas; j++) {
@@ -81145,6 +81281,19 @@
 	                    }
 	                }
 	            }
+	        }
+	    }, {
+	        key: 'agregarfila',
+	        value: function agregarfila() {
+
+	            var datostitulo = new Array();
+	            datostitulo[0] = new Array();
+	            for (var i = 0; i < this.state.col.length; i++) {
+	                datostitulo[0][i] = document.getElementById('titulo' + i).value;
+	            }
+
+	            (0, _configJsx.agregarfilatabla)(this.state.col.length, this.state.numfilas + 1, this.state.iddocumento, datostitulo);
+	            this.forceUpdate();
 	        }
 	    }, {
 	        key: 'render',
@@ -81186,7 +81335,7 @@
 	                                ),
 	                                React.createElement(
 	                                    'div',
-	                                    { className: 'tabla' },
+	                                    null,
 	                                    React.createElement(
 	                                        _materialUiTable.Table,
 	                                        { style: overflow },
@@ -81195,21 +81344,12 @@
 	                                            { adjustForCheckbox: false, displaySelectAll: false },
 	                                            React.createElement(
 	                                                _materialUiTable.TableRow,
-	                                                null,
-	                                                React.createElement(
-	                                                    _materialUiTable.TableHeaderColumn,
-	                                                    { colSpan: '3', tooltip: "Titulo " + this.state.titulodocumento, style: { textAlign: 'center' } },
-	                                                    this.state.titulodocumento
-	                                                )
-	                                            ),
-	                                            React.createElement(
-	                                                _materialUiTable.TableRow,
-	                                                null,
+	                                                { displayBorder: true },
 	                                                this.state.col.map(function (item, index, objeto) {
 
 	                                                    return React.createElement(
 	                                                        _materialUiTable.TableHeaderColumn,
-	                                                        { key: item.id },
+	                                                        { colSpan: '3', key: item.id, style: { textAlign: 'center' } },
 	                                                        ' ',
 	                                                        item,
 	                                                        '  '
@@ -81264,7 +81404,7 @@
 	                                ),
 	                                React.createElement(
 	                                    'div',
-	                                    { className: 'tabla' },
+	                                    null,
 	                                    React.createElement(
 	                                        _materialUiTable.Table,
 	                                        { style: overflow },
@@ -81274,13 +81414,13 @@
 	                                            React.createElement(
 	                                                _materialUiTable.TableRow,
 	                                                null,
-	                                                this.state.columna.map(function (item, index, objeto) {
+	                                                this.state.col.map(function (item, index, objeto) {
 
 	                                                    return React.createElement(
 	                                                        _materialUiTable.TableHeaderColumn,
 	                                                        { key: item.id },
 	                                                        ' ',
-	                                                        React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Titulo', id: "titulo" + item.id, value: _this.state.col[index], onChange: _this.cambiarvalortitulo }),
+	                                                        React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Titulo', id: "titulo" + index, value: _this.state.col[index], style: texttablas, inputStyle: { fontSize: '13px' }, onChange: _this.cambiarvalortitulo }),
 	                                                        ' '
 	                                                    );
 	                                                })
@@ -81289,18 +81429,18 @@
 	                                        React.createElement(
 	                                            _materialUiTable.TableBody,
 	                                            { displayRowCheckbox: false },
-	                                            this.state.fila.map(function (item, index, objeto) {
+	                                            this.state.datos.map(function (item, i, objeto) {
 
 	                                                return React.createElement(
 	                                                    _materialUiTable.TableRow,
 	                                                    { key: item.id },
-	                                                    _this.state.columna.map(function (col, columna, obj) {
+	                                                    _this.state.col.map(function (col, j, obj) {
 
 	                                                        return React.createElement(
 	                                                            _materialUiTable.TableRowColumn,
 	                                                            { key: col.id },
 	                                                            ' ',
-	                                                            React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Texto', id: item.id + "," + col.id, style: texttablas, value: _this.state.datos[index][columna], onChange: _this.cambiarvalorfilas }),
+	                                                            React.createElement(_materialUiTextField2['default'], { underlineShow: false, hintText: 'Texto', id: i + "," + j, style: texttablas, value: _this.state.datos[i][j], inputStyle: { fontSize: '13px' }, onChange: _this.cambiarvalorfilas }),
 	                                                            ' '
 	                                                        );
 	                                                    })
@@ -81308,6 +81448,11 @@
 	                                            })
 	                                        )
 	                                    )
+	                                ),
+	                                React.createElement(
+	                                    _materialUiIconButton2['default'],
+	                                    { style: iconbutton, iconStyle: styles.smallIcon, onClick: this.agregarfila },
+	                                    React.createElement(_materialUiSvgIconsContentAdd2['default'], null)
 	                                )
 	                            )
 	                        )

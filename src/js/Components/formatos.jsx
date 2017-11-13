@@ -167,7 +167,7 @@ firebase.auth().onAuthStateChanged(function(user) {
           
           if (this.state.opcionselector == 1){
       const nombre = this.state.name  ;  
-      this.setState({ dialog: false , showdoc: true , showboton:true , showtable: false , showcrear: false });
+      this.setState({ dialog: false , showdoc: true , showboton:true , showtable: false , showcrear: false  });
       saveFormato(nombre);
           }
           if(this.state.opcionselector == 2){
@@ -309,7 +309,18 @@ this.setState({ dialog: false , showtable: true , showboton:true , showdoc: fals
     
 }
 { this.state.showboton == true ?
-<RaisedButton label="Guardar" primary={true} onClick={ () =>  location.reload() } style={botones} />
+<RaisedButton label="Guardar" primary={true} onClick={ () => { 
+{ if (this.state.showdoc == true){
+window.arraydocument.guardardatos();
+location.reload();
+}}
+
+{ if (this.state.showtable == true){
+window.tablaformato.guardardatos();
+location.reload();
+}}
+
+}} style={botones} />
 
 : null }
 </div>
@@ -371,13 +382,13 @@ this.setState({ dialog: false , showtable: true , showboton:true , showdoc: fals
 { this.state.showdoc == true ?
 <div>
 
-<ArrayDocument nombreformato={this.state.name}/>
+<ArrayDocument nombreformato={this.state.name} ref={instance => { window.arraydocument = instance; }} />
 
 </div>
 : null }
 
 { this.state.showtable == true ?
-<Tabla nombreformato={this.state.name}/>
+<Tabla nombreformato={this.state.name} ref={instance => { window.tablaformato = instance; }}   />
 : null }
 
 </div>

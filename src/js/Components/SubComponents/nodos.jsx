@@ -70,7 +70,7 @@ borrarnodo(id){
 {this.state.nodos.map(item=>{
     return(
 <div key={item.id} className='nodos'>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true}  disabled={true} />    
+ <TextField   hintText="Texto" fullWidth={true} multiLine={true}  id={item.id} />    
   <IconButton style={iconbutton} onClick={ () => this.borrarnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Campo"><Delicon /></IconButton>  
  </div> )
 })}

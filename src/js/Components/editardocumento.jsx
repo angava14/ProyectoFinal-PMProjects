@@ -223,7 +223,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     	         
     	         <div className="papereditar" key={item.id}>
                 <Paper zDepth={2} style={paper}  >
-                <TextField hintText="Titulo" fullWidth={true} multiLine={true} inputStyle={{ textAlign: 'center' }}  id={'editartitulo'+item.id} value={item.dato} onChange={this.cambiarvalor} />
+                <TextField hintText="Titulo" fullWidth={true} multiLine={true} inputStyle={{ textAlign: 'center' }}  id={'editartitulo'+item.id} value={item.dato} onChange={this.cambiarvalor} disabled={true}/>
                 <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id } value={item.dato1}  onChange={this.cambiarvalor}/>
                 <MostrarNodos idcomponente={item.id} docid={this.state.iddocumento}  ref={instance => { window.nodoschild[index] = instance; }}  />
                 <MostrarExtras idcomponente={item.id} docid={this.state.iddocumento} ref={instance => { window.extraschild[index] = instance; }} />

@@ -7,7 +7,10 @@ import IconButton from 'material-ui/IconButton';
 import Addicon from 'material-ui/svg-icons/content/add';
 import Divider from 'material-ui/Divider';
 import {formatotabla} from './../../config.jsx';
+import {guardardatosinicialtabla} from './../../config.jsx';
 import * as  firebase from 'firebase';
+import TextField from 'material-ui/TextField';
+
 
 
 import {
@@ -45,6 +48,7 @@ class Tabla extends React.Component {
         }
             this.agregarcolumna = this.agregarcolumna.bind(this);
              this.agregarfila = this.agregarfila.bind(this);
+             this.cambiarinfo = this.cambiarinfo.bind(this);
     }
 
 
@@ -58,12 +62,24 @@ componentWillMount(){
             let messages = snapshot.val();
             const row= messages.filas;
             const column = messages.columnas ;
+            const dat = messages.datos
             const columnastemporal= []
             const filastemporal = []
+            
             for( let i=0 ; i < column ; i++){
-                        columnastemporal.push({
-	 	                id: columnastemporal.length
-	                    });
+                             if ( dat !== undefined ){
+                                 
+                                    columnastemporal.push({
+	 	                            id: columnastemporal.length ,
+	 	                            dato: messages.datos[0][i]
+	                                  }); 
+                             }else{
+                               columnastemporal.push({
+	 	                            id: columnastemporal.length ,
+	 	                           
+	                                  });   
+                             }
+
             } 
             
             for( let j=0 ; j < row ; j++){
@@ -103,6 +119,31 @@ agregarfila(){
         
 }
 
+
+guardardatos(){
+    const objeto = []
+    for( let i = 0 ; i< this.state.columnas.length ; i++){
+     objeto[i] = document.getElementById('titulo'+ this.state.columnas[i].id).value;
+    }
+    guardardatosinicialtabla(objeto,this.props.nombreformato);
+}
+
+
+
+cambiarinfo(event , index){
+   const  padre = this ;
+           for( let i = 0 ; i < padre.state.columnas.length ; i++){
+           const titulo = "titulo"+padre.state.columnas[i].id ;
+          
+           if( titulo == event.target.id ){
+                   padre.state.columnas[i].dato = index ;
+                   
+                   padre.setState({columnas : this.state.columnas})
+          }
+          
+           }
+}
+
 	render() {
 	    
 		return (
@@ -111,7 +152,7 @@ agregarfila(){
 <div>
 
 <h1 className="documentotitulo" >{this.props.nombreformato}</h1>
-<div className="tabla">
+<div >
 <Table  style={overflow} >
 <TableHeader  adjustForCheckbox={false}  displaySelectAll={false}    >
 
@@ -120,7 +161,7 @@ agregarfila(){
                          	 {this.state.columnas.map(item=>{
     	         return(
     	       
-                    <TableHeaderColumn key={item.id} >Columna</TableHeaderColumn>
+                    <TableHeaderColumn key={item.id} > <TextField hintText={'Titulo'} underlineShow={false} inputStyle={{fontSize: '13px' , width: '100px'}} id={"titulo"+item.id}  value={item.dato} onChange={this.cambiarinfo} /></TableHeaderColumn>
     	       
     	         );
     	        })
