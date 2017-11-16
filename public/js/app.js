@@ -493,25 +493,17 @@
 	  firebase.database().ref("usuarios/" + id).update({ password: pass });
 	}
 
-	function formatotabla(columna, fila, nombre) {
-	  var data = new Array();
-	  for (var i = 0; i < fila; i++) {
-	    data[i] = new Array();
-	    for (var j = 0; j < columna; j++) {
-	      data[i][j] = "";
-	    }
-	  }
+	function formatotabla(columna, fila, nombre, objeto) {
 
-	  firebase.database().ref("formatos/tablas/" + nombre).update({ columnas: columna, filas: fila, datos: data });
+	  firebase.database().ref("formatos/tablas/" + nombre).update({ columnas: columna, filas: fila, datos: objeto });
 	}
 
 	function agregarfilatabla(columna, fila, iddocumento, objeto) {
 
-	  for (var i = 1; i <= fila; i++) {
-	    objeto[i] = new Array();
-	    for (var j = 0; j < columna; j++) {
-	      objeto[i][j] = "";
-	    }
+	  objeto[fila] = new Array();
+
+	  for (var i = 0; i < columna; i++) {
+	    objeto[fila][i] = "";
 	  }
 	  firebase.database().ref("documentos/" + iddocumento).update({ columnas: columna, filas: fila, datos: objeto });
 	}
@@ -80133,7 +80125,18 @@
 	                id: this.state.columnas.length
 	            });
 
-	            (0, _configJsx.formatotabla)(this.state.columnas.length, this.state.filas.length, this.props.nombreformato);
+	            var filas = this.state.filas.length;
+	            var columnas = this.state.columnas.length;
+	            var datostitulo = new Array();
+	            datostitulo[0] = new Array();
+	            console.log('filas ' + filas);
+	            console.log('columnas ' + columnas);
+	            for (var i = 0; i < columnas - 1; i++) {
+	                datostitulo[0][i] = document.getElementById('titulo' + i).value;
+	            }
+	            datostitulo[0][columnas - 1] = "";
+
+	            (0, _configJsx.formatotabla)(this.state.columnas.length, this.state.filas.length, this.props.nombreformato, datostitulo);
 	            this.forceUpdate();
 	        }
 	    }, {
@@ -80144,7 +80147,15 @@
 	                id: this.state.filas.length
 	            });
 
-	            (0, _configJsx.formatotabla)(this.state.columnas.length, this.state.filas.length, this.props.nombreformato);
+	            var filas = this.state.filas.length;
+	            var columnas = this.state.columnas.length;
+	            var datostitulo = new Array();
+	            datostitulo[0] = new Array();
+	            for (var i = 0; i < columnas; i++) {
+	                datostitulo[0][i] = document.getElementById('titulo' + i).value;
+	            }
+
+	            (0, _configJsx.formatotabla)(this.state.columnas.length, this.state.filas.length, this.props.nombreformato, datostitulo);
 	            this.forceUpdate();
 	        }
 	    }, {
@@ -80202,6 +80213,7 @@
 	                                        _materialUiTable.TableRow,
 	                                        null,
 	                                        this.state.columnas.map(function (item) {
+
 	                                            return React.createElement(
 	                                                _materialUiTable.TableHeaderColumn,
 	                                                { key: item.id },
@@ -81330,8 +81342,17 @@
 
 	            var datostitulo = new Array();
 	            datostitulo[0] = new Array();
+
 	            for (var i = 0; i < this.state.col.length; i++) {
 	                datostitulo[0][i] = document.getElementById('titulo' + i).value;
+	            }
+
+	            for (var i = 0; i < this.state.numfilas; i++) {
+	                datostitulo[i + 1] = new Array();
+	                for (var j = 0; j < this.state.col.length; j++) {
+
+	                    datostitulo[i + 1][j] = document.getElementById(i + "," + j).value;
+	                }
 	            }
 
 	            (0, _configJsx.agregarfilatabla)(this.state.col.length, this.state.numfilas + 1, this.state.iddocumento, datostitulo);

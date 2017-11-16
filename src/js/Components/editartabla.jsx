@@ -200,12 +200,23 @@ agregarfila(){
 
      const datostitulo = new Array()
      datostitulo[0] = new Array()
+
      for( let i = 0 ; i< this.state.col.length ; i++){
          datostitulo[0][i] = document.getElementById('titulo'+i).value ;
      }
+        
+        for( let i = 0; i < this.state.numfilas ; i++){
+        datostitulo[i+1] = new Array()
+        for ( let j = 0 ; j<this.state.col.length ; j++){
+             
+             datostitulo[i+1][j] = document.getElementById(i+","+j).value ; 
+         }
+         
+     }
      
-    agregarfilatabla( this.state.col.length , this.state.numfilas+1 , this.state.iddocumento, datostitulo);
-    this.forceUpdate()  
+     
+  agregarfilatabla( this.state.col.length , this.state.numfilas+1 , this.state.iddocumento, datostitulo);
+    this.forceUpdate()   
     
 }
 

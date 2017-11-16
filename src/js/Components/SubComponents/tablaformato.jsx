@@ -102,8 +102,19 @@ agregarcolumna(){
 	 	id: this.state.columnas.length
 	 });
 	
-
-     formatotabla( this.state.columnas.length , this.state.filas.length	, this.props.nombreformato);
+	const filas = this.state.filas.length ;
+	const columnas = this.state.columnas.length ;
+	 const datostitulo = new Array()
+     datostitulo[0] = new Array()
+     console.log('filas '+filas);
+     console.log('columnas '+columnas)
+   for( let i = 0 ; i< columnas-1 ; i++){
+    datostitulo[0][i] = document.getElementById('titulo'+i).value ;
+       
+   }
+   datostitulo[0][columnas-1] = ""
+      
+     formatotabla( this.state.columnas.length , this.state.filas.length	, this.props.nombreformato, datostitulo);
          this.forceUpdate() 
 }
 
@@ -114,9 +125,18 @@ agregarfila(){
 	 	id: this.state.filas.length
 	     });
 	
-            formatotabla( this.state.columnas.length , this.state.filas.length , this.props.nombreformato);
+	const filas = this.state.filas.length ;
+	const columnas = this.state.columnas.length ;
+	 const datostitulo = new Array()
+     datostitulo[0] = new Array()
+   for( let i = 0 ; i< columnas ; i++){
+    datostitulo[0][i] = document.getElementById('titulo'+i).value ;
+       
+   }
+   
+   
+            formatotabla( this.state.columnas.length , this.state.filas.length , this.props.nombreformato , datostitulo);
             this.forceUpdate()
-        
 }
 
 
@@ -159,6 +179,7 @@ cambiarinfo(event , index){
 <TableRow    >
         
                          	 {this.state.columnas.map(item=>{
+                         	 
     	         return(
     	       
                     <TableHeaderColumn key={item.id} > <TextField hintText={'Titulo'} underlineShow={false} multiLine={true} inputStyle={{fontSize: '13px' , width: '100px'}} id={"titulo"+item.id}  value={item.dato} onChange={this.cambiarinfo} /></TableHeaderColumn>

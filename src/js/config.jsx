@@ -151,30 +151,21 @@ export function updatepass (id,pass) {
 firebase.database().ref("usuarios/"+id).update({ password: pass });
 }
 
-export function formatotabla (columna,fila,nombre) {           
-   let data = new Array;
-  for ( let i = 0 ; i < fila ; i++ ){
-    data[i] = new Array;
-      for ( let j = 0 ; j < columna ; j++ ){
-    data[i][j] = "" ;
-  }
-  }
+export function formatotabla (columna,fila,nombre , objeto) {
+  
 
- 
-firebase.database().ref("formatos/tablas/"+nombre).update({ columnas: columna , filas: fila, datos: data });
+firebase.database().ref("formatos/tablas/"+nombre).update({ columnas: columna , filas: fila, datos: objeto });
 
 }
 
 export function agregarfilatabla (columna,fila,iddocumento , objeto) { 
-  
 
-  for ( let i = 1 ; i <= fila ; i++ ){
-    objeto[i] = new Array;
-      for ( let j = 0 ; j < columna ; j++ ){
-    objeto[i][j] = "" ;
-  }
-  }
-   firebase.database().ref("documentos/"+iddocumento).update({ columnas: columna , filas: fila, datos: objeto }); 
+    objeto[fila] = new Array();
+    
+      for ( let i = 0 ; i < columna ; i++){
+     objeto[fila][i] = "" ;
+       }
+    firebase.database().ref("documentos/"+iddocumento).update({ columnas: columna , filas: fila, datos: objeto }); 
 }
 
 
