@@ -140,7 +140,7 @@ guardardatos(){
 <div className="paper" >
   <Paper zDepth={2} style={paper}  >
     <h4>Título del Documento</h4>
-    <TextField fullWidth={true}  disabled={true}/>
+    <TextField fullWidth={true}  disabled={true} value={this.props.nombreformato} inputStyle={{ color: '#000000'}}/>
     <Divider />
   </Paper>
   

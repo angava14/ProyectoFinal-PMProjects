@@ -161,7 +161,7 @@ cambiarinfo(event , index){
                          	 {this.state.columnas.map(item=>{
     	         return(
     	       
-                    <TableHeaderColumn key={item.id} > <TextField hintText={'Titulo'} underlineShow={false} inputStyle={{fontSize: '13px' , width: '100px'}} id={"titulo"+item.id}  value={item.dato} onChange={this.cambiarinfo} /></TableHeaderColumn>
+                    <TableHeaderColumn key={item.id} > <TextField hintText={'Titulo'} underlineShow={false} multiLine={true} inputStyle={{fontSize: '13px' , width: '100px'}} id={"titulo"+item.id}  value={item.dato} onChange={this.cambiarinfo} /></TableHeaderColumn>
     	       
     	         );
     	        })

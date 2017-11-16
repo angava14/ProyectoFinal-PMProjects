@@ -98,15 +98,21 @@ componentDidMount(){
 
 
  <div className="divisor">
+ <h3>Organizacion</h3>
  <Organizacion   guardarid={this.asignarorg}  admin={this.state.admin} />
  </div>
+
+
 
 
   <div className="divisor">
 
   {(this.state.showport)?
-
+  
+<div>
+<h3>Portafolio</h3>
  <Portafolio   data={this.state.id}  guardarport={this.asignarport} />
+ </div>
 :
 
 null
@@ -117,8 +123,10 @@ null
  
   <div className="divisor">
   {(this.state.showproy)?
-
+<div>
+<h3>Proyecto</h3>
  <Proyecto data={this.state.id} dataport={this.state.idport}  guardarproy={this.asignarproy} />
+ </div>
 :
 
 null
@@ -130,8 +138,11 @@ null
  
   <div className="divisor">
     {(this.state.showdoc)?
-
+<div>
+<h3>Documento</h3>
  <Documento    data={this.state.id} dataport={this.state.idport} dataproy={this.state.idproy} history={this.props.history} />
+ </div>
+ 
 :
 
 null

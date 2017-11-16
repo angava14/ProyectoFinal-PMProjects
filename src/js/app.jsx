@@ -8,6 +8,7 @@ import Usuarios from'./Components/usuarios.jsx';
 import Formatos from'./Components/formatos.jsx';
 import EditarDoc from'./Components/editardocumento.jsx';
 import EditarTab from'./Components/editartabla.jsx';
+import RecuperarCuenta from'./Components/recuperarcuenta.jsx';
 import React from 'react'
 import ReactDOM from 'react-dom';
 import {
@@ -29,6 +30,7 @@ import {
     <Route exact path="/formatos"  component={Formatos} />
     <Route exact path="/editardocumento"  component={EditarDoc} />
     <Route exact path="/editartabla"  component={EditarTab} />
+    <Route exact path="/recuperarcuenta"  component={RecuperarCuenta} />
     </div>
   </Router>
 ), document.getElementById('app'));

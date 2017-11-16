@@ -35,7 +35,7 @@ class Login extends React.Component {
 		const emailtemp = this.state.email;
 		const passwordtemp = this.state.password;
 		const redirect = this;
-	login(emailtemp, passwordtemp)
+    	login(emailtemp, passwordtemp)
 			.then((userRecord) => {
 				localStorage.setItem('idactivo', userRecord.uid);
 		redirect.props.history.push({pathname:'/'})
@@ -99,6 +99,7 @@ class Login extends React.Component {
         
 		<button className="botoncard">Aceptar</button>
 		<br/>
+		<a style={{display:'flex' , justifyContent:"center" }} href="/recuperarcuenta">Olvidaste tu Contraseña?</a>
 		</CardActions>
         </Card>
         </div>

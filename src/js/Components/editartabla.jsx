@@ -288,7 +288,7 @@ agregarfila(){
          
     	         return(
     	        
-                   <TableHeaderColumn key={ item.id}> <TextField underlineShow={false} hintText="Titulo"  id={"titulo"+index} value={this.state.col[index]}  style={texttablas}  inputStyle={{fontSize: '13px'}} onChange={this.cambiarvalortitulo} /> </TableHeaderColumn>
+                   <TableHeaderColumn key={ item.id}> <TextField underlineShow={false} hintText="Titulo"  id={"titulo"+index} multiLine={true} value={this.state.col[index]}  style={texttablas}  inputStyle={{fontSize: '13px'}} onChange={this.cambiarvalortitulo} /> </TableHeaderColumn>
                 
     	         );
     	        })
@@ -308,7 +308,7 @@ agregarfila(){
 
 
     	         return(
-    	       <TableRowColumn key={col.id}> <TextField underlineShow={false} hintText="Texto" id={i +","+ j } style={texttablas} value={this.state.datos[i][j]} inputStyle={{fontSize: '13px'}} onChange={this.cambiarvalorfilas}  /> </TableRowColumn>
+    	       <TableRowColumn key={col.id}> <TextField underlineShow={false} multiLine={true} hintText="Texto" id={i +","+ j } style={texttablas} value={this.state.datos[i][j]} inputStyle={{fontSize: '13px'}} onChange={this.cambiarvalorfilas}  /> </TableRowColumn>
     	           	         );
     	        })
     	      } 
