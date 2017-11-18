@@ -10,15 +10,21 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import {saveDoc} from './../../config.jsx';
+import {eliminardoc} from './../../config.jsx';
 import {CrearDocumentoConFormato} from './../../config.jsx';
 import {CrearTablaConFormato} from './../../config.jsx';
 import Snackbar from 'material-ui/Snackbar';
+import Delicon from 'material-ui/svg-icons/action/delete';
 /*global localStorage*/
 
 const styles={
   mediumIcon: {
     width: 48,
     height: 48,
+  },
+  smallIcon:{
+    width: 36,
+    height: 36,     
   }
 }
 
@@ -52,7 +58,8 @@ class Documento extends React.Component {
 
 
     componentWillMount(){
-
+         
+         
         this.montardocumento(this.props.data, this.props.dataport , this.props.dataproy);
     }
     
@@ -246,7 +253,9 @@ modificardocumento(id , nombre){
        
  }
     
-    
+    eliminardocumento (id) {
+        eliminardoc(this.props.data , this.props.dataport  , this.props.dataproy ,id);
+    }
     
 
 	render() {
@@ -258,7 +267,8 @@ modificardocumento(id , nombre){
  
                  	 {window.documentos.map(item=>{
     	            return (
-    	            <div className="nombreicon" key={item.id} >
+    	            <div className='documentoyborrar' key={item.id} >
+    	            <div className="nombreicon" >
     	            <div className="iconwrapper">
    <Badge
       badgeContent={<IconButton style={iconbutton} iconStyle={styles.mediumIcon} onClick={ ()=> this.modificardocumento(item.id , item.nombre)} tooltip={item.nombre}><File/> </IconButton>}
@@ -266,7 +276,14 @@ modificardocumento(id , nombre){
    </Badge>
    
     	            </div>
-    	                <p>{item.nombre}</p>
+    	                <p style={{maxWidth:'100px' , minWidth:'100px'}}>{item.nombre}</p>
+                           </div>
+                          
+                { this.props.admin == 'true' ?
+                           <div>
+                           <IconButton style={iconbutton} iconStyle={styles.smallIcon} onClick={ () => this.eliminardocumento(item.id)} tooltip='Eliminar Documento' ><Delicon/> </IconButton>
+                           </div>
+             : null}
                            </div>
     	           )
     	        })

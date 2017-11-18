@@ -19,9 +19,9 @@ class Home extends React.Component {
             auth:"",
             showport:false,
             id: '',
-            idport: '',
+            idport:  '',
             showproy: false,
-            idproy:'',
+            idproy: '',
             showdoc: false,
             admin: ''
         }
@@ -140,7 +140,7 @@ null
     {(this.state.showdoc)?
 <div>
 <h3>Documento</h3>
- <Documento    data={this.state.id} dataport={this.state.idport} dataproy={this.state.idproy} history={this.props.history} />
+ <Documento    data={this.state.id} dataport={this.state.idport} dataproy={this.state.idproy} history={this.props.history} admin = {this.state.admin}/>
  </div>
  
 :

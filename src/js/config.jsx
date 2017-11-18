@@ -187,7 +187,7 @@ export function saveFormato (object) {
 }
 
 export function CompAdd (object) {
-  console.log(object);
+  
         const messagesRef =firebase.database().ref().child('formatos/documentos/'+ object + '/componente');
         const newformat={nombre : 'componente'}
         
@@ -201,7 +201,6 @@ export function CompAdd (object) {
         const messagesRef =firebase.database().ref().child('formatos/documentos/'+ nombreformato + '/componente/'+id+'/nodo');
         const newnodo={nombre : 'nodo'}
         messagesRef.push(newnodo);
-        
 }    
         
 export function saveTabla (object) {
@@ -302,7 +301,14 @@ export function guardardatosiniciales (componente , texto , titulo , nombreforma
 }
 
 export function guardardatosinicialtabla (objeto , formatonombre) {
-  console.log(objeto);
+  
         const messagesRef =firebase.database().ref().child('formatos/tablas/'+formatonombre+"/datos/0/");
         messagesRef.update(objeto);
+}
+
+export function eliminardoc ( org , port , proy , id) {
+
+firebase.database().ref().child("documentos/"+id).remove();
+firebase.database().ref().child("organizacion/"+org+"/portafolio/"+port+"/proyecto/"+proy+"/documentos/"+id).remove();
+location.reload();
 }

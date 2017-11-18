@@ -118,6 +118,22 @@ firebase.auth().onAuthStateChanged(function(user) {
             });
         });       
 
+
+       const ref = firebase.database().ref().child('documentos/'+ this.state.iddocumento +'/permisos');
+       ref.on('value',(snapshot) =>{
+        let messages = snapshot.val();
+        const idactivo = localStorage.getItem('idactivo');
+        for ( let cadauno in messages){
+            
+            if(idactivo == cadauno){
+                
+                padre.setState({
+                    admin : 'true' , 
+                })
+            }
+        }
+        });
+
 }
     
     
@@ -199,8 +215,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
 
 
-
-
+{ this.state.admin == 'true' ?
 
  <Tab label="Editar Documento"  >
       <div>
@@ -218,13 +233,13 @@ firebase.auth().onAuthStateChanged(function(user) {
   </div>
   
    {this.state.componente.map( (item,index,array)=>{
-                console.log(item.dato1)
+                
     	         return(
     	         
     	         <div className="papereditar" key={item.id}>
                 <Paper zDepth={2} style={paper}  >
                 <TextField hintText="Titulo" fullWidth={true} multiLine={true} inputStyle={{ textAlign: 'center' , color: '#000000' }}  id={'editartitulo'+item.id} value={item.dato} onChange={this.cambiarvalor} disabled={true}/>
-                <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id } value={item.dato1}  onChange={this.cambiarvalor}/>
+                <TextField    fullWidth={true} multiLine={true} id={'editar'+item.id } value={item.dato1}  onChange={this.cambiarvalor}/>
                 <MostrarNodos idcomponente={item.id} docid={this.state.iddocumento}  ref={instance => { window.nodoschild[index] = instance; }}  />
                 <MostrarExtras idcomponente={item.id} docid={this.state.iddocumento} ref={instance => { window.extraschild[index] = instance; }} />
                  <IconButton style={iconbutton} onClick={ () => this.crearextra(item.id)} iconStyle={styles.mediumIcon}  tooltip="Agregar Campo"><Addicon /></IconButton>  
@@ -237,6 +252,8 @@ firebase.auth().onAuthStateChanged(function(user) {
     	      }
       </div>
     </Tab>
+    
+    : null }
   </Tabs> 	      
     	  
     	  

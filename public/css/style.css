@@ -18,6 +18,10 @@
 .iconwrapper {
   margin-top: 20%; }
 
+.documentoyborrar {
+  display: flex;
+  flex-direction: row; }
+
 .login {
   display: flex;
   align-items: center;

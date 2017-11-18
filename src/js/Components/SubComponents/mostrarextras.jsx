@@ -101,7 +101,7 @@ guardardatos(){
 {this.state.nodos.map(item=>{
     return(
 <div key={item.id} className='nodos'>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} value={item.dato} onChange={this.cambiarvalor}/>    
+ <TextField    fullWidth={true} multiLine={true} id={'editar'+item.id} value={item.dato} onChange={this.cambiarvalor}/>    
   <IconButton style={iconbutton} onClick={ () => this.borrarnodo(item.id)} iconStyle={styles.mediumIcon}  tooltip="Borrar Campo"><Delicon /></IconButton>  
  </div> )
 })}

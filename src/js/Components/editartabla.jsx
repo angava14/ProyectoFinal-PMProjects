@@ -129,6 +129,23 @@ componentWillMount(){
                          
                 });    
             
+        const ref = firebase.database().ref().child('documentos/'+ this.state.iddocumento +'/permisos');
+       ref.on('value',(snapshot) =>{
+        let messages = snapshot.val();
+        console.log(messages);
+        const idactivo = localStorage.getItem('idactivo');
+        for ( let cadauno in messages){
+            
+            if(idactivo == cadauno){
+                
+                padre.setState({
+                    admin : 'true' , 
+                })
+            }
+        }
+        });
+            
+            
 }
 
 
@@ -281,7 +298,7 @@ agregarfila(){
 
     </Tab>
 
-
+{ this.state.admin == 'true' ?
     <Tab label="Editar Documento"  >
 
 <RaisedButton label="Guardar" secondary={true} style={botonguardar} onClick={ this.guardartabla}  />
@@ -335,7 +352,7 @@ agregarfila(){
         <IconButton style={iconbutton} iconStyle={styles.smallIcon} onClick={this.agregarfila} ><Addicon /></IconButton> 
     </Tab>
 
-
+: null }
 
   </Tabs> 
 

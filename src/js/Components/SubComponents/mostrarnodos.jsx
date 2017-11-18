@@ -96,7 +96,7 @@ guardardatos(){
     return(
 
   <div  className='nodos' key={item.id}>
- <TextField   hintText="Texto" fullWidth={true} multiLine={true} id={'editar'+item.id} value={item.dato} onChange={ this.cambiarvalor } />    
+ <TextField    fullWidth={true} multiLine={true} id={'editar'+item.id} value={item.dato} onChange={ this.cambiarvalor } />    
  </div>
 )
 })}
